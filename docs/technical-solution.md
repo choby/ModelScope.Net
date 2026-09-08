@@ -253,7 +253,7 @@ ONNX 后端由执行器和任务适配器组成。
 
 支持范围使用架构白名单。Llama、Qwen、Mistral 等属于逐个认证的候选架构，不因名称或 `.gguf` 扩展名自动获得支持；当前技术预览的默认白名单仅包含已经实测的 `qwen2`/Q2_K/`gpt2` 组合。
 
-- 当前实现文本生成与 Chat Completion；Embedding 作为后续候选适配器。
+- 当前实现文本生成、Chat Completion，以及独立 `bert`/`Q4_K_M` 白名单下的 Embedding HTTP 契约；Embedding 真实加载与数值对照仍待认证。
 - 已验证量化类型、Tokenizer 和 Chat Template。
 
 GGUF 是容器格式，不是通用运行接口。ComfyUI 专用、视频生成、图像生成或自定义 GGUF 不自动进入支持范围。

@@ -111,7 +111,7 @@ public sealed class ModelScopeTelemetry : IModelSessionInstrumentation
     {
         var normalized = runtimeName.Trim().ToLowerInvariant();
         return normalized is "remote" or "python" or "onnx" or "onnx-embedding" or "onnx-text-generation" or
-            "onnx-text-classification" or "onnx-image-classification" or "gguf"
+            "onnx-text-classification" or "onnx-image-classification" or "onnx-object-detection" or "gguf"
             ? normalized
             : "other";
     }
@@ -122,7 +122,8 @@ public sealed class ModelScopeTelemetry : IModelSessionInstrumentation
         var normalized = task.Trim().ToLowerInvariant().Replace('_', '-').Replace(' ', '-');
         return normalized is "sentence-embedding" or "feature-extraction" or "embedding" or
             "text-classification" or "sentiment-analysis" or "image-classification" or
-            "object-detection" or "text-generation" or "chat" or "chat-completion"
+            "object-detection" or "image-object-detection" or "domain-specific-object-detection" or
+            "text-generation" or "chat" or "chat-completion"
             ? normalized
             : "other";
     }

@@ -64,6 +64,31 @@ public sealed class GgufHeaderTests
     }
 
     [Fact]
+    public async Task CompatibilityPolicy_AllowsBertEmbeddingWithoutChatTemplate()
+    {
+        var embeddingPath = CreateGguf("bert", fileType: 15, includeChatTemplate: false, tokenizer: "bert");
+        var generationPath = CreateGguf("qwen2", fileType: 10, includeChatTemplate: true);
+        try
+        {
+            var policy = new GgufCompatibilityPolicy();
+            var embedding = policy.Evaluate(await GgufHeader.ReadAsync(embeddingPath), GgufWorkload.Embedding);
+            var generationAsEmbedding = policy.Evaluate(await GgufHeader.ReadAsync(generationPath), GgufWorkload.Embedding);
+            var embeddingAsGeneration = policy.Evaluate(await GgufHeader.ReadAsync(embeddingPath));
+
+            Assert.True(embedding.IsAllowed);
+            Assert.False(generationAsEmbedding.IsAllowed);
+            Assert.Contains("qwen2", generationAsEmbedding.Reason, StringComparison.Ordinal);
+            Assert.False(embeddingAsGeneration.IsAllowed);
+            Assert.Contains("bert", embeddingAsGeneration.Reason, StringComparison.Ordinal);
+        }
+        finally
+        {
+            File.Delete(embeddingPath);
+            File.Delete(generationPath);
+        }
+    }
+
+    [Fact]
     public async Task ReadAsync_RejectsInvalidMagicUnsupportedVersionAndExcessiveMetadata()
     {
         var invalidMagic = WriteHeader("NOPE", version: 3, metadataCount: 0);
@@ -85,7 +110,11 @@ public sealed class GgufHeaderTests
         }
     }
 
-    private static string CreateGguf(string architecture, uint fileType, bool includeChatTemplate)
+    private static string CreateGguf(
+        string architecture,
+        uint fileType,
+        bool includeChatTemplate,
+        string tokenizer = "gpt2")
     {
         var path = Path.Combine(Path.GetTempPath(), $"modelscope-net-gguf-{Guid.NewGuid():N}.gguf");
         using var stream = File.Create(path);
@@ -97,7 +126,7 @@ public sealed class GgufHeaderTests
         WriteStringMetadata(writer, "general.architecture", architecture);
         WriteUInt32Metadata(writer, "general.file_type", fileType);
         WriteUInt32Metadata(writer, "general.quantization_version", 2);
-        WriteStringMetadata(writer, "tokenizer.ggml.model", "gpt2");
+        WriteStringMetadata(writer, "tokenizer.ggml.model", tokenizer);
         WriteStringArrayMetadata(writer, "tokenizer.ggml.tokens", ["hello", "world"]);
         if (includeChatTemplate)
             WriteStringMetadata(writer, "tokenizer.chat_template", "{% for message in messages %}{{ message.content }}{% endfor %}");

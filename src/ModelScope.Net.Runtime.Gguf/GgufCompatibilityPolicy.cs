@@ -1,5 +1,11 @@
 namespace ModelScope.Net.Runtime.Gguf;
 
+public enum GgufWorkload
+{
+    TextGeneration,
+    Embedding,
+}
+
 public sealed record GgufCompatibilityResult(bool IsAllowed, string Reason);
 
 public sealed class GgufCompatibilityPolicy
@@ -14,21 +20,43 @@ public sealed class GgufCompatibilityPolicy
 
     public bool RequireChatTemplate { get; set; } = true;
 
-    public GgufCompatibilityResult Evaluate(GgufHeader header)
+    public ISet<string> EmbeddingArchitectures { get; } = new HashSet<string>(StringComparer.Ordinal) { "bert" };
+
+    public ISet<uint> EmbeddingFileTypes { get; } = new HashSet<uint> { 15 };
+
+    public ISet<string> EmbeddingTokenizerModels { get; } = new HashSet<string>(StringComparer.Ordinal) { "bert" };
+
+    public GgufCompatibilityResult Evaluate(GgufHeader header) => Evaluate(header, GgufWorkload.TextGeneration);
+
+    public GgufCompatibilityResult Evaluate(GgufHeader header, GgufWorkload workload)
     {
         ArgumentNullException.ThrowIfNull(header);
         if (!Versions.Contains(header.Version))
             return Reject($"GGUF version {header.Version} is not in the preview whitelist.");
         if (string.IsNullOrWhiteSpace(header.Architecture))
             return Reject("The required general.architecture metadata is missing.");
-        if (!Architectures.Contains(header.Architecture))
-            return Reject($"GGUF architecture '{header.Architecture}' is not in the preview whitelist.");
         if (header.FileType is null)
             return Reject("The required general.file_type metadata is missing.");
-        if (!FileTypes.Contains(header.FileType.Value))
-            return Reject($"GGUF file type '{header.FileTypeName}' is not in the preview whitelist.");
         if (string.IsNullOrWhiteSpace(header.TokenizerModel))
             return Reject("The required tokenizer.ggml.model metadata is missing.");
+
+        if (workload == GgufWorkload.Embedding)
+        {
+            if (!EmbeddingArchitectures.Contains(header.Architecture))
+                return Reject($"GGUF embedding architecture '{header.Architecture}' is not in the preview whitelist.");
+            if (!EmbeddingFileTypes.Contains(header.FileType.Value))
+                return Reject($"GGUF embedding file type '{header.FileTypeName}' is not in the preview whitelist.");
+            if (!EmbeddingTokenizerModels.Contains(header.TokenizerModel))
+                return Reject($"GGUF embedding tokenizer '{header.TokenizerModel}' is not in the preview whitelist.");
+            return new GgufCompatibilityResult(
+                true,
+                $"GGUF {header.Version} {header.Architecture}/{header.FileTypeName} embedding header is allowed by the preview policy; llama.cpp load verification is still required.");
+        }
+
+        if (!Architectures.Contains(header.Architecture))
+            return Reject($"GGUF architecture '{header.Architecture}' is not in the preview whitelist.");
+        if (!FileTypes.Contains(header.FileType.Value))
+            return Reject($"GGUF file type '{header.FileTypeName}' is not in the preview whitelist.");
         if (!TokenizerModels.Contains(header.TokenizerModel))
             return Reject($"GGUF tokenizer '{header.TokenizerModel}' is not in the preview whitelist.");
         if (RequireChatTemplate && !header.HasChatTemplate)

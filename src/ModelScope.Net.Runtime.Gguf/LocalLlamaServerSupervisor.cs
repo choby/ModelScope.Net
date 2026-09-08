@@ -26,6 +26,12 @@ public sealed class LlamaServerProcessOptions
 
     public int GpuLayers { get; set; }
 
+    public bool EmbeddingsOnly { get; set; }
+
+    public string? Pooling { get; set; }
+
+    public int? EmbeddingNormalize { get; set; }
+
     public TimeSpan StartupTimeout { get; set; } = TimeSpan.FromMinutes(2);
 
     public TimeSpan ShutdownTimeout { get; set; } = TimeSpan.FromSeconds(10);
@@ -263,6 +269,20 @@ public sealed class LocalLlamaServerSupervisor : ILlamaServerSupervisor, IAsyncD
         startInfo.ArgumentList.Add(_options.GpuLayers.ToString(System.Globalization.CultureInfo.InvariantCulture));
         startInfo.ArgumentList.Add("--no-webui");
         startInfo.ArgumentList.Add("--no-slots");
+        if (_options.EmbeddingsOnly)
+        {
+            startInfo.ArgumentList.Add("--embedding");
+            if (!string.IsNullOrWhiteSpace(_options.Pooling))
+            {
+                startInfo.ArgumentList.Add("--pooling");
+                startInfo.ArgumentList.Add(_options.Pooling);
+            }
+            if (_options.EmbeddingNormalize is int normalize)
+            {
+                startInfo.ArgumentList.Add("--embd-normalize");
+                startInfo.ArgumentList.Add(normalize.ToString(System.Globalization.CultureInfo.InvariantCulture));
+            }
+        }
         startInfo.ArgumentList.Add("--api-key-file");
         startInfo.ArgumentList.Add(EnsureApiKeyFile());
         foreach (var argument in _options.ExtraArguments) startInfo.ArgumentList.Add(argument);

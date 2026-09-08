@@ -48,8 +48,8 @@ ModelScope.Net 适合以下需求：
 | 下载可靠性 | 重试、Range 续传、SHA-256、进度、取消、并发限制、`allow`/`ignore` 过滤 | 7 天/至少 2000 次在线 SLO 尚未执行 |
 | 缓存与离线 | Blob/Snapshot/Manifest、原子发布、多进程互斥、离线复用、缓存扫描和校验 | 缓存不是模型授权或许可证证明 |
 | 模型检测 | ONNX、GGUF、SafeTensors、PyTorch、TensorFlow、Llamafile、OpenVINO、Python 代码；架构、任务、远程代码和简单许可证/依赖诊断 | 复杂 SPDX、通用环境求解和真实 RAM/VRAM 预测仍需人工/实测 |
-| ONNX | 原始张量、Embedding、文本分类、图像分类、decoder-only 贪心文本生成 | 仅 CPU 路径；无 CUDA EP、通用目标检测、任意 Tokenizer 或任意生成图承诺 |
-| GGUF | 有界 Header 解析、架构/量化白名单、llama-server 管理、普通/流式生成、崩溃恢复 | 当前仅有 Qwen2.5 文本生成的本机技术验证；GGUF Embedding 尚未实现 |
+| ONNX | 原始张量、Embedding、文本分类、图像分类、YOLO 目标检测、decoder-only 贪心文本生成 | 仅 CPU 路径；无 CUDA EP、任意 Tokenizer 或任意生成图承诺 |
+| GGUF | 有界 Header 解析、架构/量化白名单、llama-server 管理、普通/流式生成、Embedding、崩溃恢复 | Qwen2.5 文本生成与 bge-base Q4_K_M Embedding 均仅本机 macOS ARM64 CPU 技术验证 |
 | Python Worker | gRPC 主协议、HTTP/SSE 兼容协议、模型加载/调用/流式/卸载、进程恢复、回环鉴权和 mTLS | 模型依赖按模型族构建；不提供“万能”基础环境 |
 | Remote | OpenAI 兼容普通与 SSE 调用、Bearer Token、错误分类和正文脱敏 | API 配额与模型支持由远程服务决定 |
 | 生产路由 | 开发/生产模式、签名 Catalog、制品复核、任务绑定、撤销、灰度和回滚 | 生产防回退控制面及多副本分发尚未验收 |
@@ -644,8 +644,8 @@ dotnet test ModelScope.Net.sln --configuration Release
 - 只有 macOS ARM64/CPU 完成了全部本机固定模型证据；Windows、Ubuntu x64、CUDA 和 Kubernetes 仍需目标环境认证；
 - ONNX 当前不配置 CUDA Execution Provider；
 - ONNX 文本生成仅支持已认证 SmolLM 图、batch 1、贪心解码和有限上下文；
-- ONNX 图像路径只支持分类，不支持通用目标检测或分割；
-- GGUF 只认证 Qwen2.5 文本生成，尚无 GGUF Embedding；
+- ONNX 图像路径支持分类和标准 YOLO 检测；分割与自定义检测头仍不支持；
+- GGUF 文本生成认证 Qwen2.5，Embedding 认证 bge-base Q4_K_M；其他架构/量化仍需单独认证；
 - Python Worker 不保证任意 Pipeline 的依赖兼容，生产应按模型族构建独立镜像；
 - ASP.NET Core 包不提供现成网关端点或终端用户鉴权/限流；
 - 审计尚未覆盖下载、Session 创建和管理员操作；
@@ -660,7 +660,7 @@ dotnet test ModelScope.Net.sln --configuration Release
 | 总体架构与范围 | [技术方案](docs/technical-solution.md)、[迁移计划](docs/migration-plan.md) |
 | 当前进度与最终判断 | [迁移进度表](docs/migration-progress.md)、[验收审计](docs/acceptance-audit.md)、[最终验收复核](docs/final-acceptance-2026-09-08.md) |
 | Hub 与缓存 | [Revision 语义](docs/hub-revisions.md)、[缓存格式](docs/cache-format.md)、[凭据](docs/credentials.md) |
-| ONNX | [原始张量](docs/onnx-runtime.md)、[Embedding](docs/onnx-embedding.md)、[文本分类](docs/onnx-text-classification.md)、[图像分类](docs/onnx-image-classification.md)、[文本生成](docs/onnx-text-generation.md) |
+| ONNX | [原始张量](docs/onnx-runtime.md)、[Embedding](docs/onnx-embedding.md)、[文本分类](docs/onnx-text-classification.md)、[图像分类](docs/onnx-image-classification.md)、[目标检测](docs/onnx-object-detection.md)、[文本生成](docs/onnx-text-generation.md) |
 | GGUF | [Header 白名单](docs/gguf-header-policy.md)、[llama.cpp 运行时](docs/gguf-runtime.md) |
 | Python Worker | [协议](docs/python-worker-protocol.md)、[安全隔离](docs/worker-security.md)、[真实验证](docs/python-worker-real-validation.md) |
 | 生产运行 | [资源治理](docs/model-resource-governance.md)、[部署基线](docs/deployment-p4-05.md)、[Telemetry 与审计](docs/telemetry-audit.md)、[Dashboard 与告警](docs/observability-runbook.md) |

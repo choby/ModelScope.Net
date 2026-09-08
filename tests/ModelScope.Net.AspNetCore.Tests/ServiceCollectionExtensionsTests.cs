@@ -35,6 +35,7 @@ public sealed class ServiceCollectionExtensionsTests
         Assert.Contains("onnx-embedding", runtimes);
         Assert.Contains("onnx-text-classification", runtimes);
         Assert.Contains("onnx-image-classification", runtimes);
+        Assert.Contains("onnx-object-detection", runtimes);
         Assert.Contains("gguf", runtimes);
 
         var health = await provider.GetRequiredService<HealthCheckService>().CheckHealthAsync();

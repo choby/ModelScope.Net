@@ -1,0 +1,51 @@
+{
+  "schemaVersion": 1,
+  "modelId": "Embedding-GGUF/bge-base-en-v1.5-gguf",
+  "revision": "b1a713ae4cb87f1fa7fa482a5ab339bb4fd99aa9",
+  "sourceModelId": "BAAI/bge-base-en-v1.5",
+  "sourceRevision": "aa1ce57e9a051ec2b7756b2d975834ad1613df5e",
+  "status": "passed",
+  "generatedAt": "2026-09-08T07:12:33.238122+00:00",
+  "sampleCount": 8,
+  "dimensions": 768,
+  "pooling": "cls",
+  "normalize": true,
+  "thresholds": {
+    "maximumAbsoluteError": 0.05,
+    "minimumCosineSimilarity": 0.95
+  },
+  "results": {
+    "maximumAbsoluteError": 0.024334857240319252,
+    "minimumCosineSimilarity": 0.9734526612092281,
+    "cosine": [
+      0.9820740712251472,
+      0.9927830319036858,
+      0.988030067318657,
+      0.9734526612092281,
+      0.9925382236212164,
+      0.9938732581726809,
+      0.9927782141832953,
+      0.992465407594009
+    ]
+  },
+  "artifact": {
+    "path": "bge-base-en-v1.5.Q4_K_M.gguf",
+    "size": 74391904,
+    "sha256": "aec0693ffb5aa5ebdcaa2b023ae46980bdca3e56721ca468e66fc7e797b8fa44",
+    "verified": true
+  },
+  "pythonEnvironment": {
+    "python": "3.14.2",
+    "modelscopeCommit": "53f61360c8c10a31c7adae483c223188bb602948",
+    "torch": "2.9.1",
+    "transformers": "4.57.6",
+    "numpy": "2.5.2"
+  },
+  "dotnetEnvironment": {
+    "dotnet": "10.0.8",
+    "llamaServer": "/Users/choby/Documents/github/ModelScope.Net/artifacts/llama.cpp/llama-b10516/llama-server",
+    "os": "Unix 27.0.0",
+    "architecture": "Arm64",
+    "llamaAssembly": "0.1.0-preview.1\u002B81d8cc5b9fdda9d60109055ed139335101b0d7e6"
+  }
+}

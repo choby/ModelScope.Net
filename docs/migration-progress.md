@@ -16,12 +16,12 @@
 
 | 项目 | 当前值 |
 |---|---|
-| 当前迁移阶段 | 2026-09-08源代码/方案最终复核完成：本机技术预览工程候选通过，生产1.0 NO-GO。最新Release 260项全绿；Dashboard/告警、8个NuGet预览包、消费者和升级手册已补齐。生产防回退外部存储、私库、长稳、完整平台矩阵、远程CI与批准待验 |
+| 当前迁移阶段 | 2026-09-08 P5-04 yolov5n 与 bge-base GGUF Embedding 本机金标准通过。生产1.0仍为NO-GO：私库、平台矩阵、72小时、远程CI与三方批准未提供 |
 | 当前发布目标 | 技术预览版 |
 | 目标框架 | .NET 10 |
 | 最近基线 | ModelScope Python commit 53f61360（2026-08-31） |
 | 最近更新时间 | 2026-09-08 |
-| 恢复入口 | 读取 docs/acceptance-audit.md；推进P5-01可重复认证流水线及P5-02/03上游监控与撤销分发；继续FR-01版本解析、FR-06诊断和真实Python Worker核对；目标环境与私库信息已请求，P4-07及P0审批仍待完成 |
+| 恢复入口 | 读取 docs/acceptance-audit.md 与 docs/final-acceptance-2026-09-08.md。本机可执行迁移已完成对照；关闭1.0需要外部私库、平台、72小时、远程CI和签字 |
 
 ## 总体进度
 
@@ -41,8 +41,8 @@
 | P0-01 | 0 | 技术可行性分析 | COMPLETED | - | 技术方案完成读者测试 | docs/technical-solution.md | 2026-09-01 |
 | P0-02 | 0 | 迁移路线与人力计划 | COMPLETED | P0-01 | 迁移计划完成读者测试 | docs/migration-plan.md | 2026-09-01 |
 | P0-03 | 0 | 固定 .NET/OS 基线 | COMPLETED | - | .NET 10 基线写入方案并在本机验证 | global.json；dotnet SDK 10.0.300 | 2026-09-01 |
-| P0-04 | 0 | 选择 15～25 个代表模型 | IN_PROGRESS | P0-01 | 每个模型固定 ID/Commit/任务/许可证 | 工程草案已含15个固定Revision：11个实测模型，加4个在线元数据核验候选，覆盖远程多模态、trust_remote_code、GGUF Embedding和ONNX目标检测；后两类明确记录当前Unsupported原因。待业务批准该集合并提供真实私有/受限仓库；多个许可证仍待复核 | 2026-09-08 |
-| P0-05 | 0 | 建立金标准数据与 Python 输出 | IN_PROGRESS | P0-04 | 样本和容差可自动执行 | BGE、all-MiniLM、DistilBERT、MobileNet、SD1.5、OCR识别/检测、Paraformer ASR及SmolLM ONNX均已有固定输入、Python输出和.NET报告；Qwen GGUF有确定性运行时报告；待随剩余清单扩充 | 2026-09-08 |
+| P0-04 | 0 | 选择 15～25 个代表模型 | IN_PROGRESS | P0-01 | 每个模型固定 ID/Commit/任务/许可证 | 15个固定Revision草案。yolov5n与bge-base GGUF已本机认证；Qwen-VL/Qwen-72B仍为元数据候选。待业务批准并提供真实私有/受限仓库；多个许可证仍待复核 | 2026-09-08 |
+| P0-05 | 0 | 建立金标准数据与 Python 输出 | IN_PROGRESS | P0-04 | 样本和容差可自动执行 | 既有模型外新增 yolov5n 与 bge-base GGUF Embedding 的固定输入、Python金标准与.NET报告；Qwen-VL/Qwen-72B仍无运行金标准 | 2026-09-08 |
 | P0-06 | 0 | 冻结 CPU/GPU/CUDA 矩阵 | IN_PROGRESS | P0-04 | 技术与 SRE 批准 | deployment/platform-validation-matrix.json已记录实际SDK/依赖与拟验平台；GPU/CUDA/驱动组合及目标主机待提供，未批准 | 2026-09-05 |
 | P0-07 | 0 | 威胁模型与许可证流程 | IN_PROGRESS | P0-04 | 安全/法务批准 | docs/security/threat-model.md与license-review-workflow.md形成可审查材料，绑定16项控制及生产认证；正式安全/法务批准仍待提供 | 2026-09-05 |
 | P0-08 | 0 | 批准 1.0 发布清单 | BLOCKED | P0-04..07 | 产品、技术、安全共同批准 | 阻塞：需业务模型清单和负责人签字 | 2026-09-01 |
@@ -84,7 +84,7 @@
 | P5-01 | 5 | 新模型认证流水线 | IN_PROGRESS | P3-07 | 可重复认证 | tools/certification_pipeline.py与certification-plan.json实现五模型固定制品/金标准/运行时Hash、全新报告、数值行为门禁和中断留痕；6项负面测试及两轮真实五模型全绿；.github/workflows/model-certification.yml已配置，远程runner未执行；docs/continuous-certification.md | 2026-09-05 |
 | P5-02 | 5 | 上游变化监控 | IN_PROGRESS | P5-01 | Revision/依赖变化可检测 | tools/upstream_monitor.py及依赖Hash基线、每日CI入口已实现；9项流水线测试通过；六仓库在线检查发现Qwen新增LICENSE/README/FP16及.gitattributes变化，固定Q2_K复验通过；远程CI未运行；docs/upstream-monitoring.md | 2026-09-05 |
 | P5-03 | 5 | 认证撤销和回归 | IN_PROGRESS | P5-01 | 回归自动降级 | 签名撤销/新鲜度/会话复核/历史恢复、更新前持久暂存、单调提交、丢失确认重试及启动对账完成；真实BGE在暂存后进程exit -9，新进程自动提交并继续拒绝撤销模型。完整258项通过。文件实现仅供单机演练；生产防回退外部存储、自动分发及目标部署故障待验；docs/certification-revocation.md | 2026-09-08 |
-| P5-04 | 5 | 新任务适配器 | IN_PROGRESS | P3-01 | 按业务价值持续交付 | 图像生成、OCR识别/检测、Paraformer语音识别及SmolLM ONNX贪心文本生成均完成固定模型本机CPU认证；文本生成含独立Python金标准、.NET精确token/text、重复确定性、普通CLI与8 data+1 done流式。生产容器/GPU/跨平台及更多模型仍属验收项；docs/onnx-text-generation.md | 2026-09-08 |
+| P5-04 | 5 | 新任务适配器 | IN_PROGRESS | P3-01 | 按业务价值持续交付 | 图像生成、OCR、ASR、SmolLM、nndeploy YOLOv5n（7检测/最低IoU 0.978）与bge-base GGUF Embedding（8×768/最低余弦0.973）均有本机固定Revision证据。持续扩展仍开放；生产矩阵未验 | 2026-09-08 |
 | P5-05 | 5 | 社区插件流程 | DEFERRED | P4-08 | 签名、审核和版本政策 | 1.0 后评估 | 2026-09-01 |
 
 ## 中断恢复检查
@@ -96,6 +96,10 @@
 5. 从首个 IN_PROGRESS 任务继续；完成后更新证据和总体计数。
 
 ## 最近一次验证证据
+
+2026-09-08 P5-04 金标准：`nndeploy/nndeploy@95f0258...` yolov5n 与独立 Python ONNX Runtime letterbox 对照通过（2图7检测，最低IoU 0.97855，分数误差 0.00545）；`Embedding-GGUF/bge-base-en-v1.5-gguf@b1a713a...` Q4_K_M 经 llama.cpp b10516 `/v1/embeddings` 与 ModelScope AutoModel CLS+L2 对照通过（8×768，最低余弦 0.97345，最大绝对误差 0.02433）。CLI `run` 两次检测与两次 embedding 向量一致。Release 回归 Hub43+Runtime209+ASP.NET11+CLI5=268 项通过。生产1.0仍为NO-GO。
+
+2026-09-08 P5-04 原生适配器增量：新增 `OnnxObjectDetectionRuntime`（YOLOv5 `[1,N,5+C]` / YOLOv8 `[1,4+C,N]`、letterbox、objectness×class、同类 NMS、原图像素框）和 GGUF Embedding（`/v1/embeddings`、`text`/`prompt`→`input`、独立 `bert`/`Q4_K_M` Header 白名单）。CLI/DI/Windows CPU 策略/inspect 任务推断已接线。Release 回归 Hub43+Runtime207+ASP.NET11+CLI5=266 项通过。合成 ONNX 图与 HTTP 契约测试覆盖该范围；`nndeploy/yolov5n` 与 `Embedding-GGUF/bge-base-en-v1.5-gguf` 仍未做真实金标准，不得称为 Certified。
 
 2026-09-08 最终源代码/方案复核：生产1.0 NO-GO，本机技术预览工程候选通过，详见`docs/final-acceptance-2026-09-08.md`。Release构建0警告/0错误；Hub43+Runtime201+ASP.NET11+CLI5=260项通过、0失败/0跳过，TRX在`artifacts/acceptance/p4-observability-distribution/`；Python工具12项通过。新补8个`0.1.0-preview.1` nupkg及8个snupkg，验证器和只引用本地顶层包的消费者均通过、0警告。生产关闭条件仍是批准清单/许可证/SLO/平台、真实私库、防回退存储与分发、远程CI/供应链、7天Hub和72小时长稳及三方签字。
 

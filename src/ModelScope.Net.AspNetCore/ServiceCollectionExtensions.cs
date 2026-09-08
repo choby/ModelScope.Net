@@ -24,6 +24,7 @@ public static class ServiceCollectionExtensions
         Action<OnnxEmbeddingOptions>? configureOnnxEmbedding = null,
         Action<OnnxTextClassificationOptions>? configureOnnxTextClassification = null,
         Action<OnnxImageClassificationOptions>? configureOnnxImageClassification = null,
+        Action<OnnxObjectDetectionOptions>? configureOnnxObjectDetection = null,
         Action<GgufRuntimeOptions>? configureGguf = null,
         Func<IServiceProvider, ILlamaServerSupervisor?>? createLlamaSupervisor = null,
         Action<ModelScopeTelemetryOptions>? configureTelemetry = null,
@@ -40,6 +41,7 @@ public static class ServiceCollectionExtensions
         services.AddOptions<OnnxEmbeddingOptions>();
         services.AddOptions<OnnxTextClassificationOptions>();
         services.AddOptions<OnnxImageClassificationOptions>();
+        services.AddOptions<OnnxObjectDetectionOptions>();
         services.AddOptions<GgufRuntimeOptions>();
         services.AddOptions<ModelScopeTelemetryOptions>();
         services.AddOptions<ModelSessionPoolOptions>();
@@ -86,6 +88,11 @@ public static class ServiceCollectionExtensions
         if (configureOnnxImageClassification is not null)
         {
             services.Configure(configureOnnxImageClassification);
+        }
+
+        if (configureOnnxObjectDetection is not null)
+        {
+            services.Configure(configureOnnxObjectDetection);
         }
 
         if (configureGguf is not null)
@@ -170,6 +177,10 @@ public static class ServiceCollectionExtensions
             provider.GetRequiredService<OnnxRuntimeAdapter>(),
             provider.GetRequiredService<IOptions<OnnxImageClassificationOptions>>().Value));
         services.AddSingleton<IModelRuntime>(provider => provider.GetRequiredService<OnnxImageClassificationRuntime>());
+        services.AddSingleton(provider => new OnnxObjectDetectionRuntime(
+            provider.GetRequiredService<OnnxRuntimeAdapter>(),
+            provider.GetRequiredService<IOptions<OnnxObjectDetectionOptions>>().Value));
+        services.AddSingleton<IModelRuntime>(provider => provider.GetRequiredService<OnnxObjectDetectionRuntime>());
         if (createLlamaSupervisor is not null)
         {
             services.AddSingleton<ILlamaServerSupervisor>(provider =>

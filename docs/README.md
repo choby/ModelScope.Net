@@ -42,6 +42,9 @@ ModelScope.Net 的目标不是把 ModelScope Python 生态完整重写为 C#，�
 - [ONNX Embedding 适配器](./onnx-embedding.md)：WordPiece、批处理、池化、归一化与认证边界。
 - [ONNX 文本分类适配器](./onnx-text-classification.md)：标签映射、Softmax/Sigmoid、Top-K 与分类认证边界。
 - [ONNX 图像分类适配器](./onnx-image-classification.md)：图像解码、缩放裁剪、归一化、Top-K 与输入资源边界。
+- [ONNX 目标检测适配器](./onnx-object-detection.md)：letterbox、YOLOv5/v8 检测头、NMS 与原图像素框。
+- [YOLOv5n 认证](../tests/compatibility/nndeploy-yolov5n/README.md)：固定 nndeploy yolov5n 与 Python ONNX Runtime 对照。
+- [bge-base GGUF Embedding 认证](../tests/compatibility/bge-base-en-v1.5-gguf/README.md)：Q4_K_M 与 ModelScope AutoModel CLS+L2 对照。
 - [GGUF Header 与预览白名单](./gguf-header-policy.md)：有界元数据解析、架构/量化/Tokenizer 放行条件与认证边界。
 - [GGUF llama.cpp 运行时](./gguf-runtime.md)：受控进程、OpenAI/SSE 契约、安全边界、崩溃恢复与固定分发。
 - [BGE 真实模型认证](../tests/compatibility/bge-small-en-v1.5/README.md)：固定 Revision、Python 金标准、.NET 输出与复验命令。

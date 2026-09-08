@@ -199,4 +199,72 @@ public sealed class CertificationEvidenceTests
         Assert.True(execution.GetProperty("crashRecovery").GetProperty("processRecovered").GetBoolean());
         Assert.True(execution.GetProperty("stoppedCleanly").GetBoolean());
     }
+
+    [Fact]
+    public async Task NndeployYolov5n_ReportMeetsPublishedThresholds()
+    {
+        var path = Path.Combine(
+            AppContext.BaseDirectory,
+            "compatibility",
+            "nndeploy-yolov5n",
+            "certification-report.json");
+        await using var stream = File.OpenRead(path);
+        using var document = await JsonDocument.ParseAsync(stream);
+        var report = document.RootElement;
+
+        Assert.Equal("nndeploy/nndeploy", report.GetProperty("modelId").GetString());
+        Assert.Equal("95f0258341c1c287165bf410f62f70a751ffcab7", report.GetProperty("revision").GetString());
+        Assert.Equal("passed", report.GetProperty("status").GetString());
+        Assert.Equal(2, report.GetProperty("sampleCount").GetInt32());
+        Assert.True(report.GetProperty("detectionCount").GetInt32() >= 1);
+        Assert.Equal(
+            "cfceae6868913d227d8ab1ffc948ec13057b11e0f820f929121af120c7d00180",
+            report.GetProperty("artifact").GetProperty("sha256").GetString());
+
+        var thresholds = report.GetProperty("thresholds");
+        var results = report.GetProperty("results");
+        Assert.True(results.GetProperty("countMatches").GetBoolean());
+        Assert.True(
+            results.GetProperty("minimumIou").GetDouble() >=
+            thresholds.GetProperty("minimumIou").GetDouble());
+        Assert.True(
+            results.GetProperty("maximumScoreAbsoluteError").GetDouble() <=
+            thresholds.GetProperty("maximumScoreAbsoluteError").GetDouble());
+        Assert.True(
+            results.GetProperty("labelAgreement").GetDouble() >=
+            thresholds.GetProperty("minimumLabelAgreement").GetDouble());
+    }
+
+    [Fact]
+    public async Task BgeBaseEnV15Gguf_ReportMeetsPublishedThresholds()
+    {
+        var path = Path.Combine(
+            AppContext.BaseDirectory,
+            "compatibility",
+            "bge-base-en-v1.5-gguf",
+            "certification-report.json");
+        await using var stream = File.OpenRead(path);
+        using var document = await JsonDocument.ParseAsync(stream);
+        var report = document.RootElement;
+
+        Assert.Equal("Embedding-GGUF/bge-base-en-v1.5-gguf", report.GetProperty("modelId").GetString());
+        Assert.Equal("b1a713ae4cb87f1fa7fa482a5ab339bb4fd99aa9", report.GetProperty("revision").GetString());
+        Assert.Equal("passed", report.GetProperty("status").GetString());
+        Assert.Equal(8, report.GetProperty("sampleCount").GetInt32());
+        Assert.Equal(768, report.GetProperty("dimensions").GetInt32());
+        Assert.Equal("cls", report.GetProperty("pooling").GetString());
+        Assert.Equal(
+            "aec0693ffb5aa5ebdcaa2b023ae46980bdca3e56721ca468e66fc7e797b8fa44",
+            report.GetProperty("artifact").GetProperty("sha256").GetString());
+        Assert.Equal(74391904, report.GetProperty("artifact").GetProperty("size").GetInt64());
+
+        var thresholds = report.GetProperty("thresholds");
+        var results = report.GetProperty("results");
+        Assert.True(
+            results.GetProperty("maximumAbsoluteError").GetDouble() <=
+            thresholds.GetProperty("maximumAbsoluteError").GetDouble());
+        Assert.True(
+            results.GetProperty("minimumCosineSimilarity").GetDouble() >=
+            thresholds.GetProperty("minimumCosineSimilarity").GetDouble());
+    }
 }

@@ -11,7 +11,7 @@
 | 检查 | 结果 | 证据 |
 |---|---|---|
 | Release 全解决方案构建 | 通过，0 warning / 0 error | 本轮命令输出 |
-| .NET 自动化 | Hub 43 + Runtime 201 + ASP.NET Core 11 + CLI 5 = 260，通过 260、失败 0、跳过 0 | `artifacts/acceptance/p4-observability-distribution/*.trx` |
+| .NET 自动化 | Hub 43 + Runtime 209 + ASP.NET Core 11 + CLI 5 = 268，通过 268、失败 0、跳过 0 | 本轮 `dotnet test ModelScope.Net.sln --configuration Release` |
 | Python 工具自动化 | 12/12 通过 | certification、upstream monitor、NuGet verifier 测试 |
 | NuGet 包集合 | 8 nupkg + 8 snupkg，版本均为 `0.1.0-preview.1`，内容/依赖验证通过 | `artifacts/packages/`；`tools/verify_nuget_packages.py` |
 | 包消费者 | 只从本地包源恢复顶层 ASP.NET Core 包并编译，0 warning / 0 error | `tests/ModelScope.Net.PackageSmoke/` |
@@ -35,8 +35,8 @@
 | 方案项 | 实际源代码 | 验收判断 |
 |---|---|---|
 | ONNX CPU/CUDA | 当前 `InferenceSession` 只走默认 CPU；没有 CUDA Execution Provider 接线 | CPU 预览通过；GPU/CUDA 未完成，保持 fail-closed |
-| ONNX 任务适配器 | Embedding、文本分类、图像分类、SmolLM 贪心文本生成已实现 | P3“图像分类或检测”已满足；通用目标检测适配器仍无，候选明确 Unsupported |
-| GGUF 任务 | Header 白名单、llama.cpp 文本生成/流式/恢复已实现 | 计划中的 GGUF Embedding 尚无，候选明确 Unsupported |
+| ONNX 任务适配器 | Embedding、文本分类、图像分类、YOLO 目标检测、SmolLM 贪心文本生成已实现 | P3“图像分类或检测”已满足；nndeploy yolov5n 本机金标准通过（7 检测、最低 IoU 0.978） |
+| GGUF 任务 | Header 白名单、llama.cpp 文本生成/流式/恢复、Embedding HTTP 契约已实现 | bge-base Q4_K_M 本机 embedding 金标准通过（8×768、最低余弦 0.973） |
 | Python Worker | gRPC、回环鉴权、进程恢复、资源准入及图像生成/OCR/ASR真实本机证据已实现 | 生产容器、GPU、更多模型和执行中无损重放不声明 |
 | ASP.NET Core | 提供 DI、健康检查、资源池、Telemetry 和审计；没有网关 API 端点 | 因没有自带 API 面，未内置终端用户鉴权/限流/租户配额；资源并发配额已实现。宿主鉴权方案和租户口径需产品/SRE决定 |
 | 可观测性 | 当前推理会话有调用、失败、耗时和审计写失败；新增 Dashboard/规则 | 下载、缓存、模型加载/排队、内存/GPU、Worker重启/OOM、路由降级和远程额度信号仍缺 |

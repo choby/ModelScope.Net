@@ -186,6 +186,7 @@ public sealed class ModelInspector
     {
         if (architecture.EndsWith("ForSequenceClassification", StringComparison.Ordinal)) return "text-classification";
         if (architecture.EndsWith("ForImageClassification", StringComparison.Ordinal)) return "image-classification";
+        if (architecture.EndsWith("ForObjectDetection", StringComparison.Ordinal)) return "object-detection";
         if (architecture.EndsWith("ForCausalLM", StringComparison.Ordinal)) return "text-generation";
         // Generic encoders and seq2seq models can serve several different tasks; do not guess.
         return null;

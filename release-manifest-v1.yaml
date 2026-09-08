@@ -253,26 +253,39 @@ models:
     revision: b1a713ae4cb87f1fa7fa482a5ab339bb4fd99aa9
     task: feature-extraction
     license: mit
-    scope: p0-gguf-embedding-unsupported-candidate
+    scope: p5-gguf-embedding-certification
     runtimeCandidates:
       - gguf
     verifiedArtifacts:
       bge-base-en-v1.5.Q4_K_M.gguf: aec0693ffb5aa5ebdcaa2b023ae46980bdca3e56721ca468e66fc7e797b8fa44
       configuration.json: 6bc26d64eb5024b4d1dab5a52371958b429256d6c9d59787f1f5294a54e0cebd
-    unsupportedReason: current GGUF adapter exposes generation/chat only; embedding endpoint and BERT GGUF architecture are not certified
-    status: verified-metadata-unsupported-current-runtime
+    goldStandard:
+      samples: 8
+      dimensions: 768
+      pooling: cls
+      normalize: true
+      maximumAbsoluteError: 0.024334857240319252
+      minimumCosineSimilarity: 0.9734526612092281
+    certificationReport: tests/compatibility/bge-base-en-v1.5-gguf/certification-report.json
+    status: certified-preview-macos-arm64-cpu
   - modelId: nndeploy/nndeploy
     revision: 95f0258341c1c287165bf410f62f70a751ffcab7
     task: object-detection
     license: review-required
-    scope: p0-onnx-object-detection-unsupported-candidate
+    scope: p5-onnx-object-detection-certification
     runtimeCandidates:
       - onnx
     verifiedArtifacts:
       detect/yolov5n.onnx: cfceae6868913d227d8ab1ffc948ec13057b11e0f820f929121af120c7d00180
       configuration.json: 9a9b41224519cc2cd5e993d9bd161a4165bb0f7ddc58a91a63f8b0ced41ad4de
-    unsupportedReason: raw ONNX tensors are available but no standard object-detection pre/post-processing adapter is certified
-    status: verified-metadata-unsupported-current-adapter
+    goldStandard:
+      samples: 2
+      detections: 7
+      minimumIou: 0.9785547852516174
+      maximumScoreAbsoluteError: 0.005449891090393066
+      labelAgreement: 1.0
+    certificationReport: tests/compatibility/nndeploy-yolov5n/certification-report.json
+    status: certified-preview-macos-arm64-cpu
 
 acceptance:
   rollout:
@@ -325,4 +338,4 @@ notes:
   - P4-05 container controls and real worker mTLS passed; target-cluster enforcement and soak evidence remain pending P4-07.
   - MobileNet V2 source metadata declares license `other`; legal approval is required before a production release.
   - The Qwen GGUF entry is inference-certified only for llama.cpp b10516 on macOS ARM64 CPU; pinned Ubuntu and Windows assets are not yet executed.
-  - The engineering draft now meets the 15-model count and includes remote multimodal, trust_remote_code, GGUF embedding and ONNX object-detection candidates; business owners must approve the set and provide an authorized private/restricted repository before phase 0 can close.
+  - The engineering draft now meets the 15-model count and includes remote multimodal, trust_remote_code, GGUF embedding and ONNX object-detection candidates. Detection and GGUF embedding adapters exist but are not gold-certified; business owners must approve the set and provide an authorized private/restricted repository before phase 0 can close.

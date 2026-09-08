@@ -8,6 +8,7 @@ public sealed class ModelInspectorTests
     [Theory]
     [InlineData("DistilBertForSequenceClassification", "text-classification")]
     [InlineData("MobileNetV2ForImageClassification", "image-classification")]
+    [InlineData("YoloForObjectDetection", "object-detection")]
     [InlineData("Qwen2ForCausalLM", "text-generation")]
     [InlineData("BertModel", null)]
     [InlineData("T5ForConditionalGeneration", null)]

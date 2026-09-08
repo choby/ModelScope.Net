@@ -128,16 +128,17 @@ internal static class Cli
         }
 
         await using var resources = new RunResources();
-        var router = CreateLocalRouter(args, resources, modelDirectory);
+        var router = CreateLocalRouter(args, resources, modelDirectory, task);
         await using var session = await router.CreateSessionAsync(
             capabilities,
             preferredRuntime,
             CancellationToken.None).ConfigureAwait(false);
+        var resolvedTask = ResolveTask(task, capabilities, remote: false);
         await InvokeSessionAsync(
             session,
-            ResolveTask(task, capabilities, remote: false),
+            resolvedTask,
             args,
-            useChatPayload: ShouldUseChatPayload(preferredRuntime, capabilities)).ConfigureAwait(false);
+            useChatPayload: ShouldUseChatPayload(preferredRuntime, capabilities, resolvedTask)).ConfigureAwait(false);
         return 0;
     }
 
@@ -222,7 +223,8 @@ internal static class Cli
     private static RuntimeRouter CreateLocalRouter(
         string[] args,
         RunResources resources,
-        string modelDirectory)
+        string modelDirectory,
+        string? task)
     {
         var allowRemoteCode = HasFlag(args, "--allow-remote-code");
         var onnx = new OnnxRuntimeAdapter();
@@ -233,6 +235,7 @@ internal static class Cli
             new OnnxEmbeddingRuntime(onnx),
             new OnnxTextClassificationRuntime(onnx),
             new OnnxImageClassificationRuntime(onnx),
+            new OnnxObjectDetectionRuntime(onnx),
         };
 
         LocalLlamaServerSupervisor? llamaSupervisor = null;
@@ -244,6 +247,10 @@ internal static class Cli
             {
                 Executable = llamaExecutable,
                 Port = GetFreeTcpPort(),
+                EmbeddingsOnly = GgufRuntimeAdapter.IsEmbeddingTask(task),
+                Pooling = GgufRuntimeAdapter.IsEmbeddingTask(task) ? "cls" : null,
+                EmbeddingNormalize = GgufRuntimeAdapter.IsEmbeddingTask(task) ? 2 : null,
+                ContextSize = 512,
             });
             resources.Add(llamaSupervisor);
         }
@@ -427,6 +434,11 @@ internal static class Cli
             }));
         }
 
+        if (GgufRuntimeAdapter.IsEmbeddingTask(task))
+        {
+            return JsonDocument.Parse(JsonSerializer.Serialize(new { input = prompt }));
+        }
+
         return JsonDocument.Parse(JsonSerializer.Serialize(new { text = prompt }));
     }
 
@@ -468,11 +480,14 @@ internal static class Cli
     private static bool IsRemoteRuntime(string? runtimeName) =>
         string.Equals(runtimeName, "remote", StringComparison.OrdinalIgnoreCase);
 
-    private static bool ShouldUseChatPayload(string? preferredRuntime, ModelCapabilities capabilities) =>
-        string.Equals(preferredRuntime, "gguf", StringComparison.OrdinalIgnoreCase) ||
-        (string.IsNullOrWhiteSpace(preferredRuntime) &&
-         capabilities.Artifacts.Any(artifact => artifact.Format == ModelArtifactFormat.Gguf) &&
-         !capabilities.Artifacts.Any(artifact => artifact.Format == ModelArtifactFormat.Onnx));
+    private static bool ShouldUseChatPayload(string? preferredRuntime, ModelCapabilities capabilities, string task)
+    {
+        if (GgufRuntimeAdapter.IsEmbeddingTask(task)) return false;
+        return string.Equals(preferredRuntime, "gguf", StringComparison.OrdinalIgnoreCase) ||
+            (string.IsNullOrWhiteSpace(preferredRuntime) &&
+             capabilities.Artifacts.Any(artifact => artifact.Format == ModelArtifactFormat.Gguf) &&
+             !capabilities.Artifacts.Any(artifact => artifact.Format == ModelArtifactFormat.Onnx));
+    }
 
     private static bool UsesChatPrompt(string task, bool useChatPayload) =>
         useChatPayload ||
@@ -481,7 +496,10 @@ internal static class Cli
 
     private static bool IsImageTask(string task) =>
         task.Equals("image-classification", StringComparison.OrdinalIgnoreCase) ||
-        task.Equals("image-classification-imagenet", StringComparison.OrdinalIgnoreCase);
+        task.Equals("image-classification-imagenet", StringComparison.OrdinalIgnoreCase) ||
+        task.Equals("object-detection", StringComparison.OrdinalIgnoreCase) ||
+        task.Equals("image-object-detection", StringComparison.OrdinalIgnoreCase) ||
+        task.Equals("domain-specific-object-detection", StringComparison.OrdinalIgnoreCase);
 
     private static int GetFreeTcpPort()
     {
@@ -681,7 +699,7 @@ internal static class Cli
             owner/name without a local directory uses ModelScope API Inference.
             --runtime selects a specific runtime such as onnx, onnx-embedding,
             onnx-text-generation, onnx-text-classification, onnx-image-classification,
-            gguf, python, or remote.
+            onnx-object-detection, gguf, python, or remote.
             --python-worker or --runtime python starts a local gRPC worker for Python fallback.
 
             Token resolution order: --token, MODELSCOPE_API_TOKEN, MODELSCOPE_ACCESS_TOKEN,

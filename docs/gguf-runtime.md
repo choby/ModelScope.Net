@@ -1,6 +1,6 @@
 # GGUF llama.cpp 运行时
 
-`ModelScope.Net.Runtime.Gguf` 通过 `llama-server` 的 OpenAI 兼容 HTTP 接口调用已认证 GGUF 模型。运行时支持宿主管理子进程或连接外部服务；技术预览只承诺文本生成与 Chat Completion，不把任意 GGUF 文件视为可执行模型。
+`ModelScope.Net.Runtime.Gguf` 通过 `llama-server` 的 OpenAI 兼容 HTTP 接口调用已认证 GGUF 模型。运行时支持宿主管理子进程或连接外部服务；技术预览承诺文本生成、Chat Completion，以及独立白名单下的 Embedding HTTP 契约；不把任意 GGUF 文件视为可执行模型。`Embedding-GGUF/bge-base-en-v1.5-gguf@b1a713ae4cb87f1fa7fa482a5ab339bb4fd99aa9` 的 Q4_K_M 已在 llama.cpp b10516/`--pooling cls` 下与 ModelScope AutoModel CLS+L2 对照，8×768、最低余弦 `0.97345`、最大绝对误差 `0.02433`。量化不是逐元素等价。
 
 ## 运行模式
 
@@ -37,10 +37,12 @@ services.AddModelScopeNet(
 
 - `text-generation`、`completion` 调用 `/v1/completions`。
 - `chat`、`chat-completion` 或包含 `messages` 的负载调用 `/v1/chat/completions`。
+- `feature-extraction`、`sentence-embedding`、`embedding`、`text-embedding` 调用 `/v1/embeddings`；`text`/`prompt` 映射为 `input`，不发送 `max_tokens` 或 `stream`。
 - 非流式返回 llama-server 的 OpenAI 兼容 JSON。
-- 流式逐条解析 `data:` SSE，收到 `[DONE]` 后产生终止事件。
-- 运行时覆盖客户端传入的 `model` 和 `stream`，并校验 `max_tokens`。
+- 生成流式逐条解析 `data:` SSE，收到 `[DONE]` 后产生终止事件；Embedding 流式入口返回单次终止事件。
+- 生成路径覆盖客户端传入的 `model` 和 `stream`，并校验 `max_tokens`。
 - 请求超时、响应体大小、流式字符数、Header 元数据均有上限。
+- Embedding Header 使用独立的 `bert`/`Q4_K_M` 白名单，见 [GGUF Header 与预览白名单](./gguf-header-policy.md)。创建会话时按模型任务选择生成或 Embedding 策略。
 
 创建会话前仍执行 [GGUF Header 白名单](./gguf-header-policy.md)。路径逃逸、不支持的任务/架构、无效 Token 上限、鉴权失败和服务错误均映射为结构化 `ModelScopeException`。
 

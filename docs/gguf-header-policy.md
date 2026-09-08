@@ -22,7 +22,17 @@
 | Tokenizer | `gpt2` |
 | Chat Template | 必须存在且为字符串 |
 
-白名单集合可以由宿主显式扩展，但扩展不等于认证。新增架构、量化或 Tokenizer 必须先加入固定 Revision 真实样本并重新生成报告。
+文本生成以外，Embedding 工作负载使用独立白名单，且不要求 Chat Template：
+
+| 维度 | Embedding 白名单 |
+|---|---|
+| GGUF 版本 | 3 |
+| 架构 | `bert` |
+| 主文件类型 | `Q4_K_M`（值 15） |
+| Tokenizer | `bert` |
+| Chat Template | 不要求 |
+
+白名单集合可以由宿主显式扩展，但扩展不等于认证。新增架构、量化或 Tokenizer 必须先加入固定 Revision 真实样本并重新生成报告。生成白名单不会自动放行 Embedding，反之亦然。
 
 ## 认证状态
 

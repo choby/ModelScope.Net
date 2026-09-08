@@ -123,7 +123,7 @@ public sealed class GgufRuntimeAdapter : IModelRuntime
                     $"The GGUF header could not be verified: {exception.Message}",
                     innerException: exception);
             }
-            var result = _options.HeaderPolicy.Evaluate(header);
+            var result = _options.HeaderPolicy.Evaluate(header, ResolveWorkload(capabilities.Task));
             if (!result.IsAllowed)
                 throw new ModelScopeException(ModelScopeErrorCode.ArchitectureUnsupported, result.Reason);
         }
@@ -147,7 +147,8 @@ public sealed class GgufRuntimeAdapter : IModelRuntime
                 _options,
                 _supervisor,
                 modelFile,
-                capabilities);
+                capabilities,
+                ResolveWorkload(capabilities.Task));
         }
         catch
         {
@@ -237,6 +238,16 @@ public sealed class GgufRuntimeAdapter : IModelRuntime
             message.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _options.ApiKey);
     }
 
+    internal static GgufWorkload ResolveWorkload(string? task) =>
+        IsEmbeddingTask(task) ? GgufWorkload.Embedding : GgufWorkload.TextGeneration;
+
+    public static bool IsEmbeddingTask(string? task) =>
+        task is not null && (
+            task.Equals("feature-extraction", StringComparison.OrdinalIgnoreCase) ||
+            task.Equals("sentence-embedding", StringComparison.OrdinalIgnoreCase) ||
+            task.Equals("embedding", StringComparison.OrdinalIgnoreCase) ||
+            task.Equals("text-embedding", StringComparison.OrdinalIgnoreCase));
+
     private static Task ThrowForResponseAsync(
         HttpResponseMessage response,
         CancellationToken cancellationToken)
@@ -265,7 +276,8 @@ public sealed class GgufRuntimeAdapter : IModelRuntime
         GgufRuntimeOptions options,
         ILlamaServerSupervisor? supervisor,
         string modelFile,
-        ModelCapabilities capabilities) : IModelSession
+        ModelCapabilities capabilities,
+        GgufWorkload workload) : IModelSession
     {
         public ModelCapabilities Capabilities { get; } = capabilities;
 
@@ -320,6 +332,13 @@ public sealed class GgufRuntimeAdapter : IModelRuntime
             ModelRequest request,
             [EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
+            if (workload == GgufWorkload.Embedding)
+            {
+                var embedding = await InvokeAsync(request, cancellationToken).ConfigureAwait(false);
+                yield return new ModelStreamEvent("embedding", embedding.Output, IsTerminal: true);
+                yield break;
+            }
+
             ValidateTask(request.Task);
             await EnsureManagedServerAsync(cancellationToken).ConfigureAwait(false);
             using var timeout = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
@@ -381,7 +400,9 @@ public sealed class GgufRuntimeAdapter : IModelRuntime
             var usesChat = request.Task.Equals("chat", StringComparison.OrdinalIgnoreCase) ||
                 request.Task.Equals("chat-completion", StringComparison.OrdinalIgnoreCase) ||
                 request.Payload.TryGetProperty("messages", out _);
-            var route = usesChat ? "v1/chat/completions" : "v1/completions";
+            var route = workload == GgufWorkload.Embedding
+                ? "v1/embeddings"
+                : usesChat ? "v1/chat/completions" : "v1/completions";
             var message = new HttpRequestMessage(HttpMethod.Post, new Uri(endpoint, route));
             if (!string.IsNullOrWhiteSpace(apiKey))
                 message.Headers.Authorization = new AuthenticationHeaderValue("Bearer", apiKey);
@@ -393,6 +414,7 @@ public sealed class GgufRuntimeAdapter : IModelRuntime
         private JsonElement CreatePayload(ModelRequest request, bool stream)
         {
             var hasMaxTokens = false;
+            var hasInput = false;
             using var buffer = new MemoryStream();
             using (var writer = new Utf8JsonWriter(buffer))
             {
@@ -401,8 +423,19 @@ public sealed class GgufRuntimeAdapter : IModelRuntime
                 foreach (var property in request.Payload.EnumerateObject())
                 {
                     if (property.NameEquals("model") || property.NameEquals("stream")) continue;
+                    if (workload == GgufWorkload.Embedding &&
+                        (property.NameEquals("text") || property.NameEquals("prompt")) &&
+                        !request.Payload.TryGetProperty("input", out _))
+                    {
+                        writer.WritePropertyName("input");
+                        property.Value.WriteTo(writer);
+                        hasInput = true;
+                        continue;
+                    }
+                    if (property.NameEquals("input")) hasInput = true;
                     if (property.NameEquals("max_tokens"))
                     {
+                        if (workload == GgufWorkload.Embedding) continue;
                         if (!property.Value.TryGetInt32(out var maxTokens) ||
                             maxTokens < 1 || maxTokens > options.MaxTokens)
                         {
@@ -414,16 +447,39 @@ public sealed class GgufRuntimeAdapter : IModelRuntime
                     }
                     property.WriteTo(writer);
                 }
-                if (!hasMaxTokens) writer.WriteNumber("max_tokens", options.DefaultMaxTokens);
-                writer.WriteBoolean("stream", stream);
+                if (workload == GgufWorkload.Embedding)
+                {
+                    if (!hasInput)
+                    {
+                        throw new ModelScopeException(
+                            ModelScopeErrorCode.InvalidRequest,
+                            "GGUF embedding input must contain 'input', 'text', or 'prompt'.");
+                    }
+                }
+                else
+                {
+                    if (!hasMaxTokens) writer.WriteNumber("max_tokens", options.DefaultMaxTokens);
+                    writer.WriteBoolean("stream", stream);
+                }
                 writer.WriteEndObject();
             }
             using var document = JsonDocument.Parse(buffer.ToArray());
             return document.RootElement.Clone();
         }
 
-        private static void ValidateTask(string task)
+        private void ValidateTask(string task)
         {
+            if (workload == GgufWorkload.Embedding)
+            {
+                if (!IsEmbeddingTask(task))
+                {
+                    throw new ModelScopeException(
+                        ModelScopeErrorCode.OperatorUnsupported,
+                        "The GGUF embedding runtime only supports feature-extraction and embedding tasks.");
+                }
+                return;
+            }
+
             if (task is null || !(task.Equals("text-generation", StringComparison.OrdinalIgnoreCase) ||
                 task.Equals("completion", StringComparison.OrdinalIgnoreCase) ||
                 task.Equals("chat", StringComparison.OrdinalIgnoreCase) ||

@@ -1,0 +1,112 @@
+{
+  "schemaVersion": 1,
+  "modelId": "nndeploy/nndeploy",
+  "revision": "95f0258341c1c287165bf410f62f70a751ffcab7",
+  "runtime": "ModelScope.Net / ONNX Runtime CPU / SkiaSharp",
+  "samples": [
+    {
+      "name": "zidane",
+      "inputSha256": "356dad2107bb0254e4e4a81bc1d9c7140043e88569d546e5b404b19bffa77d0a",
+      "expectedCount": 3,
+      "actualCount": 3,
+      "detections": [
+        {
+          "index": 0,
+          "label": "person",
+          "score": 0.7898534,
+          "box": [
+            742.4056,
+            39.8067,
+            1154.3176,
+            716.112
+          ]
+        },
+        {
+          "index": 0,
+          "label": "person",
+          "score": 0.35431308,
+          "box": [
+            135.20755,
+            180.8385,
+            739.38416,
+            720
+          ]
+        },
+        {
+          "index": 27,
+          "label": "tie",
+          "score": 0.27280432,
+          "box": [
+            438.67047,
+            434.50525,
+            503.3133,
+            710.9397
+          ]
+        }
+      ],
+      "unmatchedExpected": 0,
+      "unmatchedActual": 0
+    },
+    {
+      "name": "bus",
+      "inputSha256": "33b198a1d2839bb9ac4c65d61f9e852196793cae9a0781360859425f6022b69c",
+      "expectedCount": 4,
+      "actualCount": 4,
+      "detections": [
+        {
+          "index": 0,
+          "label": "person",
+          "score": 0.8233759,
+          "box": [
+            219.3022,
+            407.8023,
+            349.43042,
+            862.6331
+          ]
+        },
+        {
+          "index": 0,
+          "label": "person",
+          "score": 0.81650734,
+          "box": [
+            51.971504,
+            398.66772,
+            206.74973,
+            895.32404
+          ]
+        },
+        {
+          "index": 0,
+          "label": "person",
+          "score": 0.6763994,
+          "box": [
+            680.39197,
+            377.07193,
+            810,
+            869.9326
+          ]
+        },
+        {
+          "index": 5,
+          "label": "bus",
+          "score": 0.5219495,
+          "box": [
+            48.763073,
+            236.97214,
+            810,
+            772.1945
+          ]
+        }
+      ],
+      "unmatchedExpected": 0,
+      "unmatchedActual": 0
+    }
+  ],
+  "environment": {
+    "dotnet": "10.0.8",
+    "onnxRuntime": "1.29.0\u002B2e2543fbe9fae542f921d47a72d21d5a4ef0b710",
+    "skiaSharp": "4.151.2\u002Brelease-4.151.2.a0a2142b86627ec1a9c90b9beff0068ce567ee77.a0a2142b86627ec1a9c90b9beff0068ce567ee77",
+    "os": "Unix 27.0.0",
+    "architecture": "Arm64"
+  }
+}

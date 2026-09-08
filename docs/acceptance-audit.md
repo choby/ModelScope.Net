@@ -15,7 +15,7 @@
 | FR-05 缓存与离线 | hub/cache_manager.py、utils/caching.py | Blob/Manifest、多进程已有证据；本轮发现并修复指定本地目录可返回错误模型/Revision |
 | FR-06 检测诊断 | pipelines/builder.py、模型配置 | ModelInspector已支持配置/README简单许可证、requirements简单约束、制品体积、保守架构任务推断、元数据和目录扫描限额。当前全套235项通过；复杂依赖/SPDX、通用部署环境匹配及真实RAM/VRAM需求仍缺。Worker环境探针仅覆盖专用验证环境，不代替通用诊断；docs/model-diagnostics.md |
 | FR-07 策略与认证 | pipelines/builder.py、动态注册 | 本轮修复：生产策略验签、精确ID/Commit/任务/平台/运行时摘要及制品Hash；默认关闭自动Remote，显式允许后独立认证回退；会话与缓存任务边界通过 |
-| FR-08 普通/流式推理 | pipelines/base.py、各任务 pipeline | 四类运行时与五模型技术认证有证据；新增真实.NET gRPC→ModelScope→DistilBERT普通/流式/新会话故障恢复，标签及概率对照通过，并绑定专用环境报告。仅macOS/MPS分类链路，非所有Python模型/任务或生产容器认证；docs/python-worker-real-validation.md |
+| FR-08 普通/流式推理 | pipelines/base.py、各任务 pipeline | 四类运行时与既有认证模型外，新增 nndeploy YOLOv5n 与 bge-base GGUF Embedding 固定Revision金标准；CLI `run` 两次检测框与两次768维向量一致。不承诺任意Pipeline或跨平台；docs/onnx-object-detection.md、tests/compatibility/bge-base-en-v1.5-gguf/ |
 | FR-09 版本与回滚 | 模型 Revision、Python 依赖 | 生产路由/灰度精确绑定，真实BGE灰度/回滚、签名撤销、更新前持久暂存、启动对账、保存后及暂存后进程恢复、发布失败/丢失确认重试通过。本机进程级提交前窗口已有证据；生产防回退外部存储、自动分发、目标部署故障及Catalog换代仍待完成；docs/certification-revocation.md |
 | FR-10 观测运维 | Python 日志与服务 | ASP.NET、Telemetry、资源池有测试；新增机器校验的 Prometheus 指标契约、Grafana Dashboard、失败率/延迟/审计丢失告警及接线手册。当前信号只覆盖推理调用，下载/排队/资源/Worker/额度指标、生产 exporter/接收人、批准 SLO、目标平台与72小时门禁仍缺；docs/observability-runbook.md |
 
@@ -23,7 +23,7 @@
 
 | 门槛 | 状态和下一步 |
 |---|---|
-| P0 代表模型与金标准 | 工程草案已达到15个固定Revision：11个实测模型及4个在线元数据核验候选；远程多模态、trust_remote_code、GGUF Embedding、ONNX目标检测均有候选，后两项按当前实现明确Unsupported。业务未批准集合，真实私有/受限仓库仍缺，多个许可证及4个候选的运行/金标准未完成，不能关闭P0-04/05或发布 |
+| P0 代表模型与金标准 | 15个固定Revision仍在草案。nndeploy yolov5n与bge-base GGUF Embedding已完成本机金标准并升为certified-preview-macos-arm64-cpu。业务未批准集合，真实私有/受限仓库仍缺，Qwen-VL/Qwen-72B仅元数据，多个许可证未关闭，不能关闭P0-04/05或发布 |
 | P0 平台/安全/许可证/批准 | 平台验证矩阵、威胁模型及许可证流程已形成；GPU组合/目标主机和真实负责人批准仍缺；MobileNet许可证未关闭 |
 | P1 私有/受限 | 使用真实获授权仓库与安全凭据执行授权/未授权对照 |
 | P2 通用生产路由 | 已实现范围内的签名路由、会话/缓存边界及真实BGE复验通过；撤销存储协调已关闭本机进程级提交前窗口，但生产外部信任根和分发控制面未认证，不据此宣称全局安全审计完成 |
@@ -31,8 +31,14 @@
 | P4-06 | 本地工程演练通过；集群级演练归P4-07 |
 | P4-07 | Windows/Ubuntu x64、冻结GPU组合、CNI/PID/证书及实际72小时测量未完成 |
 | P4-08 | No-Go：前置门槛与真实三方批准未完成 |
-| P5 | P5-01本机五模型复认证及负面测试通过，远程CI待验；P5-02本机真实上游检查/固定模型复认证有证据，持续远程执行待验；P5-03见FR-09；P5-04图像生成、OCR识别/检测、Paraformer语音识别及SmolLM ONNX贪心文本生成已完成固定模型本机CPU认证，生产环境矩阵与更多模型仍待验；P5-05按原计划1.0后评估 |
+| P5 | P5-01本机五模型复认证通过，远程CI待验；P5-02本机上游检查有证据，远程执行待验；P5-03见FR-09；P5-04图像生成/OCR/ASR/SmolLM/YOLOv5n/GGUF Embedding均有本机固定Revision证据，生产矩阵仍待验；P5-05按原计划1.0后评估 |
 | 最终核对验收 | 已于2026-09-08完成源代码/方案逐项复核：本机技术预览工程候选通过，生产1.0为NO-GO。关闭条件为真实私库、批准清单/许可证/SLO/平台、生产可信存储与分发、远程CI/镜像供应链、7天Hub及72小时稳定性证据和三方签字；测试数量不代替范围证明 |
+
+## 2026-09-08 源码对照（`../modelscope` @ 53f61360）
+
+Hub 层 `hub/api.py`、`file_download.py`、`snapshot_download.py` 在原项目中已是 `modelscope_hub` 兼容垫片。首发范围内的查询、Revision 固定、单文件/快照下载、过滤、缓存与凭据对应 `ModelScopeHubClient` 原生实现，不是遗漏。数据集下载、git clone/push、模型上传、MCP、llamafile CLI、训练/微调与完整 Pipeline 注册表按迁移计划排除，记为范围差异。
+
+推理路径对照：原项目动态 `pipelines.builder` 不逐行移植；.NET 以 inspect + RuntimeRouter 覆盖认证过的 ONNX/GGUF/Python Worker/Remote。本轮补齐方案中的标准目标检测与 GGUF Embedding。未发现新的首发范围静默缺口。
 
 ## 证据入口
 

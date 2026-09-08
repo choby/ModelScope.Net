@@ -113,6 +113,45 @@ public sealed class GgufRuntimeTests
     }
 
     [Fact]
+    public async Task InvokeAsync_UsesEmbeddingRouteAndMapsTextInput()
+    {
+        var directory = CreateModelDirectory("bert", fileType: 15, tokenizer: "bert", includeChatTemplate: false);
+        try
+        {
+            var handler = new StubHandler(async request =>
+            {
+                if (request.Method == HttpMethod.Get)
+                    return Json("""{ "status": "ok" }""");
+
+                Assert.Equal("http://127.0.0.1:18080/v1/embeddings", request.RequestUri?.ToString());
+                using var payload = JsonDocument.Parse(await request.Content!.ReadAsStringAsync());
+                Assert.Equal("test-alias", payload.RootElement.GetProperty("model").GetString());
+                Assert.Equal("hello", payload.RootElement.GetProperty("input").GetString());
+                Assert.False(payload.RootElement.TryGetProperty("max_tokens", out _));
+                Assert.False(payload.RootElement.TryGetProperty("stream", out _));
+                return Json("""{ "data": [{ "embedding": [0.1, 0.2], "index": 0 }] }""");
+            });
+            var runtime = CreateRuntime(handler);
+            var capabilities = CreateCapabilities(directory) with
+            {
+                Task = "feature-extraction",
+                Architectures = ["bert"],
+            };
+            await using var session = await runtime.CreateSessionAsync(capabilities);
+            var response = await session.InvokeAsync(new ModelRequest(
+                "feature-extraction",
+                JsonSerializer.SerializeToElement(new { text = "hello" })));
+
+            Assert.Equal("gguf", response.Runtime);
+            Assert.Equal(2, response.Output.GetProperty("data")[0].GetProperty("embedding").GetArrayLength());
+        }
+        finally
+        {
+            Directory.Delete(directory, recursive: true);
+        }
+    }
+
+    [Fact]
     public async Task CreateSessionAsync_RejectsArchitectureOutsideHeaderPolicy()
     {
         var directory = CreateModelDirectory("llama", fileType: 10);
@@ -271,7 +310,11 @@ public sealed class GgufRuntimeTests
         ContainsRemoteCode: false,
         Warnings: []);
 
-    private static string CreateModelDirectory(string architecture, uint fileType)
+    private static string CreateModelDirectory(
+        string architecture,
+        uint fileType,
+        string tokenizer = "gpt2",
+        bool includeChatTemplate = true)
     {
         var directory = Path.Combine(Path.GetTempPath(), $"modelscope-net-gguf-runtime-{Guid.NewGuid():N}");
         Directory.CreateDirectory(directory);
@@ -280,7 +323,7 @@ public sealed class GgufRuntimeTests
         writer.Write("GGUF"u8);
         writer.Write(3u);
         writer.Write(0ul);
-        writer.Write(5ul);
+        writer.Write(includeChatTemplate ? 5ul : 4ul);
         WriteString(writer, "general.architecture");
         writer.Write(8u);
         WriteString(writer, architecture);
@@ -292,10 +335,13 @@ public sealed class GgufRuntimeTests
         writer.Write(2u);
         WriteString(writer, "tokenizer.ggml.model");
         writer.Write(8u);
-        WriteString(writer, "gpt2");
-        WriteString(writer, "tokenizer.chat_template");
-        writer.Write(8u);
-        WriteString(writer, "{{ messages }}");
+        WriteString(writer, tokenizer);
+        if (includeChatTemplate)
+        {
+            WriteString(writer, "tokenizer.chat_template");
+            writer.Write(8u);
+            WriteString(writer, "{{ messages }}");
+        }
         return directory;
     }
 

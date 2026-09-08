@@ -7,7 +7,8 @@
     "onnx-text-generation",
     "onnx-embedding",
     "onnx-text-classification",
-    "onnx-image-classification"
+    "onnx-image-classification",
+    "onnx-object-detection"
   ],
   "allowedRemoteRuntimes": [
     "remote",

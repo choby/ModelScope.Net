@@ -34,7 +34,7 @@
 - 读取 `config.json` 的 `id2label`；缺失标签使用 `LABEL_n`。
 - 使用稳定 Softmax，并支持配置输出名称、Top-K、批量上限、编码字节上限和源图像像素上限。
 - 在 Base64 解码前检查编码长度，并在完整解码前读取图像尺寸，降低超大输入的内存和解码风险。
-- 仅接受 `[batch, labels]` 输出；非 RGB 三通道处理、自定义插值/裁剪、目标检测、分割和模型自定义后处理需要单独适配或降级到 Python Worker。
+- 仅接受 `[batch, labels]` 输出；非 RGB 三通道处理、自定义插值/裁剪、分割和模型自定义后处理需要单独适配或降级到 Python Worker。标准 YOLO 目标检测见 [ONNX 目标检测适配器](./onnx-object-detection.md)。
 - 图像解码使用 MIT 许可证的 SkiaSharp 4.151.1，并显式携带无系统依赖的 Linux 原生资产以覆盖 Ubuntu 发布矩阵；模型自身许可证仍按发布清单独立审核。
 
 ## 认证状态
