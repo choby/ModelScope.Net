@@ -1,6 +1,6 @@
 # ModelScope.Net
 
-ModelScope.Net 是面向 **.NET 10** 的 ModelScope Hub 客户端与多运行时推理解决方案。它提供模型查询、固定版本下载、完整性校验、离线缓存、能力检测和统一推理接口，并按模型特征将请求路由到 ONNX Runtime、llama.cpp、隔离的 Python Worker 或 ModelScope API Inference。
+ModelScope.Net 是 [ModelScope](https://github.com/modelscope/modelscope) 的 **.NET 版本**，面向 **.NET 10** 提供 Hub 客户端与多运行时推理解决方案。它提供模型查询、固定版本下载、完整性校验、离线缓存、能力检测和统一推理接口，并按模型特征将请求路由到 ONNX Runtime、llama.cpp、隔离的 Python Worker 或 ModelScope API Inference。
 
 项目采用“**原生能力优先、Python 生态兜底、生产环境默认拒绝未通过生产技术认证的模型**”的设计，而不是把 ModelScope Python 生态逐行改写为 C#。
 
