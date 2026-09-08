@@ -1,0 +1,11 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: modelscope-python-worker
+  namespace: modelscope-runtime
+spec:
+  template:
+    spec:
+      nodeSelector:
+        kubernetes.io/os: linux
+        modelscope.net/worker-class: cpu

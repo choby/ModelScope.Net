@@ -1,0 +1,328 @@
+schemaVersion: 1
+manifestVersion: preview-draft-1
+status: draft
+createdAt: 2026-09-01
+
+platforms:
+  - os: macos
+    architecture: arm64
+    accelerator: cpu
+    dotnet: 10.0
+    status: certified-preview
+  - os: ubuntu-24.04
+    architecture: x64
+    accelerator: cpu
+    dotnet: 10.0
+    status: proposed
+  - os: windows-server-2025
+    architecture: x64
+    accelerator: cpu
+    dotnet: 10.0
+    status: proposed
+
+models:
+  - modelId: Qwen/Qwen2.5-0.5B-Instruct
+    revision: 186d8559ad54c32cf47dc3a8225f993742c507b8
+    task: text-generation
+    license: apache-2.0
+    scope: hub-contract-smoke
+    runtimeCandidates:
+      - remote
+      - python
+    verifiedArtifacts:
+      config.json: 18e18afcaccafade98daf13a54092927904649e1dd4eba8299ab717d5d94ff45
+    status: verified-for-download-only
+  - modelId: BAAI/bge-small-en-v1.5
+    revision: 160f4d645d32abe3cabc5af6b6b39823eadf3c0e
+    task: sentence-embedding
+    license: mit
+    scope: onnx-embedding-certification
+    runtimeCandidates:
+      - onnx
+      - python
+    verifiedArtifacts:
+      onnx/model.onnx: 828e1496d7fabb79cfa4dcd84fa38625c0d3d21da474a00f08db0f559940cf35
+      model.safetensors: 3c9f31665447c8911517620762200d2245a2518d6e7208acc78cd9db317e21ad
+      vocab.txt: 07eced375cec144d27c900241f3e339478dec958f92fddbc551f295c992038a3
+    goldStandard:
+      samples: 8
+      dimensions: 384
+      pooling: cls
+      normalize: true
+      maximumAbsoluteError: 2.2996330262259335e-7
+      minimumCosineSimilarity: 0.9999999999991158
+    certificationReport: tests/compatibility/bge-small-en-v1.5/certification-report.json
+    status: certified-preview
+  - modelId: distilbert/distilbert-base-uncased-finetuned-sst-2-english
+    revision: ef2f51c8f6a09fb8c418d1ccbda386970ed2d53f
+    task: text-classification
+    license: apache-2.0
+    scope: onnx-text-classification-certification
+    runtimeCandidates:
+      - onnx
+      - python
+    verifiedArtifacts:
+      onnx/model.onnx: 252cf7048af94a1599019fef35961b2bd3d6db13df0b0a4b032b92baeae31939
+      model.safetensors: 7c3919835e442510166d267fe7cbe847e0c51cd26d9ba07b89a57b952b49b8aa
+      vocab.txt: 07eced375cec144d27c900241f3e339478dec958f92fddbc551f295c992038a3
+    goldStandard:
+      samples: 8
+      labels: 2
+      scoreMode: softmax
+      maximumLogitAbsoluteError: 3.476890563902657e-6
+      maximumProbabilityAbsoluteError: 2.865246999661508e-7
+      labelAgreement: 1.0
+    certificationReport: tests/compatibility/distilbert-sst2/certification-report.json
+    status: certified-preview
+  - modelId: onnx-community/mobilenet_v2_1.0_224-ONNX
+    revision: ba6621a361183d7ce00314802b63a46eee2aa48b
+    sourceModelId: google/mobilenet_v2_1.0_224
+    sourceRevision: 4d4b64292df93eb1f5688417c18c05b23ec53630
+    task: image-classification
+    license: other-review-required
+    scope: onnx-image-classification-certification
+    runtimeCandidates:
+      - onnx
+      - python
+    verifiedArtifacts:
+      onnx/model.onnx: 2e731702ec8374128edfc9f7d344c44287e7791bb3c7ae25a628c2c2dec83ce6
+      onnx/config.json: c802ceb4eff074d64e40aee394af7edc3b1ab69e5cf81cb64da299bf92f12b21
+      onnx/preprocessor_config.json: da177c827eb07a2cd6e3fa34e2351ab8ef668939d824d9c242b0cc7a1dfc740a
+      source/model.safetensors: 94f61c6902b411e6b730cfe2443c8b2d983a2d50d289c4bd7083e0583ccdfe76
+      source/config.json: 4f80412de305af7bdc00855c9b184482a7f9008ab6429866b79fe9c4b3e2bc4a
+      source/preprocessor_config.json: 04e55bfc37b786196eb030873dd2345ed3dc1b0784729ffa082072b4d871d263
+    goldStandard:
+      samples: 3
+      labels: 1001
+      preprocessing: shortest-edge-256-center-crop-224-bilinear
+      maximumLogitAbsoluteError: 0.20605695321350104
+      maximumProbabilityAbsoluteError: 0.004855504748130332
+      top1Agreement: 1.0
+      minimumTop5Overlap: 1.0
+    certificationReport: tests/compatibility/mobilenet-v2-image-classification/certification-report.json
+    status: certified-preview-license-review
+  - modelId: unsloth/all-MiniLM-L6-v2
+    revision: 4bc149651c730bffa46308d38a3f2a2c5e9b6e08
+    task: sentence-embedding
+    license: apache-2.0
+    scope: onnx-embedding-mean-pooling-certification
+    runtimeCandidates:
+      - onnx
+      - python
+    verifiedArtifacts:
+      onnx/model.onnx: 6fd5d72fe4589f189f8ebc006442dbb529bb7ce38f8082112682524616046452
+      model.safetensors: 53aa51172d142c89d9012cce15ae4d6cc0ca6895895114379cacb4fab128d9db
+      vocab.txt: 07eced375cec144d27c900241f3e339478dec958f92fddbc551f295c992038a3
+    goldStandard:
+      samples: 8
+      dimensions: 384
+      pooling: mean
+      normalize: true
+      maximumAbsoluteError: 2.0932153224975658e-7
+      minimumCosineSimilarity: 0.9999999999992116
+    certificationReport: tests/compatibility/all-minilm-l6-v2/certification-report.json
+    status: certified-preview
+  - modelId: Qwen/Qwen2.5-0.5B-Instruct-GGUF
+    revision: 2e50b77b0eee3083842019e257b74854323d880a
+    task: text-generation
+    license: apache-2.0
+    scope: gguf-runtime-certification
+    runtimeCandidates:
+      - gguf
+    verifiedArtifacts:
+      qwen2.5-0.5b-instruct-q2_k.gguf: 9ee36184e616dfc76df4f5dd66f908dbde6979524ae36e6cefb67f532f798cb8
+    ggufHeader:
+      version: 3
+      architecture: qwen2
+      fileType: Q2_K
+      quantizationVersion: 2
+      tokenizerModel: gpt2
+      tensorCount: 291
+      metadataCount: 26
+      hasChatTemplate: true
+    llamaCpp:
+      release: b10516
+      commit: b95502ba9
+      platform: macos-arm64
+      archiveSha256: ee3324327d621026ae80c24031670e65fa62a0b23a3a027dbe2f65f240affd30
+      executableSha256: d0878274b8d6bd3c8ea26a78eb66cd1ffd943d007c62b9dff31c8aa99922d713
+    runtimeCertification:
+      accelerator: cpu
+      gpuLayers: 0
+      loopbackOnly: true
+      nonStreamingExpected: MODELSCOPE_DOTNET_OK
+      nonStreamingActual: MODELSCOPE_DOTNET_OK
+      streamingExpected: MODELSCOPE_STREAM_OK
+      streamingActual: MODELSCOPE_STREAM_OK
+      streamTerminalObserved: true
+      crashRecoveryExpected: MODELSCOPE_RECOVERY_OK
+      crashRecoveryActual: MODELSCOPE_RECOVERY_OK
+      processRecovered: true
+      stoppedCleanly: true
+    certificationReport: tests/compatibility/qwen2.5-0.5b-instruct-gguf/runtime-certification-report.json
+    status: certified-preview-macos-arm64-cpu
+  - modelId: AI-ModelScope/stable-diffusion-v1-5
+    revision: 50b8f071f400a9a501706bb7530481056f5f0558
+    task: text-to-image-synthesis
+    license: review-required
+    scope: p5-python-worker-image-generation-certification
+    runtimeCandidates:
+      - python
+    verifiedArtifacts:
+      unet/diffusion_pytorch_model.safetensors: 19da7aaa4b880e59d56843f1fcb4dd9b599c28a1d9d9af7c1143057c8ffae9f1
+      vae/diffusion_pytorch_model.safetensors: a2b5134f4dbc140d9c11f11cba3233099e00af40f262f136c691fb7d38d2194c
+      text_encoder/model.safetensors: d008943c017f0092921106440254dbbe00b6a285f7883ec8ba160c3faad88334
+      safety_checker/model.safetensors: 9d6a233ff6fd5ccb9f76fd99618d73369c52dd3d8222376384d0e601911089e8
+    certificationReport: artifacts/image-generation/certification-runs/85f5ef8defef48249f3c2db9eef754de/report.json
+    status: certified-extension-local-macos-arm64-cpu-license-review
+  - modelId: damo/cv_convnextTiny_ocr-recognition-general_damo
+    revision: 6346468feced662993f8a79f7f62004dc534cca6
+    task: ocr-recognition
+    license: review-required
+    scope: p5-python-worker-ocr-recognition-certification
+    runtimeCandidates:
+      - python
+    verifiedArtifacts:
+      pytorch_model.pt: 31cc4d17982aa82cfc7acfb95553b414183eaafafc7ff199692d4ebfbed7243c
+      vocab.txt: fe1121fa9d5112c7d6e14a8bbbadd1286e0c12963adc961aa4dbd272cc0dc1ca
+    certificationReport: artifacts/ocr/dotnet-runs/df4bd3e025e4483cb5fc1e78457b1b7b/report.json
+    status: certified-extension-local-macos-arm64-cpu-license-review
+  - modelId: damo/cv_resnet18_ocr-detection-db-line-level_damo
+    revision: 3a6b98fc046f99e8ec97d4ed25f478909a123253
+    task: ocr-detection
+    license: review-required
+    scope: p5-python-worker-ocr-detection-certification
+    runtimeCandidates:
+      - python
+    verifiedArtifacts:
+      db_resnet18_public_line_640x640.onnx: 2c2c5434eb67d68058ad2fa7fe05d415db17bb94d3ccbe30f6d512abec29fa57
+      pytorch_model.pt: 9e33bcee3df26bdd9b2b0d7a1ca2c82ca14f7595500957e52cb5096278f4c0dd
+    certificationReport: artifacts/ocr/dotnet-runs/df4bd3e025e4483cb5fc1e78457b1b7b/report.json
+    status: certified-extension-local-macos-arm64-cpu-license-review
+  - modelId: iic/speech_paraformer-large_asr_nat-zh-cn-16k-common-vocab8404-pytorch
+    revision: ff922d0e9af830cee4d1ec9b57b193196941efd8
+    task: automatic-speech-recognition
+    license: review-required
+    scope: p5-python-worker-asr-certification
+    runtimeCandidates:
+      - python
+    verifiedArtifacts:
+      model.pt: 5bba782a5e9196166233b9ab12ba04cadff9ef9212b4ff6153ed9290ff679025
+      example/asr_example.wav: a1bd32dc78493c123f9625a66deee562aed2895f53fbc39f2cca3be7e6f4f20f
+    certificationReport: artifacts/asr/dotnet-runs/b44910dd6e5d4d5c92e53d7a93ca7281/report.json
+    status: certified-extension-local-macos-arm64-cpu-license-review
+  - modelId: onnx-community/SmolLM-135M-ONNX
+    revision: cde45563cc98f8fa03cbdf2c074985aec9efb3e5
+    task: text-generation
+    license: apache-2.0
+    scope: p5-onnx-text-generation-certification
+    runtimeCandidates:
+      - onnx-text-generation
+    verifiedArtifacts:
+      onnx/model_quantized.onnx: 7ae6828aa72763890cfc729cc0a84adeaa848bc0cba834a2aedbbcc02681936e
+      vocab.json: 82b84012e3add4d01d12ba14442026e49b8cbbaead1f79ecf3d919784f82dc79
+      merges.txt: 0b54e8aa4e53d5383e2e4bc635a56b43f9647f7b13832d5d9ecd8f82dac4f510
+    certificationReport: artifacts/onnx-text-generation/dotnet-runs/376c39fa4fe54ec6a06478c697d04965/report.json
+    status: certified-extension-local-macos-arm64-cpu
+  - modelId: Qwen/Qwen2.5-VL-3B-Instruct
+    revision: 1b5a7674d40a0ac9acef541a46fed12d710bd36b
+    task: image-text-to-text
+    license: review-required
+    scope: p0-remote-multimodal-candidate
+    runtimeCandidates:
+      - remote
+      - python
+    verifiedArtifacts:
+      config.json: 7ed3eed5be6924cc800e8a5e53fc405c1aab1aaf36bad65c33403b36c56827f5
+      LICENSE: b5c0e5cf74cf51af1ecbc4af597cfcd13fd9925611838884a681070838a14a50
+    status: verified-metadata-only-runtime-and-license-pending
+  - modelId: Qwen/Qwen-72B
+    revision: 5c0f3be333e9a4687137fbb1a3196e2516ae5fe5
+    task: text-generation
+    license: other-review-required
+    scope: p0-trust-remote-code-candidate
+    runtimeCandidates:
+      - python
+    remoteCode: required
+    verifiedArtifacts:
+      config.json: 2be67014205322cbb72f544152ea6f45af4fbcb928a02aac3bb7b0161f051202
+      configuration_qwen.py: 74626181ddd5c9c40accdbb93fc45007cb2278179a32504f32bd82ffb4336e2c
+      LICENSE: 7c7b8e244f6aa1ac8c32b74f56d42c41a0364dd2dabed8d9c6030a862e805b54
+    status: verified-metadata-only-runtime-security-and-license-pending
+  - modelId: Embedding-GGUF/bge-base-en-v1.5-gguf
+    revision: b1a713ae4cb87f1fa7fa482a5ab339bb4fd99aa9
+    task: feature-extraction
+    license: mit
+    scope: p0-gguf-embedding-unsupported-candidate
+    runtimeCandidates:
+      - gguf
+    verifiedArtifacts:
+      bge-base-en-v1.5.Q4_K_M.gguf: aec0693ffb5aa5ebdcaa2b023ae46980bdca3e56721ca468e66fc7e797b8fa44
+      configuration.json: 6bc26d64eb5024b4d1dab5a52371958b429256d6c9d59787f1f5294a54e0cebd
+    unsupportedReason: current GGUF adapter exposes generation/chat only; embedding endpoint and BERT GGUF architecture are not certified
+    status: verified-metadata-unsupported-current-runtime
+  - modelId: nndeploy/nndeploy
+    revision: 95f0258341c1c287165bf410f62f70a751ffcab7
+    task: object-detection
+    license: review-required
+    scope: p0-onnx-object-detection-unsupported-candidate
+    runtimeCandidates:
+      - onnx
+    verifiedArtifacts:
+      detect/yolov5n.onnx: cfceae6868913d227d8ab1ffc948ec13057b11e0f820f929121af120c7d00180
+      configuration.json: 9a9b41224519cc2cd5e993d9bd161a4165bb0f7ddc58a91a63f8b0ced41ad4de
+    unsupportedReason: raw ONNX tensors are available but no standard object-detection pre/post-processing adapter is certified
+    status: verified-metadata-unsupported-current-adapter
+
+acceptance:
+  rollout:
+    status: passed-local-engineering-drill
+    report: artifacts/rollout/p4-06-bge/report.json
+    runbook: docs/runbooks/canary-rollback.md
+    productionClusterValidation: pending-p4-07
+  hubContractSuccessRate: 1.0
+  corruptedArtifactTolerance: 0
+  fixedRevisionRequired: true
+  remoteCodeDefault: deny
+  performanceThresholds:
+    scope: technical-preview-macos-arm64-cpu
+    report: tests/performance/p3-08-cpu-macos-arm64.json
+    status: passed
+    repeatRuns: 2
+    gpuPolicy: fail-until-platform-matrix-and-benchmark-are-approved
+  workerIsolation:
+    scope: managed-worker-production-baseline
+    matrix: deployment/worker-security-matrix.json
+    deploymentProfile: deployment/p4-05-deployment-profile.json
+    containerBuildEvidence: deployment/container-build-evidence.json
+    status: application-and-deployment-controls-passed
+    productionPolicy: runtime-soak-and-cluster-verification-pending-p4-07
+  resourceGovernance:
+    scope: managed-local-worker-technical-preview
+    status: passed
+    maxCachedSessions: 5
+    maxEstimatedMemoryBytes: 3221225472
+    maxConcurrentLeases: 1
+    maxConcurrentLeasesPerModel: 1
+    maxQueuedAcquisitions: 32
+    queueTimeoutSeconds: 30
+    idleTimeoutSeconds: 900
+    operatingSystemQuotaPolicy: p4-05-deployment-profile-required
+  numericalTolerances: per-model-required
+
+approvals:
+  product: pending
+  technical: pending
+  security: pending
+  legal: pending
+
+remainingModelSlots: 0-10
+notes:
+  - This draft contains 15 fixed-revision representatives: the original public contract/five-model native set, five P5 extensions, and four metadata-verified engineering candidates.
+  - Five fixed-Revision local inference models now pass the P3-07 engineering certification gate; release approval remains pending.
+  - P3-08 macOS ARM64 CPU performance gates passed across two repeated runs; unmeasured platforms and accelerators remain fail-closed.
+  - P4-04 application resource governance passed; P4-05 now supplies the mandatory OS and container quota profile.
+  - P4-05 container controls and real worker mTLS passed; target-cluster enforcement and soak evidence remain pending P4-07.
+  - MobileNet V2 source metadata declares license `other`; legal approval is required before a production release.
+  - The Qwen GGUF entry is inference-certified only for llama.cpp b10516 on macOS ARM64 CPU; pinned Ubuntu and Windows assets are not yet executed.
+  - The engineering draft now meets the 15-model count and includes remote multimodal, trust_remote_code, GGUF embedding and ONNX object-detection candidates; business owners must approve the set and provide an authorized private/restricted repository before phase 0 can close.

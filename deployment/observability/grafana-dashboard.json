@@ -1,0 +1,78 @@
+{
+  "annotations": { "list": [] },
+  "editable": true,
+  "graphTooltip": 1,
+  "id": null,
+  "links": [],
+  "panels": [
+    {
+      "datasource": { "type": "prometheus", "uid": "${datasource}" },
+      "description": "Invocation rate split by bounded runtime and task labels.",
+      "fieldConfig": { "defaults": { "unit": "reqps" }, "overrides": [] },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 },
+      "id": 1,
+      "options": { "legend": { "displayMode": "table", "placement": "bottom" }, "tooltip": { "mode": "multi" } },
+      "targets": [
+        { "expr": "sum by (modelscope_runtime, modelscope_task) (rate(modelscope_runtime_invocations_total{modelscope_runtime=~\"$runtime\",modelscope_task=~\"$task\"}[5m]))", "legendFormat": "{{modelscope_runtime}} / {{modelscope_task}}", "refId": "A" }
+      ],
+      "title": "Inference rate",
+      "type": "timeseries"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "${datasource}" },
+      "description": "Failures divided by all invocations. No-data is intentionally not treated as success.",
+      "fieldConfig": { "defaults": { "max": 1, "min": 0, "unit": "percentunit" }, "overrides": [] },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 },
+      "id": 2,
+      "options": { "legend": { "displayMode": "table", "placement": "bottom" }, "tooltip": { "mode": "multi" } },
+      "targets": [
+        { "expr": "sum by (modelscope_runtime, modelscope_task) (rate(modelscope_runtime_failures_total{modelscope_runtime=~\"$runtime\",modelscope_task=~\"$task\"}[5m])) / sum by (modelscope_runtime, modelscope_task) (rate(modelscope_runtime_invocations_total{modelscope_runtime=~\"$runtime\",modelscope_task=~\"$task\"}[5m]))", "legendFormat": "{{modelscope_runtime}} / {{modelscope_task}}", "refId": "A" }
+      ],
+      "title": "Failure ratio",
+      "type": "timeseries"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "${datasource}" },
+      "description": "End-to-end inference p50, p95 and p99 from the exported duration histogram.",
+      "fieldConfig": { "defaults": { "unit": "ms" }, "overrides": [] },
+      "gridPos": { "h": 9, "w": 16, "x": 0, "y": 8 },
+      "id": 3,
+      "options": { "legend": { "displayMode": "table", "placement": "bottom" }, "tooltip": { "mode": "multi" } },
+      "targets": [
+        { "expr": "histogram_quantile(0.50, sum by (le) (rate(modelscope_runtime_duration_milliseconds_bucket{modelscope_runtime=~\"$runtime\",modelscope_task=~\"$task\"}[5m])))", "legendFormat": "p50", "refId": "A" },
+        { "expr": "histogram_quantile(0.95, sum by (le) (rate(modelscope_runtime_duration_milliseconds_bucket{modelscope_runtime=~\"$runtime\",modelscope_task=~\"$task\"}[5m])))", "legendFormat": "p95", "refId": "B" },
+        { "expr": "histogram_quantile(0.99, sum by (le) (rate(modelscope_runtime_duration_milliseconds_bucket{modelscope_runtime=~\"$runtime\",modelscope_task=~\"$task\"}[5m])))", "legendFormat": "p99", "refId": "C" }
+      ],
+      "title": "Inference latency",
+      "type": "timeseries"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "${datasource}" },
+      "description": "Must remain zero. A non-zero value means inference continued while the audit sink lost events.",
+      "fieldConfig": { "defaults": { "color": { "mode": "thresholds" }, "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }, { "color": "red", "value": 1 }] }, "unit": "short" }, "overrides": [] },
+      "gridPos": { "h": 9, "w": 8, "x": 16, "y": 8 },
+      "id": 4,
+      "options": { "colorMode": "background", "graphMode": "area", "justifyMode": "auto", "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }, "textMode": "auto" },
+      "targets": [
+        { "expr": "sum(increase(modelscope_audit_write_failures_total[5m]))", "refId": "A" }
+      ],
+      "title": "Audit write failures (5m)",
+      "type": "stat"
+    }
+  ],
+  "refresh": "30s",
+  "schemaVersion": 39,
+  "tags": ["modelscope-net", "runtime"],
+  "templating": {
+    "list": [
+      { "current": {}, "hide": 0, "includeAll": false, "label": "Prometheus", "name": "datasource", "options": [], "query": "prometheus", "refresh": 1, "type": "datasource" },
+      { "allValue": ".*", "current": { "text": "All", "value": "$__all" }, "datasource": { "type": "prometheus", "uid": "${datasource}" }, "definition": "label_values(modelscope_runtime_invocations_total, modelscope_runtime)", "includeAll": true, "label": "Runtime", "multi": true, "name": "runtime", "query": { "query": "label_values(modelscope_runtime_invocations_total, modelscope_runtime)", "refId": "PrometheusVariableQueryEditor-VariableQuery" }, "refresh": 1, "type": "query" },
+      { "allValue": ".*", "current": { "text": "All", "value": "$__all" }, "datasource": { "type": "prometheus", "uid": "${datasource}" }, "definition": "label_values(modelscope_runtime_invocations_total, modelscope_task)", "includeAll": true, "label": "Task", "multi": true, "name": "task", "query": { "query": "label_values(modelscope_runtime_invocations_total, modelscope_task)", "refId": "PrometheusVariableQueryEditor-VariableQuery" }, "refresh": 1, "type": "query" }
+    ]
+  },
+  "time": { "from": "now-6h", "to": "now" },
+  "timezone": "browser",
+  "title": "ModelScope.Net runtime",
+  "uid": "modelscope-net-runtime",
+  "version": 1
+}

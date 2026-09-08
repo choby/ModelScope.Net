@@ -1,0 +1,166 @@
+{
+  "schemaVersion": 1,
+  "modelId": "unsloth/all-MiniLM-L6-v2",
+  "revision": "4bc149651c730bffa46308d38a3f2a2c5e9b6e08",
+  "status": "passed",
+  "generatedAt": "2026-09-05T06:14:22.89092+00:00",
+  "sampleCount": 8,
+  "dimensions": 384,
+  "thresholds": {
+    "maximumAbsoluteError": 0.0001,
+    "minimumCosineSimilarity": 0.99999
+  },
+  "results": {
+    "maximumAbsoluteError": 2.0932153224975658E-07,
+    "minimumCosineSimilarity": 0.9999999999992116
+  },
+  "samples": [
+    {
+      "index": 0,
+      "text": "hello world",
+      "maxAbsoluteError": 2.0932153224975658E-07,
+      "meanAbsoluteError": 5.102793259241496E-08,
+      "cosineSimilarity": 0.9999999999992116,
+      "pythonNorm": 0.9999999672499855,
+      "dotnetNorm": 0.9999999965479539
+    },
+    {
+      "index": 1,
+      "text": "What is ModelScope?",
+      "maxAbsoluteError": 1.3189987563971828E-07,
+      "meanAbsoluteError": 3.5798318857371086E-08,
+      "cosineSimilarity": 0.9999999999996112,
+      "pythonNorm": 1.0000000278075503,
+      "dotnetNorm": 0.9999999977673685
+    },
+    {
+      "index": 2,
+      "text": "The quick brown fox jumps over the lazy dog.",
+      "maxAbsoluteError": 1.7424051285130915E-07,
+      "meanAbsoluteError": 3.927027646744473E-08,
+      "cosineSimilarity": 0.999999999999499,
+      "pythonNorm": 0.9999999820411142,
+      "dotnetNorm": 0.9999999996249291
+    },
+    {
+      "index": 3,
+      "text": "Machine learning models can encode sentences as vectors.",
+      "maxAbsoluteError": 2.0896852492846563E-07,
+      "meanAbsoluteError": 3.955793760661543E-08,
+      "cosineSimilarity": 0.9999999999995065,
+      "pythonNorm": 0.9999999237322722,
+      "dotnetNorm": 1.0000000003872573
+    },
+    {
+      "index": 4,
+      "text": "A short document about semantic search and retrieval.",
+      "maxAbsoluteError": 1.6429727697428453E-07,
+      "meanAbsoluteError": 4.1528194936957415E-08,
+      "cosineSimilarity": 0.9999999999994682,
+      "pythonNorm": 1.0000000537421048,
+      "dotnetNorm": 0.9999999995621512
+    },
+    {
+      "index": 5,
+      "text": "Numbers 123 and punctuation, tested!",
+      "maxAbsoluteError": 1.5240543364825054E-07,
+      "meanAbsoluteError": 4.467746682800762E-08,
+      "cosineSimilarity": 0.9999999999994189,
+      "pythonNorm": 1.0000000019612338,
+      "dotnetNorm": 0.9999999984888889
+    },
+    {
+      "index": 6,
+      "text": "UPPERCASE and lowercase tokens",
+      "maxAbsoluteError": 1.3612880707392083E-07,
+      "meanAbsoluteError": 3.777176090220151E-08,
+      "cosineSimilarity": 0.9999999999995861,
+      "pythonNorm": 0.9999999599418423,
+      "dotnetNorm": 0.9999999971252552
+    },
+    {
+      "index": 7,
+      "text": "Paris is the capital of France.",
+      "maxAbsoluteError": 1.4127191924617755E-07,
+      "meanAbsoluteError": 3.765448565729842E-08,
+      "cosineSimilarity": 0.9999999999995626,
+      "pythonNorm": 1.0000000587007898,
+      "dotnetNorm": 1.0000000032544205
+    }
+  ],
+  "pythonEnvironment": {
+    "python": "3.14.2",
+    "modelscopeCommit": "53f61360c8c10a31c7adae483c223188bb602948",
+    "torch": "2.9.1",
+    "transformers": "4.57.6",
+    "numpy": "2.5.2"
+  },
+  "dotnetEnvironment": {
+    "dotnet": "10.0.8",
+    "onnxRuntime": "1.29.0\u002B2e2543fbe9fae542f921d47a72d21d5a4ef0b710",
+    "os": "Unix 27.0.0",
+    "architecture": "Arm64"
+  },
+  "downloadManifest": {
+    "modelId": "unsloth/all-MiniLM-L6-v2",
+    "requestedRevision": "4bc149651c730bffa46308d38a3f2a2c5e9b6e08",
+    "resolvedRevision": "4bc149651c730bffa46308d38a3f2a2c5e9b6e08",
+    "files": [
+      {
+        "path": "config.json",
+        "size": 612,
+        "sha256": "953f9c0d463486b10a6871cc2fd59f223b2c70184f49815e7efbcab5d8908b41"
+      },
+      {
+        "path": "1_Pooling/config.json",
+        "size": 190,
+        "sha256": "4be450dde3b0273bb9787637cfbd28fe04a7ba6ab9d36ac48e92b11e350ffc23"
+      },
+      {
+        "path": "config_sentence_transformers.json",
+        "size": 116,
+        "sha256": "061ca9d39661d6c6d6de5ba27f79a1cd5770ea247f8d46412a68a498dc5ac9f3"
+      },
+      {
+        "path": "onnx/model.onnx",
+        "size": 90405214,
+        "sha256": "6fd5d72fe4589f189f8ebc006442dbb529bb7ce38f8082112682524616046452"
+      },
+      {
+        "path": "model.safetensors",
+        "size": 90868376,
+        "sha256": "53aa51172d142c89d9012cce15ae4d6cc0ca6895895114379cacb4fab128d9db"
+      },
+      {
+        "path": "modules.json",
+        "size": 349,
+        "sha256": "84e40c8e006c9b1d6c122e02cba9b02458120b5fb0c87b746c41e0207cf642cf"
+      },
+      {
+        "path": "sentence_bert_config.json",
+        "size": 53,
+        "sha256": "fc1993fde0a95c24ec6c022539d41cf6e2f7c9721e5415d6fb6897472a9cd4b7"
+      },
+      {
+        "path": "special_tokens_map.json",
+        "size": 112,
+        "sha256": "303df45a03609e4ead04bc3dc1536d0ab19b5358db685b6f3da123d05ec200e3"
+      },
+      {
+        "path": "tokenizer.json",
+        "size": 466247,
+        "sha256": "be50c3628f2bf5bb5e3a7f17b1f74611b2561a3a27eeab05e5aa30f411572037"
+      },
+      {
+        "path": "tokenizer_config.json",
+        "size": 350,
+        "sha256": "acb92769e8195aabd29b7b2137a9e6d6e25c476a4f15aa4355c233426c61576b"
+      },
+      {
+        "path": "vocab.txt",
+        "size": 231508,
+        "sha256": "07eced375cec144d27c900241f3e339478dec958f92fddbc551f295c992038a3"
+      }
+    ]
+  }
+}

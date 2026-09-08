@@ -1,0 +1,9 @@
+# Merge into the KubeletConfiguration for every dedicated ModelScope worker node.
+# Kubernetes does not expose a portable per-Pod PID limit field.
+apiVersion: kubelet.config.k8s.io/v1beta1
+kind: KubeletConfiguration
+podPidsLimit: 256
+cpuCFSQuota: true
+protectKernelDefaults: true
+shutdownGracePeriod: 30s
+shutdownGracePeriodCriticalPods: 10s

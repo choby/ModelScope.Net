@@ -1,0 +1,41 @@
+{
+  "schemaVersion": 1,
+  "sourceMeter": "ModelScope.Net.Runtime",
+  "exporterProfile": "OpenTelemetry Prometheus exporter with periods translated to underscores and counter suffixes enabled",
+  "metrics": {
+    "invocations": {
+      "otelName": "modelscope.runtime.invocations",
+      "prometheusName": "modelscope_runtime_invocations_total",
+      "type": "counter"
+    },
+    "failures": {
+      "otelName": "modelscope.runtime.failures",
+      "prometheusName": "modelscope_runtime_failures_total",
+      "type": "counter"
+    },
+    "duration": {
+      "otelName": "modelscope.runtime.duration",
+      "prometheusName": "modelscope_runtime_duration_milliseconds",
+      "type": "histogram",
+      "unit": "ms"
+    },
+    "auditWriteFailures": {
+      "otelName": "modelscope.audit.write_failures",
+      "prometheusName": "modelscope_audit_write_failures_total",
+      "type": "counter"
+    }
+  },
+  "boundedLabels": [
+    "modelscope_runtime",
+    "modelscope_task",
+    "modelscope_streaming",
+    "modelscope_outcome"
+  ],
+  "defaultAlertThresholds": {
+    "minimumInvocationRatePerSecond": 0.1,
+    "warningFailureRatio": 0.05,
+    "criticalFailureRatio": 0.15,
+    "warningP95Milliseconds": 2500,
+    "criticalP95Milliseconds": 10000
+  }
+}

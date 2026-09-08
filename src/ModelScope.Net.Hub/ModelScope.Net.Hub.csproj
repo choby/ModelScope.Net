@@ -1,0 +1,15 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <IsPackable>true</IsPackable>
+    <Description>Model metadata, fixed-revision downloads and verified local caching for ModelScope Hub.</Description>
+</PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../ModelScope.Net.Abstractions/ModelScope.Net.Abstractions.csproj" />
+  </ItemGroup>
+
+</Project>

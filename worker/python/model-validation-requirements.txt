@@ -1,0 +1,10 @@
+# Additional packages layered onto the frozen Python gold environment for local original-source Worker validation.
+# This is not yet a complete production model-image dependency lock.
+grpcio==1.83.1
+protobuf==7.36.1
+addict==2.4.0
+sortedcontainers==2.4.0
+simplejson==3.20.2
+attrs==25.4.0
+datasets==4.8.4
+huggingface-hub==0.36.2

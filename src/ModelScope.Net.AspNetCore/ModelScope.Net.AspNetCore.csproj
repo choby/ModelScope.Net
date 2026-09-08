@@ -1,0 +1,22 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <IsPackable>true</IsPackable>
+    <Description>ASP.NET Core dependency injection, health checks, telemetry and audit integration for ModelScope.Net.</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+    <ProjectReference Include="../ModelScope.Net.Abstractions/ModelScope.Net.Abstractions.csproj" />
+    <ProjectReference Include="../ModelScope.Net.Hub/ModelScope.Net.Hub.csproj" />
+    <ProjectReference Include="../ModelScope.Net.Runtime/ModelScope.Net.Runtime.csproj" />
+    <ProjectReference Include="../ModelScope.Net.Runtime.Gguf/ModelScope.Net.Runtime.Gguf.csproj" />
+    <ProjectReference Include="../ModelScope.Net.Runtime.Onnx/ModelScope.Net.Runtime.Onnx.csproj" />
+    <ProjectReference Include="../ModelScope.Net.Runtime.Remote/ModelScope.Net.Runtime.Remote.csproj" />
+    <ProjectReference Include="../ModelScope.Net.Runtime.Python/ModelScope.Net.Runtime.Python.csproj" />
+  </ItemGroup>
+
+</Project>

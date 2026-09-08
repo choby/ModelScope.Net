@@ -1,0 +1,32 @@
+apiVersion: v1
+kind: LimitRange
+metadata:
+  name: modelscope-runtime-defaults
+  namespace: modelscope-runtime
+spec:
+  limits:
+    - type: Container
+      defaultRequest:
+        cpu: "500m"
+        memory: "1Gi"
+        ephemeral-storage: "256Mi"
+      default:
+        cpu: "2"
+        memory: "3Gi"
+        ephemeral-storage: "1Gi"
+---
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: modelscope-runtime-quota
+  namespace: modelscope-runtime
+spec:
+  hard:
+    requests.cpu: "4"
+    requests.memory: "8Gi"
+    limits.cpu: "8"
+    limits.memory: "16Gi"
+    requests.ephemeral-storage: "2Gi"
+    limits.ephemeral-storage: "4Gi"
+    pods: "4"
+    persistentvolumeclaims: "2"

@@ -1,0 +1,29 @@
+  正在确定要还原的项目…
+  所有项目均是最新的，无法还原。
+  ModelScope.Net.Abstractions -> /Users/choby/Documents/github/ModelScope.Net/src/ModelScope.Net.Abstractions/bin/Release/net10.0/ModelScope.Net.Abstractions.dll
+  ModelScope.Net.Runtime -> /Users/choby/Documents/github/ModelScope.Net/src/ModelScope.Net.Runtime/bin/Release/net10.0/ModelScope.Net.Runtime.dll
+  ModelScope.Net.Hub -> /Users/choby/Documents/github/ModelScope.Net/src/ModelScope.Net.Hub/bin/Release/net10.0/ModelScope.Net.Hub.dll
+  ModelScope.Net.Runtime.Gguf -> /Users/choby/Documents/github/ModelScope.Net/src/ModelScope.Net.Runtime.Gguf/bin/Release/net10.0/ModelScope.Net.Runtime.Gguf.dll
+  ModelScope.Net.Runtime.Onnx -> /Users/choby/Documents/github/ModelScope.Net/src/ModelScope.Net.Runtime.Onnx/bin/Release/net10.0/ModelScope.Net.Runtime.Onnx.dll
+  ModelScope.Net.Runtime.Remote -> /Users/choby/Documents/github/ModelScope.Net/src/ModelScope.Net.Runtime.Remote/bin/Release/net10.0/ModelScope.Net.Runtime.Remote.dll
+  ModelScope.Net.Runtime.Python -> /Users/choby/Documents/github/ModelScope.Net/src/ModelScope.Net.Runtime.Python/bin/Release/net10.0/ModelScope.Net.Runtime.Python.dll
+  ModelScope.Net.RolloutDrill -> /Users/choby/Documents/github/ModelScope.Net/tools/ModelScope.Net.RolloutDrill/bin/Release/net10.0/ModelScope.Net.RolloutDrill.dll
+  ModelScope.Net.GgufRuntimeCertification -> /Users/choby/Documents/github/ModelScope.Net/tools/ModelScope.Net.GgufRuntimeCertification/bin/Release/net10.0/ModelScope.Net.GgufRuntimeCertification.dll
+  ModelScope.Net.GgufCertification -> /Users/choby/Documents/github/ModelScope.Net/tools/ModelScope.Net.GgufCertification/bin/Release/net10.0/ModelScope.Net.GgufCertification.dll
+  ModelScope.Net.PerformanceBenchmark -> /Users/choby/Documents/github/ModelScope.Net/tools/ModelScope.Net.PerformanceBenchmark/bin/Release/net10.0/ModelScope.Net.PerformanceBenchmark.dll
+  ModelScope.Net.VisionCertification -> /Users/choby/Documents/github/ModelScope.Net/tools/ModelScope.Net.VisionCertification/bin/Release/net10.0/ModelScope.Net.VisionCertification.dll
+  ModelScope.Net.Certification -> /Users/choby/Documents/github/ModelScope.Net/tools/ModelScope.Net.Certification/bin/Release/net10.0/ModelScope.Net.Certification.dll
+  ModelScope.Net.ClassificationCertification -> /Users/choby/Documents/github/ModelScope.Net/tools/ModelScope.Net.ClassificationCertification/bin/Release/net10.0/ModelScope.Net.ClassificationCertification.dll
+  ModelScope.Net.Sample -> /Users/choby/Documents/github/ModelScope.Net/samples/ModelScope.Net.Sample/bin/Release/net10.0/ModelScope.Net.Sample.dll
+  ModelScope.Net.Hub.Tests -> /Users/choby/Documents/github/ModelScope.Net/tests/ModelScope.Net.Hub.Tests/bin/Release/net10.0/ModelScope.Net.Hub.Tests.dll
+  ModelScope.Net.Cli -> /Users/choby/Documents/github/ModelScope.Net/src/ModelScope.Net.Cli/bin/Release/net10.0/ModelScope.Net.Cli.dll
+  ModelScope.Net.AspNetCore -> /Users/choby/Documents/github/ModelScope.Net/src/ModelScope.Net.AspNetCore/bin/Release/net10.0/ModelScope.Net.AspNetCore.dll
+  ModelScope.Net.Runtime.Tests -> /Users/choby/Documents/github/ModelScope.Net/tests/ModelScope.Net.Runtime.Tests/bin/Release/net10.0/ModelScope.Net.Runtime.Tests.dll
+  ModelScope.Net.Cli.Tests -> /Users/choby/Documents/github/ModelScope.Net/tests/ModelScope.Net.Cli.Tests/bin/Release/net10.0/ModelScope.Net.Cli.Tests.dll
+  ModelScope.Net.AspNetCore.Tests -> /Users/choby/Documents/github/ModelScope.Net/tests/ModelScope.Net.AspNetCore.Tests/bin/Release/net10.0/ModelScope.Net.AspNetCore.Tests.dll
+
+已成功生成。
+    0 个警告
+    0 个错误
+
+已用时间 00:00:02.25

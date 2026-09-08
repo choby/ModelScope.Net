@@ -1,0 +1,50 @@
+name: fixed-model-certification
+on:
+  workflow_dispatch:
+    inputs:
+      model:
+        description: Registry key, or all
+        required: true
+        default: all
+        type: choice
+        options:
+          - all
+          - bge-small-en-v1.5
+          - all-minilm-l6-v2
+          - distilbert-sst2
+          - mobilenet-v2-image-classification
+          - qwen2.5-0.5b-instruct-gguf
+permissions:
+  contents: read
+jobs:
+  recertify:
+    runs-on: [self-hosted, macOS, ARM64, modelscope-certification]
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          clean: false
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.300
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Pipeline negative tests
+        run: python -m unittest discover -s tools/tests -v
+      - name: Certify registered fixed models
+        shell: bash
+        env:
+          MODEL_KEY: ${{ inputs.model }}
+        run: |
+          args=()
+          if [[ "$MODEL_KEY" != "all" ]]; then args+=(--model "$MODEL_KEY"); fi
+          python tools/certification_pipeline.py "${args[@]}"
+      - name: Preserve evidence including failures
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: certification-evidence-${{ github.run_id }}
+          path: artifacts/certification-runs/
+          retention-days: 30
+          if-no-files-found: error

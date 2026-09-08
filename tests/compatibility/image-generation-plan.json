@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "modelId": "AI-ModelScope/stable-diffusion-v1-5",
+  "revision": "50b8f071f400a9a501706bb7530481056f5f0558",
+  "device": "cpu",
+  "samples": [
+    { "id": "red-cube", "prompt": "a red wooden cube on a white table, studio photograph", "width": 512, "height": 512, "steps": 30, "guidanceScale": 7.5, "seed": 42 },
+    { "id": "blue-vase", "prompt": "a blue ceramic vase on a wooden table, studio photograph", "width": 512, "height": 512, "steps": 20, "guidanceScale": 7.5, "seed": 7 },
+    { "id": "green-toy-car", "prompt": "a small green toy car on a white table, studio photograph", "width": 512, "height": 512, "steps": 20, "guidanceScale": 7.5, "seed": 1234 }
+  ]
+}

@@ -1,0 +1,20 @@
+# Isolated local-certification overlay. The base certification environment supplies
+# torch, numpy and ModelScope; these versions describe the tested ASR additions.
+funasr==1.4.14
+librosa==0.11.0
+lazy-loader==0.4
+scipy==1.16.2
+soundfile==0.13.1
+omegaconf==2.3.0
+hydra-core==1.3.2
+antlr4-python3-runtime==4.9.3
+kaldiio==2.18.1
+kaldi-native-fbank==1.22.3
+jamo==0.4.1
+rapidfuzz==3.14.1
+torch-complex==0.4.4
+tensorboardX==2.6.4
+sentencepiece==0.2.1
+tiktoken==0.12.0
+cffi==2.0.0
+pycparser==2.23

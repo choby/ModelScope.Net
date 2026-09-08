@@ -1,0 +1,53 @@
+{
+  "schemaVersion": 1,
+  "runId": "870c46434797409aa3c9b6edbc1d65a7",
+  "generatedAt": "2026-09-06T08:49:40.156350+00:00",
+  "scope": "local-linux-container-isolation-only",
+  "status": "passed",
+  "imageId": "sha256:b54aa6dda3ece8618b3f76a61f724deba063fec7ec4f33b81d3eca13e7703fd6",
+  "architecture": "arm64",
+  "engineVersion": "29.7.2",
+  "probe": {
+    "uid": 65532,
+    "gid": 65532,
+    "readOnlyRoot": true,
+    "readOnlyModels": true,
+    "temporaryDirectoryWritable": true,
+    "networkDenied": true,
+    "interfaces": [
+      "bonding_masters",
+      "erspan0",
+      "gre0",
+      "gretap0",
+      "ip6_vti0",
+      "ip6gre0",
+      "ip6tnl0",
+      "ip_vti0",
+      "lo",
+      "sit0",
+      "tunl0"
+    ],
+    "activeNonLoopbackInterfaces": [],
+    "noNewPrivileges": "1",
+    "seccomp": "2",
+    "effectiveCapabilities": "0000000000000000",
+    "cpuMax": "50000 100000",
+    "memoryMax": "268435456",
+    "pidsMax": "64",
+    "serverSha256": "7cbef2c164e132b696a70248d21edcba70808331643c4f64f25a1bc55e83681d"
+  },
+  "checks": {
+    "nonRoot": true,
+    "readOnlyRoot": true,
+    "readOnlyModels": true,
+    "temporaryDirectoryWritable": true,
+    "networkIsolation": true,
+    "noNewPrivileges": true,
+    "seccompFilter": true,
+    "capabilitiesDropped": true,
+    "cpuQuota": true,
+    "memoryQuota": true,
+    "pidQuota": true,
+    "currentServerMatchesImage": true
+  }
+}

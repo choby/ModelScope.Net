@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "status": "passed",
+  "startedAt": "2026-09-05T22:45:42.888586+00:00",
+  "scope": "local-real-bge-process-kill-after-checkpoint",
+  "limitations": [
+    "Not a power-loss or mid-write crash test.",
+    "Recovery anchor remains in a local drill descriptor; not production trusted-anchor distribution."
+  ],
+  "writerPid": 57926,
+  "writerExitCode": -9,
+  "readerPid": 58169,
+  "readerExitCode": 0,
+  "checkpointReadyBeforeKill": true,
+  "freshProcessRestoredRevocation": true,
+  "oldCheckpointRejected": true,
+  "assemblySha256": "23dcf29933d27a41ea2d7e4967ff7e4da317e1272d060f60f313014f80b22ea1",
+  "recoveryDescriptorSha256": "5547cc2791302c12c1c18bcdb5fb9630fbffa2848a0a2fdd8349935a8bfdce18"
+}

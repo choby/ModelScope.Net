@@ -1,0 +1,97 @@
+{
+  "schemaVersion": 1,
+  "startedAt": "2026-09-05T06:19:53.267723+00:00",
+  "models": [
+    {
+      "modelId": "BAAI/bge-small-en-v1.5",
+      "pinnedRevision": "160f4d645d32abe3cabc5af6b6b39823eadf3c0e",
+      "trackedReference": "master",
+      "status": "unchanged",
+      "changes": {
+        "added": [],
+        "removed": [],
+        "modified": []
+      },
+      "pinnedInventorySha256": "a9ee5a88fbd31544a72c605d47bf641d8191a4e5514e0bc1e44d6bfc06e22ae1",
+      "trackedInventorySha256": "a9ee5a88fbd31544a72c605d47bf641d8191a4e5514e0bc1e44d6bfc06e22ae1"
+    },
+    {
+      "modelId": "unsloth/all-MiniLM-L6-v2",
+      "pinnedRevision": "4bc149651c730bffa46308d38a3f2a2c5e9b6e08",
+      "trackedReference": "master",
+      "status": "unchanged",
+      "changes": {
+        "added": [],
+        "removed": [],
+        "modified": []
+      },
+      "pinnedInventorySha256": "dc1e3df6c2653de81a7c224f0293462a1e2bfcad5e186e366eadecbe904e5493",
+      "trackedInventorySha256": "dc1e3df6c2653de81a7c224f0293462a1e2bfcad5e186e366eadecbe904e5493"
+    },
+    {
+      "modelId": "distilbert/distilbert-base-uncased-finetuned-sst-2-english",
+      "pinnedRevision": "ef2f51c8f6a09fb8c418d1ccbda386970ed2d53f",
+      "trackedReference": "master",
+      "status": "unchanged",
+      "changes": {
+        "added": [],
+        "removed": [],
+        "modified": []
+      },
+      "pinnedInventorySha256": "f5c3d9538ba4387ea001054d6c7b40816509bd577061ef4f72963e47a9423325",
+      "trackedInventorySha256": "f5c3d9538ba4387ea001054d6c7b40816509bd577061ef4f72963e47a9423325"
+    },
+    {
+      "modelId": "onnx-community/mobilenet_v2_1.0_224-ONNX",
+      "pinnedRevision": "ba6621a361183d7ce00314802b63a46eee2aa48b",
+      "trackedReference": "master",
+      "status": "unchanged",
+      "changes": {
+        "added": [],
+        "removed": [],
+        "modified": []
+      },
+      "pinnedInventorySha256": "6140b2a54ccf8df2e59cbcc2a5de923f93b6a0ecdd2668044e057f96ce8c8883",
+      "trackedInventorySha256": "6140b2a54ccf8df2e59cbcc2a5de923f93b6a0ecdd2668044e057f96ce8c8883"
+    },
+    {
+      "modelId": "google/mobilenet_v2_1.0_224",
+      "pinnedRevision": "4d4b64292df93eb1f5688417c18c05b23ec53630",
+      "trackedReference": "master",
+      "status": "unchanged",
+      "changes": {
+        "added": [],
+        "removed": [],
+        "modified": []
+      },
+      "pinnedInventorySha256": "3031d93bba31b9e925f51588e0fc04f629ebf83917d99c3b4d31d3cf3af68948",
+      "trackedInventorySha256": "3031d93bba31b9e925f51588e0fc04f629ebf83917d99c3b4d31d3cf3af68948"
+    },
+    {
+      "modelId": "Qwen/Qwen2.5-0.5B-Instruct-GGUF",
+      "pinnedRevision": "2e50b77b0eee3083842019e257b74854323d880a",
+      "trackedReference": "master",
+      "status": "changed",
+      "changes": {
+        "added": [
+          "LICENSE",
+          "README.md",
+          "qwen2.5-0.5b-instruct-fp16.gguf"
+        ],
+        "removed": [],
+        "modified": [
+          ".gitattributes"
+        ]
+      },
+      "pinnedInventorySha256": "9d56338559c6ca090ab748d33ee3348e4dbe72a4d57db84b5377fea966ac0f7a",
+      "trackedInventorySha256": "bdd9e629bdc91f5da46f8bdd938eb9716b3e10c810461b0b199fdd9569a12e3d"
+    }
+  ],
+  "dependencyChanges": [],
+  "planSha256": "02abcf667636668ac2764a667b3a25dd45f075028e15afa0256c18b635cbf32b",
+  "baselineSha256": "3807c25b1e26ad3c06326ee1d07d9febfafcf3c1d1fde9695b0bf3d5f7e442a3",
+  "status": "changed",
+  "requiresRecertification": true,
+  "upstreamChecked": true,
+  "completedAt": "2026-09-05T06:19:57.844582+00:00"
+}

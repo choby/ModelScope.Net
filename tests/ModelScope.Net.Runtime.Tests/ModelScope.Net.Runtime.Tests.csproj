@@ -1,0 +1,58 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="coverlet.collector" Version="10.0.1">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.9.0" />
+    <PackageReference Include="xunit" Version="2.9.3" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="4.0.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="Xunit" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="fixtures/python_worker_fixture.py" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="fixtures/llama_server_fixture.py" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="../compatibility/bge-small-en-v1.5/certification-report.json" Link="compatibility/bge-small-en-v1.5/certification-report.json" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="../compatibility/all-minilm-l6-v2/certification-report.json" Link="compatibility/all-minilm-l6-v2/certification-report.json" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="../compatibility/distilbert-sst2/certification-report.json" Link="compatibility/distilbert-sst2/certification-report.json" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="../compatibility/mobilenet-v2-image-classification/certification-report.json" Link="compatibility/mobilenet-v2-image-classification/certification-report.json" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="../compatibility/qwen2.5-0.5b-instruct-gguf/certification-report.json" Link="compatibility/qwen2.5-0.5b-instruct-gguf/certification-report.json" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="../compatibility/qwen2.5-0.5b-instruct-gguf/runtime-certification-report.json" Link="compatibility/qwen2.5-0.5b-instruct-gguf/runtime-certification-report.json" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="../performance/p3-08-cpu-macos-arm64.json" Link="performance/p3-08-cpu-macos-arm64.json" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="../../worker/python/server.py" Link="worker/server.py" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="../../worker/python/image_output.py" Link="worker/image_output.py" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="../../worker/python/ocr_transport.py" Link="worker/ocr_transport.py" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="../../worker/python/audio_transport.py" Link="worker/audio_transport.py" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="../../worker/python/generated/__init__.py" Link="worker/generated/__init__.py" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="../../worker/python/generated/python_worker_pb2.py" Link="worker/generated/python_worker_pb2.py" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="../../worker/python/generated/python_worker_pb2_grpc.py" Link="worker/generated/python_worker_pb2_grpc.py" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="../../release-manifest-v1.yaml" Link="release-manifest-v1.yaml" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="../../deployment/worker-security-matrix.json" Link="deployment/worker-security-matrix.json" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="../../deployment/p4-05-deployment-profile.json" Link="deployment/p4-05-deployment-profile.json" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="../../deployment/container-build-evidence.json" Link="deployment/container-build-evidence.json" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../../src/ModelScope.Net.Runtime/ModelScope.Net.Runtime.csproj" />
+    <ProjectReference Include="../../src/ModelScope.Net.Runtime.Gguf/ModelScope.Net.Runtime.Gguf.csproj" />
+    <ProjectReference Include="../../src/ModelScope.Net.Runtime.Onnx/ModelScope.Net.Runtime.Onnx.csproj" />
+    <ProjectReference Include="../../src/ModelScope.Net.Runtime.Remote/ModelScope.Net.Runtime.Remote.csproj" />
+    <ProjectReference Include="../../src/ModelScope.Net.Runtime.Python/ModelScope.Net.Runtime.Python.csproj" />
+  </ItemGroup>
+
+</Project>

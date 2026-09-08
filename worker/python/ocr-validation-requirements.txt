@@ -1,0 +1,3 @@
+# Independent .ocr-model-deps overlay for the fixed DBNet detector.
+pyclipper==1.4.0
+shapely==2.1.2

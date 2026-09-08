@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: modelscope-python-worker
+  namespace: modelscope-runtime
+spec:
+  template:
+    spec:
+      runtimeClassName: nvidia
+      nodeSelector:
+        kubernetes.io/os: linux
+        modelscope.net/worker-class: gpu
+      containers:
+        - name: worker
+          resources:
+            requests:
+              cpu: "1"
+              memory: "4Gi"
+              ephemeral-storage: "512Mi"
+              nvidia.com/gpu: "1"
+            limits:
+              cpu: "4"
+              memory: "8Gi"
+              ephemeral-storage: "2Gi"
+              nvidia.com/gpu: "1"

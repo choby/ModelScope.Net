@@ -1,0 +1,57 @@
+syntax = "proto3";
+
+package modelscope.net.worker.v1;
+option csharp_namespace = "ModelScope.Net.Runtime.Python.Grpc";
+
+service PythonWorker {
+  rpc Health(HealthRequest) returns (HealthResponse);
+  rpc LoadModel(LoadModelRequest) returns (LoadModelResponse);
+  rpc Invoke(InvokeRequest) returns (InvokeResponse);
+  rpc InvokeStreaming(InvokeRequest) returns (stream StreamEvent);
+  rpc UnloadModel(UnloadModelRequest) returns (UnloadModelResponse);
+}
+
+message HealthRequest {}
+
+message HealthResponse {
+  string status = 1;
+  string version = 2;
+  string message = 3;
+}
+
+message LoadModelRequest {
+  string model_path = 1;
+  string model_id = 2;
+  string revision = 3;
+  string task = 4;
+  bool allow_remote_code = 5;
+}
+
+message LoadModelResponse {
+  string session_id = 1;
+  repeated string warnings = 2;
+}
+
+message InvokeRequest {
+  string session_id = 1;
+  string task = 2;
+  bytes payload_json = 3;
+  map<string, string> parameters = 4;
+}
+
+message InvokeResponse {
+  bytes output_json = 1;
+  repeated string warnings = 2;
+}
+
+message StreamEvent {
+  string event = 1;
+  bytes data_json = 2;
+  bool terminal = 3;
+}
+
+message UnloadModelRequest {
+  string session_id = 1;
+}
+
+message UnloadModelResponse {}

@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 1,
+  "catalogVersion": "preview-example-1",
+  "createdAt": "2026-09-01T00:00:00Z",
+  "models": [
+    {
+      "modelId": "Qwen/Qwen2.5-0.5B-Instruct",
+      "revision": "186d8559ad54c32cf47dc3a8225f993742c507b8",
+      "task": "text-generation",
+      "runtime": "remote",
+      "status": "detected",
+      "artifactSha256": {
+        "config.json": "18e18afcaccafade98daf13a54092927904649e1dd4eba8299ab717d5d94ff45"
+      },
+      "platforms": [
+        "remote"
+      ]
+    }
+  ]
+}

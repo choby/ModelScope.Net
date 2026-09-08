@@ -1,0 +1,134 @@
+{
+  "schemaVersion": 1,
+  "modelId": "onnx-community/mobilenet_v2_1.0_224-ONNX",
+  "revision": "ba6621a361183d7ce00314802b63a46eee2aa48b",
+  "sourceModelId": "google/mobilenet_v2_1.0_224",
+  "sourceRevision": "4d4b64292df93eb1f5688417c18c05b23ec53630",
+  "status": "passed",
+  "generatedAt": "2026-09-01T14:11:46.252208+00:00",
+  "sampleCount": 3,
+  "labelCount": 1001,
+  "thresholds": {
+    "maximumLogitAbsoluteError": 0.25,
+    "maximumProbabilityAbsoluteError": 0.02,
+    "minimumTop1Agreement": 1,
+    "minimumTop5Overlap": 0.8
+  },
+  "results": {
+    "maximumLogitAbsoluteError": 0.20605695321350104,
+    "maximumProbabilityAbsoluteError": 0.004855504748130332,
+    "top1Agreement": 1,
+    "minimumTop5Overlap": 1
+  },
+  "samples": [
+    {
+      "index": 0,
+      "name": "solid-red",
+      "inputSha256": "d6fbf40f4d812be20dd4a6fb4e005d264d8329dc49c2fdf78e6655ab3ec0d81d",
+      "expectedIndex": 550,
+      "dotnetIndex": 550,
+      "dotnetLabel": "envelope",
+      "maximumLogitAbsoluteError": 0.00010832394409199253,
+      "maximumProbabilityAbsoluteError": 7.802812863763608E-06,
+      "top5Overlap": 1
+    },
+    {
+      "index": 1,
+      "name": "black-white-checker",
+      "inputSha256": "b914024e90ebafefbb472fb083d7edc7744d73cc73a0ee711079f92bf593da43",
+      "expectedIndex": 790,
+      "dotnetIndex": 790,
+      "dotnetLabel": "shoji",
+      "maximumLogitAbsoluteError": 2.8167175292637125E-05,
+      "maximumProbabilityAbsoluteError": 3.285235518624141E-06,
+      "top5Overlap": 1
+    },
+    {
+      "index": 2,
+      "name": "rectangular-rgb-gradient",
+      "inputSha256": "e854fe2a5b841bbd5857cc5fda3a22a158e5c46e86051fb030bfd86fcaf09db0",
+      "expectedIndex": 819,
+      "dotnetIndex": 819,
+      "dotnetLabel": "spotlight, spot",
+      "maximumLogitAbsoluteError": 0.20605695321350104,
+      "maximumProbabilityAbsoluteError": 0.004855504748130332,
+      "top5Overlap": 1
+    }
+  ],
+  "preprocessing": {
+    "resizeShortestEdge": 256,
+    "cropHeight": 224,
+    "cropWidth": 224,
+    "resample": "bilinear",
+    "rescaleFactor": 0.00392156862745098,
+    "mean": [
+      0.5,
+      0.5,
+      0.5
+    ],
+    "standardDeviation": [
+      0.5,
+      0.5,
+      0.5
+    ]
+  },
+  "pythonEnvironment": {
+    "python": "3.14.2",
+    "modelscopeCommit": "53f61360c8c10a31c7adae483c223188bb602948",
+    "torch": "2.9.1",
+    "transformers": "4.57.6",
+    "numpy": "2.5.2",
+    "pillow": "12.3.0"
+  },
+  "dotnetEnvironment": {
+    "dotnet": "10.0.8",
+    "onnxRuntime": "1.29.0\u002B2e2543fbe9fae542f921d47a72d21d5a4ef0b710",
+    "skiaSharp": "4.151.1\u002Brelease-4.151.1.279f93f4ffa7f9fe4e9c0bc298bedc3c9e439764.279f93f4ffa7f9fe4e9c0bc298bedc3c9e439764",
+    "os": "Unix 27.0.0",
+    "architecture": "Arm64"
+  },
+  "onnxDownloadManifest": {
+    "modelId": "onnx-community/mobilenet_v2_1.0_224-ONNX",
+    "requestedRevision": "ba6621a361183d7ce00314802b63a46eee2aa48b",
+    "resolvedRevision": "ba6621a361183d7ce00314802b63a46eee2aa48b",
+    "files": [
+      {
+        "path": "config.json",
+        "size": 69787,
+        "sha256": "c802ceb4eff074d64e40aee394af7edc3b1ab69e5cf81cb64da299bf92f12b21"
+      },
+      {
+        "path": "onnx/model.onnx",
+        "size": 14002696,
+        "sha256": "2e731702ec8374128edfc9f7d344c44287e7791bb3c7ae25a628c2c2dec83ce6"
+      },
+      {
+        "path": "preprocessor_config.json",
+        "size": 408,
+        "sha256": "da177c827eb07a2cd6e3fa34e2351ab8ef668939d824d9c242b0cc7a1dfc740a"
+      }
+    ]
+  },
+  "sourceDownloadManifest": {
+    "modelId": "google/mobilenet_v2_1.0_224",
+    "requestedRevision": "4d4b64292df93eb1f5688417c18c05b23ec53630",
+    "resolvedRevision": "4d4b64292df93eb1f5688417c18c05b23ec53630",
+    "files": [
+      {
+        "path": "config.json",
+        "size": 69770,
+        "sha256": "4f80412de305af7bdc00855c9b184482a7f9008ab6429866b79fe9c4b3e2bc4a"
+      },
+      {
+        "path": "model.safetensors",
+        "size": 14199388,
+        "sha256": "94f61c6902b411e6b730cfe2443c8b2d983a2d50d289c4bd7083e0583ccdfe76"
+      },
+      {
+        "path": "preprocessor_config.json",
+        "size": 406,
+        "sha256": "04e55bfc37b786196eb030873dd2345ed3dc1b0784729ffa082072b4d871d263"
+      }
+    ]
+  }
+}

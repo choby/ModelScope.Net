@@ -1,0 +1,74 @@
+groups:
+  - name: modelscope-net-runtime
+    interval: 30s
+    rules:
+      - alert: ModelScopeAuditWritesFailing
+        expr: increase(modelscope_audit_write_failures_total[5m]) > 0
+        for: 0m
+        labels:
+          severity: critical
+        annotations:
+          summary: ModelScope audit events are not being persisted
+          description: At least one audit sink write failed in the last five minutes. Inference remains fail-open, so investigate the audit destination immediately.
+
+      - alert: ModelScopeRuntimeFailureRatioHigh
+        expr: |
+          (
+            sum by (modelscope_runtime, modelscope_task) (rate(modelscope_runtime_failures_total[5m]))
+            /
+            sum by (modelscope_runtime, modelscope_task) (rate(modelscope_runtime_invocations_total[5m]))
+          ) > 0.05
+          and
+          sum by (modelscope_runtime, modelscope_task) (rate(modelscope_runtime_invocations_total[5m])) > 0.1
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: ModelScope runtime failure ratio exceeds 5 percent
+          description: The warning threshold is a deployment default, not a product SLO. Confirm traffic mix and error codes before rollback.
+
+      - alert: ModelScopeRuntimeFailureRatioCritical
+        expr: |
+          (
+            sum by (modelscope_runtime, modelscope_task) (rate(modelscope_runtime_failures_total[5m]))
+            /
+            sum by (modelscope_runtime, modelscope_task) (rate(modelscope_runtime_invocations_total[5m]))
+          ) > 0.15
+          and
+          sum by (modelscope_runtime, modelscope_task) (rate(modelscope_runtime_invocations_total[5m])) > 0.1
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: ModelScope runtime failure ratio exceeds 15 percent
+          description: Check runtime health, recent releases and capacity; initiate the deployment rollback runbook when correlated with a rollout.
+
+      - alert: ModelScopeRuntimeP95LatencyHigh
+        expr: |
+          histogram_quantile(
+            0.95,
+            sum by (le, modelscope_runtime, modelscope_task) (
+              rate(modelscope_runtime_duration_milliseconds_bucket[5m])
+            )
+          ) > 2500
+        for: 15m
+        labels:
+          severity: warning
+        annotations:
+          summary: ModelScope p95 inference latency exceeds 2.5 seconds
+          description: This portable threshold is a conservative deployment default. Replace it with the approved task and platform SLO before production approval.
+
+      - alert: ModelScopeRuntimeP95LatencyCritical
+        expr: |
+          histogram_quantile(
+            0.95,
+            sum by (le, modelscope_runtime, modelscope_task) (
+              rate(modelscope_runtime_duration_milliseconds_bucket[5m])
+            )
+          ) > 10000
+        for: 10m
+        labels:
+          severity: critical
+        annotations:
+          summary: ModelScope p95 inference latency exceeds 10 seconds
+          description: Check queueing, runtime health and resource pressure. Use the rollback runbook when the condition follows a release.

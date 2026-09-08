@@ -1,0 +1,22 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <IsPackable>true</IsPackable>
+    <Description>ONNX Runtime adapters for certified ModelScope.Net inference tasks.</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.ML.OnnxRuntime" Version="1.29.0" />
+    <PackageReference Include="SkiaSharp" Version="4.151.2" />
+    <PackageReference Include="SkiaSharp.NativeAssets.Linux.NoDependencies" Version="4.151.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../ModelScope.Net.Abstractions/ModelScope.Net.Abstractions.csproj" />
+    <ProjectReference Include="../ModelScope.Net.Runtime/ModelScope.Net.Runtime.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,130 @@
+{
+  "schemaVersion": 1,
+  "modelId": "distilbert/distilbert-base-uncased-finetuned-sst-2-english",
+  "revision": "ef2f51c8f6a09fb8c418d1ccbda386970ed2d53f",
+  "status": "passed",
+  "generatedAt": "2026-09-07T05:19:47.490483+00:00",
+  "sampleCount": 8,
+  "labelCount": 2,
+  "thresholds": {
+    "maximumLogitAbsoluteError": 0.0001,
+    "maximumProbabilityAbsoluteError": 1E-05,
+    "minimumLabelAgreement": 1
+  },
+  "results": {
+    "maximumLogitAbsoluteError": 3.476890563902657E-06,
+    "maximumProbabilityAbsoluteError": 2.865246999661508E-07,
+    "labelAgreement": 1
+  },
+  "samples": [
+    {
+      "index": 0,
+      "text": "I absolutely loved this movie.",
+      "expectedLabel": "POSITIVE",
+      "dotnetLabel": "POSITIVE",
+      "maximumLogitAbsoluteError": 2.1329345702980618E-06,
+      "maximumProbabilityAbsoluteError": 2.27990208934159E-08
+    },
+    {
+      "index": 1,
+      "text": "This was a complete waste of time.",
+      "expectedLabel": "NEGATIVE",
+      "dotnetLabel": "NEGATIVE",
+      "maximumLogitAbsoluteError": 2.2449340830732467E-07,
+      "maximumProbabilityAbsoluteError": 3.03940523860291E-08
+    },
+    {
+      "index": 2,
+      "text": "The acting was excellent and the story was moving.",
+      "expectedLabel": "POSITIVE",
+      "dotnetLabel": "POSITIVE",
+      "maximumLogitAbsoluteError": 2.4266174314391264E-06,
+      "maximumProbabilityAbsoluteError": 5.342436815158891E-08
+    },
+    {
+      "index": 3,
+      "text": "The plot was dull, predictable, and far too long.",
+      "expectedLabel": "NEGATIVE",
+      "dotnetLabel": "NEGATIVE",
+      "maximumLogitAbsoluteError": 1.6951446535351522E-06,
+      "maximumProbabilityAbsoluteError": 1.3271559851091297E-08
+    },
+    {
+      "index": 4,
+      "text": "A charming film with a wonderful ending!",
+      "expectedLabel": "POSITIVE",
+      "dotnetLabel": "POSITIVE",
+      "maximumLogitAbsoluteError": 1.2201843260228884E-06,
+      "maximumProbabilityAbsoluteError": 8.466451206778913E-09
+    },
+    {
+      "index": 5,
+      "text": "I would not recommend this to anyone.",
+      "expectedLabel": "NEGATIVE",
+      "dotnetLabel": "NEGATIVE",
+      "maximumLogitAbsoluteError": 3.476890563902657E-06,
+      "maximumProbabilityAbsoluteError": 2.865246999661508E-07
+    },
+    {
+      "index": 6,
+      "text": "It starts slowly but becomes surprisingly enjoyable.",
+      "expectedLabel": "POSITIVE",
+      "dotnetLabel": "POSITIVE",
+      "maximumLogitAbsoluteError": 1.9431762696697774E-06,
+      "maximumProbabilityAbsoluteError": 6.344735903329735E-08
+    },
+    {
+      "index": 7,
+      "text": "The visuals are good, but the characters are painfully shallow.",
+      "expectedLabel": "NEGATIVE",
+      "dotnetLabel": "NEGATIVE",
+      "maximumLogitAbsoluteError": 1.057662963876993E-06,
+      "maximumProbabilityAbsoluteError": 1.0051958190294974E-08
+    }
+  ],
+  "pythonEnvironment": {
+    "python": "3.14.2",
+    "modelscopeCommit": "53f61360c8c10a31c7adae483c223188bb602948",
+    "torch": "2.9.1",
+    "transformers": "4.57.6",
+    "numpy": "2.5.2"
+  },
+  "dotnetEnvironment": {
+    "dotnet": "10.0.8",
+    "onnxRuntime": "1.29.0\u002B2e2543fbe9fae542f921d47a72d21d5a4ef0b710",
+    "os": "Unix 27.0.0",
+    "architecture": "Arm64"
+  },
+  "downloadManifest": {
+    "modelId": "distilbert/distilbert-base-uncased-finetuned-sst-2-english",
+    "requestedRevision": "ef2f51c8f6a09fb8c418d1ccbda386970ed2d53f",
+    "resolvedRevision": "ef2f51c8f6a09fb8c418d1ccbda386970ed2d53f",
+    "files": [
+      {
+        "path": "config.json",
+        "size": 629,
+        "sha256": "582122c8f414793d131e10022ce9ba04e3811a9da6389137ee2f18665b4f4d15"
+      },
+      {
+        "path": "onnx/model.onnx",
+        "size": 267955711,
+        "sha256": "252cf7048af94a1599019fef35961b2bd3d6db13df0b0a4b032b92baeae31939"
+      },
+      {
+        "path": "model.safetensors",
+        "size": 267832558,
+        "sha256": "7c3919835e442510166d267fe7cbe847e0c51cd26d9ba07b89a57b952b49b8aa"
+      },
+      {
+        "path": "tokenizer_config.json",
+        "size": 48,
+        "sha256": "5ab9097b4149371c5fd52b2d6e26cb6f9c07c0d19fcfdda895b1adad6b57c3e0"
+      },
+      {
+        "path": "vocab.txt",
+        "size": 231508,
+        "sha256": "07eced375cec144d27c900241f3e339478dec958f92fddbc551f295c992038a3"
+      }
+    ]
+  }
+}

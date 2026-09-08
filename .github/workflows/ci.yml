@@ -1,0 +1,29 @@
+name: ci
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m venv .worker-venv
+      - run: python -m unittest discover -s tools/tests -v
+      - run: .worker-venv/bin/python -m pip install -r worker/python/requirements.txt
+      - run: dotnet restore ModelScope.Net.sln
+      - run: dotnet build ModelScope.Net.sln --no-restore --configuration Release
+      - run: dotnet test ModelScope.Net.sln --no-build --configuration Release
+        env:
+          MODELSCOPE_WORKER_PYTHON: ${{ github.workspace }}/.worker-venv/bin/python
+      - run: dotnet pack ModelScope.Net.sln --no-build --no-restore --configuration Release --output artifacts/packages
+      - run: python tools/verify_nuget_packages.py artifacts/packages 0.1.0-preview.1
+      - run: dotnet restore tests/ModelScope.Net.PackageSmoke/ModelScope.Net.PackageSmoke.csproj
+      - run: dotnet build tests/ModelScope.Net.PackageSmoke/ModelScope.Net.PackageSmoke.csproj --no-restore --configuration Release

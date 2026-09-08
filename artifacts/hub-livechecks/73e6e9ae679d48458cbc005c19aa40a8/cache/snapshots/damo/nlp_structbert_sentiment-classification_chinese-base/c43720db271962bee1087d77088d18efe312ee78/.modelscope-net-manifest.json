@@ -1,0 +1,17 @@
+{
+  "modelId": {
+    "owner": "damo",
+    "name": "nlp_structbert_sentiment-classification_chinese-base"
+  },
+  "requestedRevision": "v1.0.0",
+  "resolvedRevision": "c43720db271962bee1087d77088d18efe312ee78",
+  "createdAt": "2026-09-06T03:52:35.6672+00:00",
+  "files": [
+    {
+      "path": "config.json",
+      "size": 554,
+      "sha256": "f6b74d131b62af8766c18dac2e703f0fb4da5ffab536df67075fc25f6c26cbc8",
+      "blobPath": "/Users/choby/Documents/github/ModelScope.Net/artifacts/hub-livechecks/73e6e9ae679d48458cbc005c19aa40a8/cache/blobs/f6/f6b74d131b62af8766c18dac2e703f0fb4da5ffab536df67075fc25f6c26cbc8"
+    }
+  ]
+}

@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "platform": "windows-server-2025-x64-cpu",
+  "status": "policy-validated",
+  "allowedLocalRuntimes": [
+    "onnx",
+    "onnx-text-generation",
+    "onnx-embedding",
+    "onnx-text-classification",
+    "onnx-image-classification"
+  ],
+  "allowedRemoteRuntimes": [
+    "remote",
+    "python-mtls-on-linux"
+  ],
+  "deniedLocalWorkloads": [
+    "python-worker",
+    "trusted-model-code",
+    "isolated-untrusted-model-code"
+  ],
+  "requirements": {
+    "containerIsolation": "process-or-hyperv",
+    "runAsNonAdministrator": true,
+    "readOnlyModelVolume": true,
+    "cpuLimitRequired": true,
+    "memoryLimitRequired": true,
+    "remotePythonMutualTlsRequired": true
+  },
+  "reason": "The first Windows release executes only certified in-process ONNX models. Python and model code workloads are denied locally and routed to the hardened Linux worker over mTLS."
+}

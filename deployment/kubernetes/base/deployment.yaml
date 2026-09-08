@@ -1,0 +1,130 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: modelscope-python-worker
+  namespace: modelscope-runtime
+  labels:
+    app.kubernetes.io/name: modelscope-python-worker
+    app.kubernetes.io/part-of: modelscope-net
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: modelscope-python-worker
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: modelscope-python-worker
+        app.kubernetes.io/part-of: modelscope-net
+    spec:
+      serviceAccountName: modelscope-python-worker
+      automountServiceAccountToken: false
+      enableServiceLinks: false
+      terminationGracePeriodSeconds: 30
+      nodeSelector:
+        kubernetes.io/os: linux
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65532
+        runAsGroup: 65532
+        fsGroup: 65532
+        fsGroupChangePolicy: OnRootMismatch
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: worker
+          # Deliberately non-routable until release automation replaces it with an approved signed digest.
+          image: registry.invalid/modelscope-net/python-worker@sha256:0000000000000000000000000000000000000000000000000000000000000000
+          imagePullPolicy: IfNotPresent
+          args:
+            - --host
+            - 0.0.0.0
+            - --port
+            - "50051"
+            - --backend
+            - modelscope
+            - --workers
+            - "4"
+            - --max-sessions
+            - "4"
+            - --max-request-bytes
+            - "4194304"
+            - --model-root
+            - /models
+            - --api-key-file
+            - /run/modelscope/auth/api-key
+            - --tls-cert-file
+            - /run/modelscope/tls/tls.crt
+            - --tls-key-file
+            - /run/modelscope/tls/tls.key
+            - --tls-client-ca-file
+            - /run/modelscope/tls/ca.crt
+          env:
+            - name: HOME
+              value: /tmp
+            - name: HF_HOME
+              value: /tmp/huggingface
+            - name: MODELSCOPE_CACHE
+              value: /tmp/modelscope-cache
+            - name: PYTHONNOUSERSITE
+              value: "1"
+            - name: PYTHONDONTWRITEBYTECODE
+              value: "1"
+          ports:
+            - name: grpc-mtls
+              containerPort: 50051
+              protocol: TCP
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            privileged: false
+            capabilities:
+              drop:
+                - ALL
+          resources:
+            requests:
+              cpu: "500m"
+              memory: "1Gi"
+              ephemeral-storage: "256Mi"
+            limits:
+              cpu: "2"
+              memory: "3Gi"
+              ephemeral-storage: "1Gi"
+          startupProbe:
+            tcpSocket:
+              port: grpc-mtls
+            periodSeconds: 2
+            failureThreshold: 30
+          livenessProbe:
+            tcpSocket:
+              port: grpc-mtls
+            periodSeconds: 10
+            failureThreshold: 3
+          volumeMounts:
+            - name: models
+              mountPath: /models
+              readOnly: true
+            - name: temporary
+              mountPath: /tmp
+            - name: worker-tls
+              mountPath: /run/modelscope/tls
+              readOnly: true
+            - name: worker-auth
+              mountPath: /run/modelscope/auth
+              readOnly: true
+      volumes:
+        - name: models
+          persistentVolumeClaim:
+            claimName: modelscope-models
+            readOnly: true
+        - name: temporary
+          emptyDir:
+            sizeLimit: 1Gi
+        - name: worker-tls
+          secret:
+            secretName: modelscope-worker-server-tls
+            defaultMode: 0400
+        - name: worker-auth
+          secret:
+            secretName: modelscope-worker-api-key
+            defaultMode: 0400

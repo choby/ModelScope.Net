@@ -1,0 +1,56 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-09-02",
+  "status": "passed-local-linux-arm64-protocol-base",
+  "docker": {
+    "engineVersion": "29.7.2",
+    "platform": "linux/arm64"
+  },
+  "baseImage": {
+    "reference": "python:3.14-alpine3.24",
+    "digest": "sha256:c6ead215bfd31f1e433d968853b7a769989117115b728874824e6c0a27cb96fc"
+  },
+  "workerImage": {
+    "localTag": "modelscope-net/python-worker:p4-05-local",
+    "imageId": "sha256:1b0fa44b2b5137bef0c6ffa456b1ea97089d61d91349bc58b1a51312d5f50efd",
+    "architecture": "arm64",
+    "sizeBytes": 33462800,
+    "user": "65532:65532",
+    "entrypoint": [
+      "python",
+      "/opt/modelscope-worker/server.py"
+    ],
+    "dependencies": {
+      "grpcio": "1.83.1",
+      "protobuf": "7.36.1",
+      "pipPresentAtRuntime": false
+    }
+  },
+  "buildValidation": {
+    "dockerfileWarnings": 0,
+    "baseImageDigestPinned": true,
+    "buildSucceeded": true
+  },
+  "vulnerabilityScan": {
+    "tool": "Docker Scout 1.24.0",
+    "indexedPackages": 43,
+    "critical": 0,
+    "high": 0,
+    "medium": 0,
+    "low": 0,
+    "passed": true
+  },
+  "restrictedRuntimeSmoke": {
+    "workerReady": true,
+    "runtimeUid": 65532,
+    "readOnlyRootFilesystem": true,
+    "readOnlyModels": true,
+    "temporaryDirectoryWritable": true,
+    "networkMode": "none",
+    "nanoCpus": 500000000,
+    "memoryBytes": 268435456,
+    "pidsLimit": 64,
+    "passed": true
+  },
+  "scopeBoundary": "This is the protocol base image. Production model images must add locked and scanned model-specific dependencies, receive a registry digest and signature, and repeat the same gates."
+}

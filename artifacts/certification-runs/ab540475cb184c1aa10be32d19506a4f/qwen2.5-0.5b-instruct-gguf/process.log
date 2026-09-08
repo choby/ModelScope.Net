@@ -1,0 +1,1 @@
+gguf-runtime-certification-passed model=Qwen/Qwen2.5-0.5B-Instruct-GGUF release=b10516 load_ms=903.8 non_stream=MODELSCOPE_DOTNET_OK stream=MODELSCOPE_STREAM_OK recovered=True stopped=True

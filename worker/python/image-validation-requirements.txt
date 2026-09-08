@@ -1,0 +1,8 @@
+# Independent .image-model-deps overlay; preserve the existing certification venv.
+# Install with --no-deps and verify the combined environment before certification.
+# Existing base: torch 2.9.1, transformers 4.57.6; existing worker overlay also required.
+diffusers==0.35.2
+torchvision==0.24.1
+opencv-python-headless==4.13.0.92
+importlib-metadata==8.7.1
+zipp==3.23.0

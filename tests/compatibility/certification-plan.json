@@ -1,0 +1,432 @@
+{
+  "schemaVersion": 1,
+  "scope": "fixed-revision-five-model-engineering-recertification",
+  "models": [
+    {
+      "key": "bge-small-en-v1.5",
+      "adapter": "embedding",
+      "modelId": "BAAI/bge-small-en-v1.5",
+      "revision": "160f4d645d32abe3cabc5af6b6b39823eadf3c0e",
+      "snapshots": [
+        {
+          "directory": "artifacts/certification/bge-small-en-v1.5",
+          "modelId": "BAAI/bge-small-en-v1.5",
+          "revision": "160f4d645d32abe3cabc5af6b6b39823eadf3c0e",
+          "files": [
+            {
+              "path": "1_Pooling/config.json",
+              "size": 190,
+              "sha256": "d1caf60c96f5fba2157c0c26b76d80818fad6cf0b8eb5e73ec372ff9818eba5c"
+            },
+            {
+              "path": "config.json",
+              "size": 743,
+              "sha256": "094f8e891b932f2000c92cfc663bac4c62069f5d8af5b5278c4306aef3084750"
+            },
+            {
+              "path": "config_sentence_transformers.json",
+              "size": 124,
+              "sha256": "940d5f50db195fa6e5e6a4f122c095f77880de259d74b14a65779ed48bdd7c56"
+            },
+            {
+              "path": "onnx/model.onnx",
+              "size": 133093490,
+              "sha256": "828e1496d7fabb79cfa4dcd84fa38625c0d3d21da474a00f08db0f559940cf35"
+            },
+            {
+              "path": "model.safetensors",
+              "size": 133466304,
+              "sha256": "3c9f31665447c8911517620762200d2245a2518d6e7208acc78cd9db317e21ad"
+            },
+            {
+              "path": "modules.json",
+              "size": 349,
+              "sha256": "84e40c8e006c9b1d6c122e02cba9b02458120b5fb0c87b746c41e0207cf642cf"
+            },
+            {
+              "path": "sentence_bert_config.json",
+              "size": 52,
+              "sha256": "84e39fda68ccbff05bfa723ae9c0e70e23e2ec373b76e0f8c6e71af72a693cbf"
+            },
+            {
+              "path": "special_tokens_map.json",
+              "size": 125,
+              "sha256": "b6d346be366a7d1d48332dbc9fdf3bf8960b5d879522b7799ddba59e76237ee3"
+            },
+            {
+              "path": "tokenizer.json",
+              "size": 711396,
+              "sha256": "d241a60d5e8f04cc1b2b3e9ef7a4921b27bf526d9f6050ab90f9267a1f9e5c66"
+            },
+            {
+              "path": "tokenizer_config.json",
+              "size": 366,
+              "sha256": "9261e7d79b44c8195c1cada2b453e55b00aeb81e907a6664974b4d7776172ab3"
+            },
+            {
+              "path": "vocab.txt",
+              "size": 231508,
+              "sha256": "07eced375cec144d27c900241f3e339478dec958f92fddbc551f295c992038a3"
+            }
+          ]
+        }
+      ],
+      "assets": {
+        "gold": {
+          "path": "tests/compatibility/bge-small-en-v1.5/python-gold.json",
+          "sha256": "95daeffba9ec9e281da18ee8dda6ae581d5c5d102e17a3c2a97562e0094e8eb8"
+        }
+      },
+      "gates": [
+        [
+          "sampleCount",
+          "equal",
+          8
+        ],
+        [
+          "dimensions",
+          "equal",
+          384
+        ],
+        [
+          "results.maximumAbsoluteError",
+          "max",
+          0.0001
+        ],
+        [
+          "results.minimumCosineSimilarity",
+          "min",
+          0.99999
+        ]
+      ]
+    },
+    {
+      "key": "all-minilm-l6-v2",
+      "adapter": "embedding",
+      "modelId": "unsloth/all-MiniLM-L6-v2",
+      "revision": "4bc149651c730bffa46308d38a3f2a2c5e9b6e08",
+      "snapshots": [
+        {
+          "directory": "artifacts/certification/all-minilm-l6-v2",
+          "modelId": "unsloth/all-MiniLM-L6-v2",
+          "revision": "4bc149651c730bffa46308d38a3f2a2c5e9b6e08",
+          "files": [
+            {
+              "path": "config.json",
+              "size": 612,
+              "sha256": "953f9c0d463486b10a6871cc2fd59f223b2c70184f49815e7efbcab5d8908b41"
+            },
+            {
+              "path": "1_Pooling/config.json",
+              "size": 190,
+              "sha256": "4be450dde3b0273bb9787637cfbd28fe04a7ba6ab9d36ac48e92b11e350ffc23"
+            },
+            {
+              "path": "config_sentence_transformers.json",
+              "size": 116,
+              "sha256": "061ca9d39661d6c6d6de5ba27f79a1cd5770ea247f8d46412a68a498dc5ac9f3"
+            },
+            {
+              "path": "onnx/model.onnx",
+              "size": 90405214,
+              "sha256": "6fd5d72fe4589f189f8ebc006442dbb529bb7ce38f8082112682524616046452"
+            },
+            {
+              "path": "model.safetensors",
+              "size": 90868376,
+              "sha256": "53aa51172d142c89d9012cce15ae4d6cc0ca6895895114379cacb4fab128d9db"
+            },
+            {
+              "path": "modules.json",
+              "size": 349,
+              "sha256": "84e40c8e006c9b1d6c122e02cba9b02458120b5fb0c87b746c41e0207cf642cf"
+            },
+            {
+              "path": "sentence_bert_config.json",
+              "size": 53,
+              "sha256": "fc1993fde0a95c24ec6c022539d41cf6e2f7c9721e5415d6fb6897472a9cd4b7"
+            },
+            {
+              "path": "special_tokens_map.json",
+              "size": 112,
+              "sha256": "303df45a03609e4ead04bc3dc1536d0ab19b5358db685b6f3da123d05ec200e3"
+            },
+            {
+              "path": "tokenizer.json",
+              "size": 466247,
+              "sha256": "be50c3628f2bf5bb5e3a7f17b1f74611b2561a3a27eeab05e5aa30f411572037"
+            },
+            {
+              "path": "tokenizer_config.json",
+              "size": 350,
+              "sha256": "acb92769e8195aabd29b7b2137a9e6d6e25c476a4f15aa4355c233426c61576b"
+            },
+            {
+              "path": "vocab.txt",
+              "size": 231508,
+              "sha256": "07eced375cec144d27c900241f3e339478dec958f92fddbc551f295c992038a3"
+            }
+          ]
+        }
+      ],
+      "assets": {
+        "gold": {
+          "path": "tests/compatibility/all-minilm-l6-v2/python-gold.json",
+          "sha256": "ae7e5cf720bbb00b90bdd072de231af8beff45785c03004a978f11523811d72f"
+        }
+      },
+      "gates": [
+        [
+          "sampleCount",
+          "equal",
+          8
+        ],
+        [
+          "dimensions",
+          "equal",
+          384
+        ],
+        [
+          "results.maximumAbsoluteError",
+          "max",
+          0.0001
+        ],
+        [
+          "results.minimumCosineSimilarity",
+          "min",
+          0.99999
+        ]
+      ]
+    },
+    {
+      "key": "distilbert-sst2",
+      "adapter": "classification",
+      "modelId": "distilbert/distilbert-base-uncased-finetuned-sst-2-english",
+      "revision": "ef2f51c8f6a09fb8c418d1ccbda386970ed2d53f",
+      "snapshots": [
+        {
+          "directory": "artifacts/certification/distilbert-sst2",
+          "modelId": "distilbert/distilbert-base-uncased-finetuned-sst-2-english",
+          "revision": "ef2f51c8f6a09fb8c418d1ccbda386970ed2d53f",
+          "files": [
+            {
+              "path": "config.json",
+              "size": 629,
+              "sha256": "582122c8f414793d131e10022ce9ba04e3811a9da6389137ee2f18665b4f4d15"
+            },
+            {
+              "path": "onnx/model.onnx",
+              "size": 267955711,
+              "sha256": "252cf7048af94a1599019fef35961b2bd3d6db13df0b0a4b032b92baeae31939"
+            },
+            {
+              "path": "model.safetensors",
+              "size": 267832558,
+              "sha256": "7c3919835e442510166d267fe7cbe847e0c51cd26d9ba07b89a57b952b49b8aa"
+            },
+            {
+              "path": "tokenizer_config.json",
+              "size": 48,
+              "sha256": "5ab9097b4149371c5fd52b2d6e26cb6f9c07c0d19fcfdda895b1adad6b57c3e0"
+            },
+            {
+              "path": "vocab.txt",
+              "size": 231508,
+              "sha256": "07eced375cec144d27c900241f3e339478dec958f92fddbc551f295c992038a3"
+            }
+          ]
+        }
+      ],
+      "assets": {
+        "gold": {
+          "path": "tests/compatibility/distilbert-sst2/python-gold.json",
+          "sha256": "4e11eb3aed9baa703e310e10f889bcaee2877c8980ade27f21c4d0c35475551a"
+        }
+      },
+      "gates": [
+        [
+          "sampleCount",
+          "equal",
+          8
+        ],
+        [
+          "results.maximumLogitAbsoluteError",
+          "max",
+          0.0001
+        ],
+        [
+          "results.maximumProbabilityAbsoluteError",
+          "max",
+          0.0001
+        ],
+        [
+          "results.labelAgreement",
+          "min",
+          1
+        ]
+      ]
+    },
+    {
+      "key": "mobilenet-v2-image-classification",
+      "adapter": "vision",
+      "modelId": "onnx-community/mobilenet_v2_1.0_224-ONNX",
+      "revision": "ba6621a361183d7ce00314802b63a46eee2aa48b",
+      "snapshots": [
+        {
+          "directory": "artifacts/certification/mobilenet-v2-onnx",
+          "modelId": "onnx-community/mobilenet_v2_1.0_224-ONNX",
+          "revision": "ba6621a361183d7ce00314802b63a46eee2aa48b",
+          "files": [
+            {
+              "path": "config.json",
+              "size": 69787,
+              "sha256": "c802ceb4eff074d64e40aee394af7edc3b1ab69e5cf81cb64da299bf92f12b21"
+            },
+            {
+              "path": "onnx/model.onnx",
+              "size": 14002696,
+              "sha256": "2e731702ec8374128edfc9f7d344c44287e7791bb3c7ae25a628c2c2dec83ce6"
+            },
+            {
+              "path": "preprocessor_config.json",
+              "size": 408,
+              "sha256": "da177c827eb07a2cd6e3fa34e2351ab8ef668939d824d9c242b0cc7a1dfc740a"
+            }
+          ]
+        },
+        {
+          "directory": "artifacts/certification/mobilenet-v2-pytorch",
+          "modelId": "google/mobilenet_v2_1.0_224",
+          "revision": "4d4b64292df93eb1f5688417c18c05b23ec53630",
+          "files": [
+            {
+              "path": "config.json",
+              "size": 69770,
+              "sha256": "4f80412de305af7bdc00855c9b184482a7f9008ab6429866b79fe9c4b3e2bc4a"
+            },
+            {
+              "path": "model.safetensors",
+              "size": 14199388,
+              "sha256": "94f61c6902b411e6b730cfe2443c8b2d983a2d50d289c4bd7083e0583ccdfe76"
+            },
+            {
+              "path": "preprocessor_config.json",
+              "size": 406,
+              "sha256": "04e55bfc37b786196eb030873dd2345ed3dc1b0784729ffa082072b4d871d263"
+            }
+          ]
+        }
+      ],
+      "assets": {
+        "gold": {
+          "path": "tests/compatibility/mobilenet-v2-image-classification/python-gold.json",
+          "sha256": "972ea0fb3d666ebaeedf90550b34272c38d0dfa9f1549e308d8a9ff721ce81d8"
+        },
+        "inputs": {
+          "path": "tests/compatibility/mobilenet-v2-image-classification/inputs.json",
+          "sha256": "e0f372917e61eb784f508ab2992db0bca74abb04d5ce9b0adbb0fd76371e95ca"
+        }
+      },
+      "gates": [
+        [
+          "sampleCount",
+          "equal",
+          3
+        ],
+        [
+          "results.maximumLogitAbsoluteError",
+          "max",
+          0.25
+        ],
+        [
+          "results.maximumProbabilityAbsoluteError",
+          "max",
+          0.02
+        ],
+        [
+          "results.top1Agreement",
+          "min",
+          1
+        ],
+        [
+          "results.minimumTop5Overlap",
+          "min",
+          0.8
+        ]
+      ]
+    },
+    {
+      "key": "qwen2.5-0.5b-instruct-gguf",
+      "adapter": "gguf",
+      "modelId": "Qwen/Qwen2.5-0.5B-Instruct-GGUF",
+      "revision": "2e50b77b0eee3083842019e257b74854323d880a",
+      "snapshots": [
+        {
+          "directory": "artifacts/certification/qwen2.5-0.5b-instruct-gguf",
+          "modelId": "Qwen/Qwen2.5-0.5B-Instruct-GGUF",
+          "revision": "2e50b77b0eee3083842019e257b74854323d880a",
+          "files": [
+            {
+              "path": "qwen2.5-0.5b-instruct-q2_k.gguf",
+              "size": 415182688,
+              "sha256": "9ee36184e616dfc76df4f5dd66f908dbde6979524ae36e6cefb67f532f798cb8"
+            }
+          ]
+        }
+      ],
+      "assets": {
+        "archive": {
+          "path": "artifacts/llama.cpp/llama-b10516-bin-macos-arm64.tar.gz",
+          "sha256": "ee3324327d621026ae80c24031670e65fa62a0b23a3a027dbe2f65f240affd30"
+        },
+        "executable": {
+          "path": "artifacts/llama.cpp/llama-b10516/llama-server",
+          "sha256": "d0878274b8d6bd3c8ea26a78eb66cd1ffd943d007c62b9dff31c8aa99922d713"
+        }
+      },
+      "gates": [
+        [
+          "llamaCpp.binaryVerified",
+          "equal",
+          true
+        ],
+        [
+          "artifact.verified",
+          "equal",
+          true
+        ],
+        [
+          "execution.nonStreaming.actual",
+          "equal",
+          "MODELSCOPE_DOTNET_OK"
+        ],
+        [
+          "execution.streaming.actual",
+          "equal",
+          "MODELSCOPE_STREAM_OK"
+        ],
+        [
+          "execution.streaming.terminalObserved",
+          "equal",
+          true
+        ],
+        [
+          "execution.crashRecovery.actual",
+          "equal",
+          "MODELSCOPE_RECOVERY_OK"
+        ],
+        [
+          "execution.crashRecovery.processRecovered",
+          "equal",
+          true
+        ],
+        [
+          "execution.stoppedCleanly",
+          "equal",
+          true
+        ]
+      ],
+      "file": "qwen2.5-0.5b-instruct-q2_k.gguf"
+    }
+  ]
+}

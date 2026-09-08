@@ -1,0 +1,33 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.9.0" />
+    <PackageReference Include="xunit" Version="2.9.3" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="4.0.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="coverlet.collector" Version="10.0.1">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Using Include="Xunit" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="../../src/ModelScope.Net.AspNetCore/ModelScope.Net.AspNetCore.csproj" />
+    <ProjectReference Include="../../src/ModelScope.Net.Runtime.Python/ModelScope.Net.Runtime.Python.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="../../deployment/observability/metric-contract.json" Link="observability/metric-contract.json" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="../../deployment/observability/grafana-dashboard.json" Link="observability/grafana-dashboard.json" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="../../deployment/observability/prometheus-rules.yaml" Link="observability/prometheus-rules.yaml" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+</Project>

@@ -1,0 +1,48 @@
+{
+  "schemaVersion": 1,
+  "release": "b10516",
+  "commit": "b95502ba9",
+  "source": "https://github.com/ggml-org/llama.cpp/releases/tag/b10516",
+  "assets": [
+    {
+      "platform": "macos-arm64",
+      "file": "llama-b10516-bin-macos-arm64.tar.gz",
+      "url": "https://github.com/ggml-org/llama.cpp/releases/download/b10516/llama-b10516-bin-macos-arm64.tar.gz",
+      "size": 11089823,
+      "sha256": "ee3324327d621026ae80c24031670e65fa62a0b23a3a027dbe2f65f240affd30",
+      "certificationStatus": "runtime-certified-cpu"
+    },
+    {
+      "platform": "ubuntu-arm64",
+      "file": "llama-b10516-bin-ubuntu-arm64.tar.gz",
+      "url": "https://github.com/ggml-org/llama.cpp/releases/download/b10516/llama-b10516-bin-ubuntu-arm64.tar.gz",
+      "size": 13529264,
+      "sha256": "e7491dca79c9799fc3ae169675a79f5777d3027e31ffb08ae679e5e0a7ae3c97",
+      "certificationStatus": "pinned-not-executed"
+    },
+    {
+      "platform": "ubuntu-x64",
+      "file": "llama-b10516-bin-ubuntu-x64.tar.gz",
+      "url": "https://github.com/ggml-org/llama.cpp/releases/download/b10516/llama-b10516-bin-ubuntu-x64.tar.gz",
+      "size": 16667775,
+      "sha256": "f263a91280471b4c33c4999d7c76259c0f3a0a53a0b3e692b2c0b84380137a35",
+      "certificationStatus": "pinned-not-executed"
+    },
+    {
+      "platform": "win-cpu-arm64",
+      "file": "llama-b10516-bin-win-cpu-arm64.zip",
+      "url": "https://github.com/ggml-org/llama.cpp/releases/download/b10516/llama-b10516-bin-win-cpu-arm64.zip",
+      "size": 12256210,
+      "sha256": "4b136692ab17009722e350d5bb8e5905f9af6bcd43d2897f0655186a9cc65db6",
+      "certificationStatus": "pinned-not-executed"
+    },
+    {
+      "platform": "win-cpu-x64",
+      "file": "llama-b10516-bin-win-cpu-x64.zip",
+      "url": "https://github.com/ggml-org/llama.cpp/releases/download/b10516/llama-b10516-bin-win-cpu-x64.zip",
+      "size": 18506923,
+      "sha256": "fbbbc55e0eb2e1b07f9dcb9488616c98ed47d9003b90e15e7c8c7812c4307cd3",
+      "certificationStatus": "pinned-not-executed"
+    }
+  ]
+}

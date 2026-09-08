@@ -1,0 +1,56 @@
+{
+  "schemaVersion": 1,
+  "status": "draft-awaiting-platform-selection-and-approval",
+  "updatedAt": "2026-09-05",
+  "baseline": {
+    "dotnetSdk": "10.0.300",
+    "targetFramework": "net10.0",
+    "onnxRuntime": "1.29.0",
+    "skiaSharp": "4.151.2",
+    "pythonCertificationEnvironment": "3.14.2",
+    "workerProtocol": {
+      "grpcio": "1.83.1",
+      "protobuf": "7.36.1"
+    }
+  },
+  "platforms": [
+    {
+      "id": "macos-arm64-cpu",
+      "osVersionObserved": "27.0",
+      "scope": "local-technical-preview",
+      "evidence": "artifacts/rollout/p2-04-policy-bge/report.json",
+      "status": "local-inference-verified-not-production-approved"
+    },
+    {
+      "id": "ubuntu-24.04-x64-cpu",
+      "status": "proposed-awaiting-host-and-runtime-verification"
+    },
+    {
+      "id": "windows-server-2025-x64-cpu",
+      "status": "proposed-awaiting-host-and-runtime-verification"
+    },
+    {
+      "id": "linux-x64-nvidia-gpu",
+      "status": "awaiting-hardware-cuda-cudnn-runtime-selection",
+      "gpu": null,
+      "driver": null,
+      "cuda": null,
+      "cudnn": null,
+      "onnxExecutionProvider": null,
+      "workerImageDigest": null
+    }
+  ],
+  "requiredValidation": [
+    "fixed-model-gold-numerical-comparison",
+    "load-and-stream-and-crash-recovery",
+    "resource-exhaustion-and-process-cleanup",
+    "network-filesystem-identity-enforcement",
+    "72-hour-runtime-soak",
+    "7-day-2000-attempt-hub-contract"
+  ],
+  "approvals": {
+    "technical": "pending",
+    "sre": "pending",
+    "security": "pending"
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 1,
+  "createdAt": "2026-09-05",
+  "dependencyFiles": {
+    "global.json": "75ad142281ad3f65a55376b9e02259611bc0eb64400c61493668a75b72390881",
+    "Directory.Build.props": "29e7b423fb33abe6a9726ab8ca48c23f065682c9be845167a60049dee62413f3",
+    "src/ModelScope.Net.Abstractions/ModelScope.Net.Abstractions.csproj": "11c0c110e19c9eaeaef66a0382f7a3e4ff6ab395d99ca6664e1ba378371cc47c",
+    "src/ModelScope.Net.AspNetCore/ModelScope.Net.AspNetCore.csproj": "e1a14f84beae4330d45e4a4faebec314b859018f8da774fe8b313d9390dd7153",
+    "src/ModelScope.Net.Cli/ModelScope.Net.Cli.csproj": "b6f07560b374fa14c6153a9ece4fc793b6b52afc4d1f3fa14acda8b160cfa14d",
+    "src/ModelScope.Net.Hub/ModelScope.Net.Hub.csproj": "bc50a31efdfb997979a3d3c9068a03e197d119ec27488e4323afe2c2200e3397",
+    "src/ModelScope.Net.Runtime.Gguf/ModelScope.Net.Runtime.Gguf.csproj": "5e570577749092ee6ba29a54c35a1bc95e5c66be6f275726297ca3fd229df488",
+    "src/ModelScope.Net.Runtime.Onnx/ModelScope.Net.Runtime.Onnx.csproj": "dfe3c7d62513f0ef76c4f0265e2e6a616c087d8d72c3e74b5b67560af48058dd",
+    "src/ModelScope.Net.Runtime.Python/ModelScope.Net.Runtime.Python.csproj": "b4edccb34654e60ed89b3c3b506f46eb873578e9a7020fdbcd8d6de2731e0b90",
+    "src/ModelScope.Net.Runtime.Remote/ModelScope.Net.Runtime.Remote.csproj": "5e570577749092ee6ba29a54c35a1bc95e5c66be6f275726297ca3fd229df488",
+    "src/ModelScope.Net.Runtime/ModelScope.Net.Runtime.csproj": "bc50a31efdfb997979a3d3c9068a03e197d119ec27488e4323afe2c2200e3397",
+    "worker/python/requirements.txt": "83b558957d0b33d9f57bc37937cc1ef4da037e8702fc1485c6bf60afa4b8a32b",
+    "tests/compatibility/all-minilm-l6-v2/python-requirements.txt": "a21bbd38df89a290b948fe8f6988d85760f9b43c4ef5fdd711d002f5ead66b12",
+    "tests/compatibility/bge-small-en-v1.5/python-requirements.txt": "a21bbd38df89a290b948fe8f6988d85760f9b43c4ef5fdd711d002f5ead66b12",
+    "tests/compatibility/distilbert-sst2/python-requirements.txt": "a21bbd38df89a290b948fe8f6988d85760f9b43c4ef5fdd711d002f5ead66b12",
+    "tests/compatibility/mobilenet-v2-image-classification/python-requirements.txt": "82c37639f2778c6191ab6593d1629d2b18d80606393b66b0c66afc1cb3901e4e"
+  }
+}

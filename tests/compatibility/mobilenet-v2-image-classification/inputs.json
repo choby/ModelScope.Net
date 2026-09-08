@@ -1,0 +1,17 @@
+[
+  {
+    "name": "solid-red",
+    "mediaType": "image/png",
+    "base64": "iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAIAAACQkWg2AAAAFklEQVR42mP8z0AaYGIY1TCqYdhqAABALgEfFO4+AgAAAABJRU5ErkJggg=="
+  },
+  {
+    "name": "black-white-checker",
+    "mediaType": "image/png",
+    "base64": "iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAIAAACQkWg2AAAAKklEQVR42mP8//8/AwwwMjLC2bjEmRhIBLTXwIjMIcY/g9EPo/EwKPwAADjoGBeavCZfAAAAAElFTkSuQmCC"
+  },
+  {
+    "name": "rectangular-rgb-gradient",
+    "mediaType": "image/png",
+    "base64": "iVBORw0KGgoAAAANSUhEUgAAABgAAAAQCAIAAACDRijCAAAAcUlEQVR42q2SsQrAIAwFryBm0MX//9kOYm1VajRChvACh+ZyAQEJ+IDkirWvYfiGsQsdScCDlPJdowod6QAlgw5QKF+zUp4XWSnNjvYp7x2ZKBj0t9M9/YPphv7xdFX/32UfoCzpn6xSqX8uRKNfpfUGCNYMRWBuLOYAAAAASUVORK5CYII="
+  }
+]

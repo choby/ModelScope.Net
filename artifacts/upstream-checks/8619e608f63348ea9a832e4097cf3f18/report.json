@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "startedAt": "2026-09-05T06:22:10.275967+00:00",
+  "models": [],
+  "dependencyChanges": [],
+  "planSha256": "02abcf667636668ac2764a667b3a25dd45f075028e15afa0256c18b635cbf32b",
+  "baselineSha256": "3807c25b1e26ad3c06326ee1d07d9febfafcf3c1d1fde9695b0bf3d5f7e442a3",
+  "status": "offline-only",
+  "requiresRecertification": false,
+  "upstreamChecked": false,
+  "completedAt": "2026-09-05T06:22:10.276412+00:00"
+}

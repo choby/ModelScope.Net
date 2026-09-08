@@ -1,0 +1,18 @@
+{
+  "schemaVersion": 1,
+  "status": "passed",
+  "modelId": "damo/nlp_structbert_sentiment-classification_chinese-base",
+  "tag": "v1.0.0",
+  "startedAt": "2026-09-06T03:52:33.482841+00:00",
+  "scope": "public-annotated-tag-four-process-shared-cache-config-only",
+  "tagObject": "0010e3a492a99ffca753f0887a8bc38852600fda",
+  "commit": "c43720db271962bee1087d77088d18efe312ee78",
+  "concurrentProcesses": 4,
+  "allProcessesSucceeded": true,
+  "sharedSnapshot": true,
+  "offlineTagAndCommitPassed": true,
+  "downloadedFiles": 1,
+  "downloadedSize": 554,
+  "configSha256": "f6b74d131b62af8766c18dac2e703f0fb4da5ffab536df67075fc25f6c26cbc8",
+  "cliSha256": "cddfbeca98cd4f779168b7f83254939a7b8fe360f2a4c62669df4ee481dbf919"
+}

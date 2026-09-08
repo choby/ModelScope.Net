@@ -1,0 +1,55 @@
+{
+  "schemaVersion": 1,
+  "modelId": "Qwen/Qwen2.5-0.5B-Instruct-GGUF",
+  "revision": "2e50b77b0eee3083842019e257b74854323d880a",
+  "status": "passed",
+  "generatedAt": "2026-09-05T06:12:15.533629+00:00",
+  "llamaCpp": {
+    "release": "b10516",
+    "commit": "b95502ba9",
+    "version": "version: 0.1.2-dev (build 10516, commit b95502ba9) built with AppleClang 21.0.0.21000101 for Darwin arm64",
+    "archiveSha256": "ee3324327d621026ae80c24031670e65fa62a0b23a3a027dbe2f65f240affd30",
+    "expectedArchiveSha256": "ee3324327d621026ae80c24031670e65fa62a0b23a3a027dbe2f65f240affd30",
+    "executableSha256": "d0878274b8d6bd3c8ea26a78eb66cd1ffd943d007c62b9dff31c8aa99922d713",
+    "binaryVerified": true,
+    "platform": "macos-arm64"
+  },
+  "artifact": {
+    "path": "qwen2.5-0.5b-instruct-q2_k.gguf",
+    "size": 415182688,
+    "sha256": "9ee36184e616dfc76df4f5dd66f908dbde6979524ae36e6cefb67f532f798cb8",
+    "expectedSize": 415182688,
+    "expectedSha256": "9ee36184e616dfc76df4f5dd66f908dbde6979524ae36e6cefb67f532f798cb8",
+    "verified": true
+  },
+  "execution": {
+    "runtime": "ModelScope.Net.Runtime.Gguf / llama-server CPU",
+    "contextSize": 512,
+    "threads": 4,
+    "gpuLayers": 0,
+    "loopbackOnly": true,
+    "loadMilliseconds": 798.9733,
+    "nonStreaming": {
+      "expected": "MODELSCOPE_DOTNET_OK",
+      "actual": "MODELSCOPE_DOTNET_OK",
+      "finishReason": "stop",
+      "totalTokens": 39
+    },
+    "streaming": {
+      "expected": "MODELSCOPE_STREAM_OK",
+      "actual": "MODELSCOPE_STREAM_OK",
+      "terminalObserved": true
+    },
+    "crashRecovery": {
+      "expected": "MODELSCOPE_RECOVERY_OK",
+      "actual": "MODELSCOPE_RECOVERY_OK",
+      "processRecovered": true
+    },
+    "stoppedCleanly": true
+  },
+  "environment": {
+    "dotnet": "10.0.8",
+    "os": "Unix 27.0.0",
+    "architecture": "Arm64"
+  }
+}

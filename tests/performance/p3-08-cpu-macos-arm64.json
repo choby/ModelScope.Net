@@ -1,0 +1,761 @@
+{
+  "schemaVersion": 1,
+  "status": "passed",
+  "generatedAt": "2026-09-02T01:44:15.189325+00:00",
+  "scope": "technical-preview-macos-arm64-cpu",
+  "environment": {
+    "dotnet": "10.0.8",
+    "os": "macOS 27.0.0",
+    "architecture": "Arm64",
+    "logicalProcessors": 12,
+    "availableMemoryMiB": 65536,
+    "onnxRuntime": "1.29.0\u002B2e2543fbe9fae542f921d47a72d21d5a4ef0b710",
+    "llamaCppRelease": "b10516",
+    "llamaCppCommit": "b95502ba9"
+  },
+  "methodology": {
+    "warmups": 2,
+    "repeatRuns": 2,
+    "onnxIterations": 20,
+    "ggufIterations": 5,
+    "percentiles": "nearest-rank over end-to-end InvokeAsync latency",
+    "throughput": "completed input items or completion tokens divided by measured invocation wall time",
+    "memory": "maximum observed process working set; ONNX values include the benchmark host and GGUF values use llama-server",
+    "concurrency": "sequential requests; batch capacity is measured separately at batch 1 and 8",
+    "gpu": "not measured; GPU remains outside the current certified preview scope"
+  },
+  "models": [
+    {
+      "modelId": "BAAI/bge-small-en-v1.5",
+      "revision": "160f4d645d32abe3cabc5af6b6b39823eadf3c0e",
+      "task": "sentence-embedding",
+      "runtime": "onnx-embedding",
+      "loadMilliseconds": 143.661,
+      "peakWorkingSetMiB": 866.3,
+      "scenarios": [
+        {
+          "batchSize": 1,
+          "iterationsPerRun": 20,
+          "meanMilliseconds": 4.554,
+          "p50Milliseconds": 4.804,
+          "p95Milliseconds": 7.08,
+          "throughput": 188.046,
+          "throughputUnit": "items/s",
+          "threshold": {
+            "maximumP95Milliseconds": 250,
+            "minimumThroughput": 4
+          },
+          "passed": true,
+          "observedRange": {
+            "minimumP95Milliseconds": 3.959,
+            "maximumP95Milliseconds": 7.08,
+            "minimumThroughput": 188.046,
+            "maximumThroughput": 258.573
+          }
+        },
+        {
+          "batchSize": 8,
+          "iterationsPerRun": 20,
+          "meanMilliseconds": 23.939,
+          "p50Milliseconds": 27.349,
+          "p95Milliseconds": 29.976,
+          "throughput": 287.863,
+          "throughputUnit": "items/s",
+          "threshold": {
+            "maximumP95Milliseconds": 1000,
+            "minimumThroughput": 16
+          },
+          "passed": true,
+          "observedRange": {
+            "minimumP95Milliseconds": 22.528,
+            "maximumP95Milliseconds": 29.976,
+            "minimumThroughput": 287.863,
+            "maximumThroughput": 396.147
+          }
+        }
+      ],
+      "threshold": {
+        "maximumLoadMilliseconds": 5000,
+        "maximumWorkingSetMiB": 2048
+      },
+      "passed": true,
+      "observedRange": {
+        "minimumLoadMilliseconds": 97.045,
+        "maximumLoadMilliseconds": 143.661,
+        "minimumPeakWorkingSetMiB": 313.9,
+        "maximumPeakWorkingSetMiB": 866.3
+      }
+    },
+    {
+      "modelId": "unsloth/all-MiniLM-L6-v2",
+      "revision": "4bc149651c730bffa46308d38a3f2a2c5e9b6e08",
+      "task": "sentence-embedding",
+      "runtime": "onnx-embedding",
+      "loadMilliseconds": 60.723,
+      "peakWorkingSetMiB": 873,
+      "scenarios": [
+        {
+          "batchSize": 1,
+          "iterationsPerRun": 20,
+          "meanMilliseconds": 3.144,
+          "p50Milliseconds": 3.521,
+          "p95Milliseconds": 3.712,
+          "throughput": 273.171,
+          "throughputUnit": "items/s",
+          "threshold": {
+            "maximumP95Milliseconds": 250,
+            "minimumThroughput": 4
+          },
+          "passed": true,
+          "observedRange": {
+            "minimumP95Milliseconds": 2.908,
+            "maximumP95Milliseconds": 3.712,
+            "minimumThroughput": 273.171,
+            "maximumThroughput": 370.941
+          }
+        },
+        {
+          "batchSize": 8,
+          "iterationsPerRun": 20,
+          "meanMilliseconds": 17.878,
+          "p50Milliseconds": 21.827,
+          "p95Milliseconds": 25.048,
+          "throughput": 358.323,
+          "throughputUnit": "items/s",
+          "threshold": {
+            "maximumP95Milliseconds": 1000,
+            "minimumThroughput": 16
+          },
+          "passed": true,
+          "observedRange": {
+            "minimumP95Milliseconds": 14.067,
+            "maximumP95Milliseconds": 25.048,
+            "minimumThroughput": 358.323,
+            "maximumThroughput": 591.931
+          }
+        }
+      ],
+      "threshold": {
+        "maximumLoadMilliseconds": 5000,
+        "maximumWorkingSetMiB": 2048
+      },
+      "passed": true,
+      "observedRange": {
+        "minimumLoadMilliseconds": 58.295,
+        "maximumLoadMilliseconds": 60.723,
+        "minimumPeakWorkingSetMiB": 344.6,
+        "maximumPeakWorkingSetMiB": 873
+      }
+    },
+    {
+      "modelId": "distilbert/distilbert-base-uncased-finetuned-sst-2-english",
+      "revision": "ef2f51c8f6a09fb8c418d1ccbda386970ed2d53f",
+      "task": "text-classification",
+      "runtime": "onnx-text-classification",
+      "loadMilliseconds": 135.784,
+      "peakWorkingSetMiB": 873.4,
+      "scenarios": [
+        {
+          "batchSize": 1,
+          "iterationsPerRun": 20,
+          "meanMilliseconds": 3.804,
+          "p50Milliseconds": 3.802,
+          "p95Milliseconds": 4.274,
+          "throughput": 255.011,
+          "throughputUnit": "items/s",
+          "threshold": {
+            "maximumP95Milliseconds": 250,
+            "minimumThroughput": 4
+          },
+          "passed": true,
+          "observedRange": {
+            "minimumP95Milliseconds": 3.824,
+            "maximumP95Milliseconds": 4.274,
+            "minimumThroughput": 255.011,
+            "maximumThroughput": 264.631
+          }
+        },
+        {
+          "batchSize": 8,
+          "iterationsPerRun": 20,
+          "meanMilliseconds": 19.1,
+          "p50Milliseconds": 19.172,
+          "p95Milliseconds": 20.003,
+          "throughput": 413.497,
+          "throughputUnit": "items/s",
+          "threshold": {
+            "maximumP95Milliseconds": 1000,
+            "minimumThroughput": 16
+          },
+          "passed": true,
+          "observedRange": {
+            "minimumP95Milliseconds": 19.228,
+            "maximumP95Milliseconds": 20.003,
+            "minimumThroughput": 413.497,
+            "maximumThroughput": 421.995
+          }
+        }
+      ],
+      "threshold": {
+        "maximumLoadMilliseconds": 5000,
+        "maximumWorkingSetMiB": 2048
+      },
+      "passed": true,
+      "observedRange": {
+        "minimumLoadMilliseconds": 132.563,
+        "maximumLoadMilliseconds": 135.784,
+        "minimumPeakWorkingSetMiB": 683,
+        "maximumPeakWorkingSetMiB": 873.4
+      }
+    },
+    {
+      "modelId": "onnx-community/mobilenet_v2_1.0_224-ONNX",
+      "revision": "ba6621a361183d7ce00314802b63a46eee2aa48b",
+      "task": "image-classification",
+      "runtime": "onnx-image-classification",
+      "loadMilliseconds": 11.157,
+      "peakWorkingSetMiB": 1475.5,
+      "scenarios": [
+        {
+          "batchSize": 1,
+          "iterationsPerRun": 20,
+          "meanMilliseconds": 26.31,
+          "p50Milliseconds": 20.436,
+          "p95Milliseconds": 62.456,
+          "throughput": 34.073,
+          "throughputUnit": "items/s",
+          "threshold": {
+            "maximumP95Milliseconds": 500,
+            "minimumThroughput": 2
+          },
+          "passed": true,
+          "observedRange": {
+            "minimumP95Milliseconds": 30.927,
+            "maximumP95Milliseconds": 62.456,
+            "minimumThroughput": 34.073,
+            "maximumThroughput": 42.809
+          }
+        },
+        {
+          "batchSize": 8,
+          "iterationsPerRun": 20,
+          "meanMilliseconds": 191.132,
+          "p50Milliseconds": 173.014,
+          "p95Milliseconds": 301.832,
+          "throughput": 40.204,
+          "throughputUnit": "items/s",
+          "threshold": {
+            "maximumP95Milliseconds": 2500,
+            "minimumThroughput": 4
+          },
+          "passed": true,
+          "observedRange": {
+            "minimumP95Milliseconds": 255.012,
+            "maximumP95Milliseconds": 301.832,
+            "minimumThroughput": 40.204,
+            "maximumThroughput": 43.621
+          }
+        }
+      ],
+      "threshold": {
+        "maximumLoadMilliseconds": 5000,
+        "maximumWorkingSetMiB": 2048
+      },
+      "passed": true,
+      "observedRange": {
+        "minimumLoadMilliseconds": 9.811,
+        "maximumLoadMilliseconds": 11.157,
+        "minimumPeakWorkingSetMiB": 1138.8,
+        "maximumPeakWorkingSetMiB": 1475.5
+      }
+    },
+    {
+      "modelId": "Qwen/Qwen2.5-0.5B-Instruct-GGUF",
+      "revision": "2e50b77b0eee3083842019e257b74854323d880a",
+      "task": "text-generation",
+      "runtime": "llama.cpp-b10516-cpu",
+      "loadMilliseconds": 910.344,
+      "peakWorkingSetMiB": 662.7,
+      "scenarios": [
+        {
+          "batchSize": 1,
+          "iterationsPerRun": 5,
+          "meanMilliseconds": 155.772,
+          "p50Milliseconds": 158.951,
+          "p95Milliseconds": 163.894,
+          "throughput": 182.704,
+          "throughputUnit": "completion tokens/s",
+          "threshold": {
+            "maximumP95Milliseconds": 10000,
+            "minimumThroughput": 5
+          },
+          "passed": true,
+          "observedRange": {
+            "minimumP95Milliseconds": 163.131,
+            "maximumP95Milliseconds": 163.894,
+            "minimumThroughput": 182.704,
+            "maximumThroughput": 189.598
+          }
+        }
+      ],
+      "threshold": {
+        "maximumLoadMilliseconds": 10000,
+        "maximumWorkingSetMiB": 2048
+      },
+      "passed": true,
+      "observedRange": {
+        "minimumLoadMilliseconds": 898.9,
+        "maximumLoadMilliseconds": 910.344,
+        "minimumPeakWorkingSetMiB": 661,
+        "maximumPeakWorkingSetMiB": 662.7
+      }
+    }
+  ],
+  "rawRuns": [
+    {
+      "run": 1,
+      "models": [
+        {
+          "modelId": "BAAI/bge-small-en-v1.5",
+          "revision": "160f4d645d32abe3cabc5af6b6b39823eadf3c0e",
+          "task": "sentence-embedding",
+          "runtime": "onnx-embedding",
+          "loadMilliseconds": 143.661,
+          "peakWorkingSetMiB": 313.9,
+          "scenarios": [
+            {
+              "batchSize": 1,
+              "iterationsPerRun": 20,
+              "meanMilliseconds": 5.28,
+              "p50Milliseconds": 4.804,
+              "p95Milliseconds": 7.08,
+              "throughput": 188.046,
+              "throughputUnit": "items/s",
+              "threshold": {
+                "maximumP95Milliseconds": 250,
+                "minimumThroughput": 4
+              },
+              "passed": true,
+              "observedRange": null
+            },
+            {
+              "batchSize": 8,
+              "iterationsPerRun": 20,
+              "meanMilliseconds": 27.74,
+              "p50Milliseconds": 27.349,
+              "p95Milliseconds": 29.976,
+              "throughput": 287.863,
+              "throughputUnit": "items/s",
+              "threshold": {
+                "maximumP95Milliseconds": 1000,
+                "minimumThroughput": 16
+              },
+              "passed": true,
+              "observedRange": null
+            }
+          ],
+          "threshold": {
+            "maximumLoadMilliseconds": 5000,
+            "maximumWorkingSetMiB": 2048
+          },
+          "passed": true,
+          "observedRange": null
+        },
+        {
+          "modelId": "unsloth/all-MiniLM-L6-v2",
+          "revision": "4bc149651c730bffa46308d38a3f2a2c5e9b6e08",
+          "task": "sentence-embedding",
+          "runtime": "onnx-embedding",
+          "loadMilliseconds": 60.723,
+          "peakWorkingSetMiB": 344.6,
+          "scenarios": [
+            {
+              "batchSize": 1,
+              "iterationsPerRun": 20,
+              "meanMilliseconds": 3.627,
+              "p50Milliseconds": 3.521,
+              "p95Milliseconds": 3.712,
+              "throughput": 273.171,
+              "throughputUnit": "items/s",
+              "threshold": {
+                "maximumP95Milliseconds": 250,
+                "minimumThroughput": 4
+              },
+              "passed": true,
+              "observedRange": null
+            },
+            {
+              "batchSize": 8,
+              "iterationsPerRun": 20,
+              "meanMilliseconds": 22.279,
+              "p50Milliseconds": 21.827,
+              "p95Milliseconds": 25.048,
+              "throughput": 358.323,
+              "throughputUnit": "items/s",
+              "threshold": {
+                "maximumP95Milliseconds": 1000,
+                "minimumThroughput": 16
+              },
+              "passed": true,
+              "observedRange": null
+            }
+          ],
+          "threshold": {
+            "maximumLoadMilliseconds": 5000,
+            "maximumWorkingSetMiB": 2048
+          },
+          "passed": true,
+          "observedRange": null
+        },
+        {
+          "modelId": "distilbert/distilbert-base-uncased-finetuned-sst-2-english",
+          "revision": "ef2f51c8f6a09fb8c418d1ccbda386970ed2d53f",
+          "task": "text-classification",
+          "runtime": "onnx-text-classification",
+          "loadMilliseconds": 132.563,
+          "peakWorkingSetMiB": 683,
+          "scenarios": [
+            {
+              "batchSize": 1,
+              "iterationsPerRun": 20,
+              "meanMilliseconds": 3.733,
+              "p50Milliseconds": 3.716,
+              "p95Milliseconds": 3.824,
+              "throughput": 264.631,
+              "throughputUnit": "items/s",
+              "threshold": {
+                "maximumP95Milliseconds": 250,
+                "minimumThroughput": 4
+              },
+              "passed": true,
+              "observedRange": null
+            },
+            {
+              "batchSize": 8,
+              "iterationsPerRun": 20,
+              "meanMilliseconds": 18.906,
+              "p50Milliseconds": 18.817,
+              "p95Milliseconds": 19.228,
+              "throughput": 421.995,
+              "throughputUnit": "items/s",
+              "threshold": {
+                "maximumP95Milliseconds": 1000,
+                "minimumThroughput": 16
+              },
+              "passed": true,
+              "observedRange": null
+            }
+          ],
+          "threshold": {
+            "maximumLoadMilliseconds": 5000,
+            "maximumWorkingSetMiB": 2048
+          },
+          "passed": true,
+          "observedRange": null
+        },
+        {
+          "modelId": "onnx-community/mobilenet_v2_1.0_224-ONNX",
+          "revision": "ba6621a361183d7ce00314802b63a46eee2aa48b",
+          "task": "image-classification",
+          "runtime": "onnx-image-classification",
+          "loadMilliseconds": 11.157,
+          "peakWorkingSetMiB": 1138.8,
+          "scenarios": [
+            {
+              "batchSize": 1,
+              "iterationsPerRun": 20,
+              "meanMilliseconds": 23.321,
+              "p50Milliseconds": 20.436,
+              "p95Milliseconds": 30.927,
+              "throughput": 42.809,
+              "throughputUnit": "items/s",
+              "threshold": {
+                "maximumP95Milliseconds": 500,
+                "minimumThroughput": 2
+              },
+              "passed": true,
+              "observedRange": null
+            },
+            {
+              "batchSize": 8,
+              "iterationsPerRun": 20,
+              "meanMilliseconds": 183.339,
+              "p50Milliseconds": 165.525,
+              "p95Milliseconds": 255.012,
+              "throughput": 43.621,
+              "throughputUnit": "items/s",
+              "threshold": {
+                "maximumP95Milliseconds": 2500,
+                "minimumThroughput": 4
+              },
+              "passed": true,
+              "observedRange": null
+            }
+          ],
+          "threshold": {
+            "maximumLoadMilliseconds": 5000,
+            "maximumWorkingSetMiB": 2048
+          },
+          "passed": true,
+          "observedRange": null
+        },
+        {
+          "modelId": "Qwen/Qwen2.5-0.5B-Instruct-GGUF",
+          "revision": "2e50b77b0eee3083842019e257b74854323d880a",
+          "task": "text-generation",
+          "runtime": "llama.cpp-b10516-cpu",
+          "loadMilliseconds": 898.9,
+          "peakWorkingSetMiB": 662.7,
+          "scenarios": [
+            {
+              "batchSize": 1,
+              "iterationsPerRun": 5,
+              "meanMilliseconds": 158.657,
+              "p50Milliseconds": 158.951,
+              "p95Milliseconds": 163.131,
+              "throughput": 182.704,
+              "throughputUnit": "completion tokens/s",
+              "threshold": {
+                "maximumP95Milliseconds": 10000,
+                "minimumThroughput": 5
+              },
+              "passed": true,
+              "observedRange": null
+            }
+          ],
+          "threshold": {
+            "maximumLoadMilliseconds": 10000,
+            "maximumWorkingSetMiB": 2048
+          },
+          "passed": true,
+          "observedRange": null
+        }
+      ]
+    },
+    {
+      "run": 2,
+      "models": [
+        {
+          "modelId": "BAAI/bge-small-en-v1.5",
+          "revision": "160f4d645d32abe3cabc5af6b6b39823eadf3c0e",
+          "task": "sentence-embedding",
+          "runtime": "onnx-embedding",
+          "loadMilliseconds": 97.045,
+          "peakWorkingSetMiB": 866.3,
+          "scenarios": [
+            {
+              "batchSize": 1,
+              "iterationsPerRun": 20,
+              "meanMilliseconds": 3.829,
+              "p50Milliseconds": 3.718,
+              "p95Milliseconds": 3.959,
+              "throughput": 258.573,
+              "throughputUnit": "items/s",
+              "threshold": {
+                "maximumP95Milliseconds": 250,
+                "minimumThroughput": 4
+              },
+              "passed": true,
+              "observedRange": null
+            },
+            {
+              "batchSize": 8,
+              "iterationsPerRun": 20,
+              "meanMilliseconds": 20.138,
+              "p50Milliseconds": 19.664,
+              "p95Milliseconds": 22.528,
+              "throughput": 396.147,
+              "throughputUnit": "items/s",
+              "threshold": {
+                "maximumP95Milliseconds": 1000,
+                "minimumThroughput": 16
+              },
+              "passed": true,
+              "observedRange": null
+            }
+          ],
+          "threshold": {
+            "maximumLoadMilliseconds": 5000,
+            "maximumWorkingSetMiB": 2048
+          },
+          "passed": true,
+          "observedRange": null
+        },
+        {
+          "modelId": "unsloth/all-MiniLM-L6-v2",
+          "revision": "4bc149651c730bffa46308d38a3f2a2c5e9b6e08",
+          "task": "sentence-embedding",
+          "runtime": "onnx-embedding",
+          "loadMilliseconds": 58.295,
+          "peakWorkingSetMiB": 873,
+          "scenarios": [
+            {
+              "batchSize": 1,
+              "iterationsPerRun": 20,
+              "meanMilliseconds": 2.662,
+              "p50Milliseconds": 2.499,
+              "p95Milliseconds": 2.908,
+              "throughput": 370.941,
+              "throughputUnit": "items/s",
+              "threshold": {
+                "maximumP95Milliseconds": 250,
+                "minimumThroughput": 4
+              },
+              "passed": true,
+              "observedRange": null
+            },
+            {
+              "batchSize": 8,
+              "iterationsPerRun": 20,
+              "meanMilliseconds": 13.477,
+              "p50Milliseconds": 13.356,
+              "p95Milliseconds": 14.067,
+              "throughput": 591.931,
+              "throughputUnit": "items/s",
+              "threshold": {
+                "maximumP95Milliseconds": 1000,
+                "minimumThroughput": 16
+              },
+              "passed": true,
+              "observedRange": null
+            }
+          ],
+          "threshold": {
+            "maximumLoadMilliseconds": 5000,
+            "maximumWorkingSetMiB": 2048
+          },
+          "passed": true,
+          "observedRange": null
+        },
+        {
+          "modelId": "distilbert/distilbert-base-uncased-finetuned-sst-2-english",
+          "revision": "ef2f51c8f6a09fb8c418d1ccbda386970ed2d53f",
+          "task": "text-classification",
+          "runtime": "onnx-text-classification",
+          "loadMilliseconds": 135.784,
+          "peakWorkingSetMiB": 873.4,
+          "scenarios": [
+            {
+              "batchSize": 1,
+              "iterationsPerRun": 20,
+              "meanMilliseconds": 3.876,
+              "p50Milliseconds": 3.802,
+              "p95Milliseconds": 4.274,
+              "throughput": 255.011,
+              "throughputUnit": "items/s",
+              "threshold": {
+                "maximumP95Milliseconds": 250,
+                "minimumThroughput": 4
+              },
+              "passed": true,
+              "observedRange": null
+            },
+            {
+              "batchSize": 8,
+              "iterationsPerRun": 20,
+              "meanMilliseconds": 19.295,
+              "p50Milliseconds": 19.172,
+              "p95Milliseconds": 20.003,
+              "throughput": 413.497,
+              "throughputUnit": "items/s",
+              "threshold": {
+                "maximumP95Milliseconds": 1000,
+                "minimumThroughput": 16
+              },
+              "passed": true,
+              "observedRange": null
+            }
+          ],
+          "threshold": {
+            "maximumLoadMilliseconds": 5000,
+            "maximumWorkingSetMiB": 2048
+          },
+          "passed": true,
+          "observedRange": null
+        },
+        {
+          "modelId": "onnx-community/mobilenet_v2_1.0_224-ONNX",
+          "revision": "ba6621a361183d7ce00314802b63a46eee2aa48b",
+          "task": "image-classification",
+          "runtime": "onnx-image-classification",
+          "loadMilliseconds": 9.811,
+          "peakWorkingSetMiB": 1475.5,
+          "scenarios": [
+            {
+              "batchSize": 1,
+              "iterationsPerRun": 20,
+              "meanMilliseconds": 29.299,
+              "p50Milliseconds": 17.774,
+              "p95Milliseconds": 62.456,
+              "throughput": 34.073,
+              "throughputUnit": "items/s",
+              "threshold": {
+                "maximumP95Milliseconds": 500,
+                "minimumThroughput": 2
+              },
+              "passed": true,
+              "observedRange": null
+            },
+            {
+              "batchSize": 8,
+              "iterationsPerRun": 20,
+              "meanMilliseconds": 198.926,
+              "p50Milliseconds": 173.014,
+              "p95Milliseconds": 301.832,
+              "throughput": 40.204,
+              "throughputUnit": "items/s",
+              "threshold": {
+                "maximumP95Milliseconds": 2500,
+                "minimumThroughput": 4
+              },
+              "passed": true,
+              "observedRange": null
+            }
+          ],
+          "threshold": {
+            "maximumLoadMilliseconds": 5000,
+            "maximumWorkingSetMiB": 2048
+          },
+          "passed": true,
+          "observedRange": null
+        },
+        {
+          "modelId": "Qwen/Qwen2.5-0.5B-Instruct-GGUF",
+          "revision": "2e50b77b0eee3083842019e257b74854323d880a",
+          "task": "text-generation",
+          "runtime": "llama.cpp-b10516-cpu",
+          "loadMilliseconds": 910.344,
+          "peakWorkingSetMiB": 661,
+          "scenarios": [
+            {
+              "batchSize": 1,
+              "iterationsPerRun": 5,
+              "meanMilliseconds": 152.887,
+              "p50Milliseconds": 148.446,
+              "p95Milliseconds": 163.894,
+              "throughput": 189.598,
+              "throughputUnit": "completion tokens/s",
+              "threshold": {
+                "maximumP95Milliseconds": 10000,
+                "minimumThroughput": 5
+              },
+              "passed": true,
+              "observedRange": null
+            }
+          ],
+          "threshold": {
+            "maximumLoadMilliseconds": 10000,
+            "maximumWorkingSetMiB": 2048
+          },
+          "passed": true,
+          "observedRange": null
+        }
+      ]
+    }
+  ],
+  "summary": {
+    "certifiedModels": 5,
+    "passedModels": 5,
+    "failedModels": 0
+  }
+}

@@ -1,0 +1,87 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-09-02",
+  "status": "manifest-controls-passed-runtime-soak-pending-p4-07",
+  "localValidation": {
+    "linuxCpuKustomize": "passed",
+    "linuxGpuKustomize": "passed",
+    "mutualTlsIntegration": "passed",
+    "dockerImageBuild": "passed-local-linux-arm64-protocol-base",
+    "containerBuildEvidence": "deployment/container-build-evidence.json"
+  },
+  "platforms": [
+    {
+      "id": "ubuntu-24.04-x64-cpu",
+      "status": "manifest-validated",
+      "manifest": "deployment/kubernetes/overlays/linux-cpu"
+    },
+    {
+      "id": "linux-x64-nvidia-gpu",
+      "status": "manifest-validated-hardware-certification-pending",
+      "manifest": "deployment/kubernetes/overlays/linux-gpu"
+    },
+    {
+      "id": "windows-server-2025-x64-cpu",
+      "status": "policy-validated",
+      "manifest": "deployment/windows-cpu/execution-policy.json"
+    }
+  ],
+  "controls": [
+    {
+      "id": "FS-01",
+      "status": "passed",
+      "evidence": [
+        "readOnlyRootFilesystem",
+        "readOnly models PVC",
+        "size-limited emptyDir"
+      ]
+    },
+    {
+      "id": "NET-02",
+      "status": "passed",
+      "evidence": [
+        "default-deny ingress and egress NetworkPolicy",
+        "gateway-only mTLS ingress"
+      ]
+    },
+    {
+      "id": "OS-01",
+      "status": "passed",
+      "evidence": [
+        "restricted Pod Security namespace",
+        "non-root uid 65532",
+        "all capabilities dropped",
+        "RuntimeDefault seccomp",
+        "privilege escalation disabled"
+      ]
+    },
+    {
+      "id": "RESOURCE-01",
+      "status": "passed",
+      "evidence": [
+        "container CPU memory and ephemeral-storage limits",
+        "namespace ResourceQuota and LimitRange",
+        "kubelet podPidsLimit 256",
+        "Linux GPU nvidia.com/gpu limit"
+      ]
+    },
+    {
+      "id": "MTLS-01",
+      "status": "passed",
+      "evidence": [
+        "Python gRPC worker requires client CA validation",
+        ".NET client requires client certificate key and trusted CA for remote endpoints",
+        "real mutual TLS integration test"
+      ]
+    }
+  ],
+  "requiredExternalInputs": [
+    "approved signed worker image digest",
+    "modelscope-models read-only PVC",
+    "server TLS secret and client CA",
+    "worker API-key secret",
+    "CNI NetworkPolicy enforcement",
+    "worker nodes with podPidsLimit",
+    "NVIDIA device plugin and RuntimeClass for GPU overlay"
+  ]
+}

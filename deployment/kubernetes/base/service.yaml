@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: modelscope-python-worker
+  namespace: modelscope-runtime
+spec:
+  selector:
+    app.kubernetes.io/name: modelscope-python-worker
+  ports:
+    - name: grpc-mtls
+      port: 50051
+      targetPort: grpc-mtls
+  type: ClusterIP

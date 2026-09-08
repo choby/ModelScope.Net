@@ -1,0 +1,43 @@
+{
+  "schemaVersion": 1,
+  "startedAt": "2026-09-05T06:19:11.906186+00:00",
+  "models": [
+    {
+      "modelId": "BAAI/bge-small-en-v1.5",
+      "status": "failed",
+      "failureType": "URLError"
+    },
+    {
+      "modelId": "unsloth/all-MiniLM-L6-v2",
+      "status": "failed",
+      "failureType": "URLError"
+    },
+    {
+      "modelId": "distilbert/distilbert-base-uncased-finetuned-sst-2-english",
+      "status": "failed",
+      "failureType": "URLError"
+    },
+    {
+      "modelId": "onnx-community/mobilenet_v2_1.0_224-ONNX",
+      "status": "failed",
+      "failureType": "URLError"
+    },
+    {
+      "modelId": "google/mobilenet_v2_1.0_224",
+      "status": "failed",
+      "failureType": "URLError"
+    },
+    {
+      "modelId": "Qwen/Qwen2.5-0.5B-Instruct-GGUF",
+      "status": "failed",
+      "failureType": "URLError"
+    }
+  ],
+  "dependencyChanges": [],
+  "planSha256": "02abcf667636668ac2764a667b3a25dd45f075028e15afa0256c18b635cbf32b",
+  "baselineSha256": "3807c25b1e26ad3c06326ee1d07d9febfafcf3c1d1fde9695b0bf3d5f7e442a3",
+  "status": "failed",
+  "requiresRecertification": false,
+  "upstreamChecked": true,
+  "completedAt": "2026-09-05T06:19:12.739800+00:00"
+}

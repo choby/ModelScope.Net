@@ -1,0 +1,53 @@
+{
+  "schemaVersion": 1,
+  "modelId": "Qwen/Qwen2.5-0.5B-Instruct-GGUF",
+  "revision": "2e50b77b0eee3083842019e257b74854323d880a",
+  "requestedRevision": "2e50b77b0eee3083842019e257b74854323d880a",
+  "status": "passed",
+  "generatedAt": "2026-09-01T14:21:08.882076+00:00",
+  "artifact": {
+    "path": "qwen2.5-0.5b-instruct-q2_k.gguf",
+    "size": 415182688,
+    "sha256": "9ee36184e616dfc76df4f5dd66f908dbde6979524ae36e6cefb67f532f798cb8",
+    "expectedSize": 415182688,
+    "expectedSha256": "9ee36184e616dfc76df4f5dd66f908dbde6979524ae36e6cefb67f532f798cb8",
+    "verified": true
+  },
+  "header": {
+    "version": 3,
+    "tensorCount": 291,
+    "metadataCount": 26,
+    "metadataEndOffset": 5931189,
+    "architecture": "qwen2",
+    "fileType": 10,
+    "fileTypeName": "Q2_K",
+    "quantizationVersion": 2,
+    "tokenizerModel": "gpt2",
+    "hasChatTemplate": true,
+    "chatTemplateLength": 2509,
+    "chatTemplateSha256": "d5495a1e5db0611132a97e46a65dbb64a642a499421228b9c8b93229097fa9a4"
+  },
+  "policy": {
+    "allowed": true,
+    "reason": "GGUF 3 qwen2/Q2_K header is allowed by the preview policy; llama.cpp load verification is still required.",
+    "versions": [
+      3
+    ],
+    "architectures": [
+      "qwen2"
+    ],
+    "fileTypes": [
+      10
+    ],
+    "tokenizerModels": [
+      "gpt2"
+    ],
+    "requireChatTemplate": true,
+    "loadVerificationRequired": true
+  },
+  "environment": {
+    "dotnet": "10.0.8",
+    "os": "Unix 27.0.0",
+    "architecture": "Arm64"
+  }
+}

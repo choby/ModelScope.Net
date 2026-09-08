@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 1,
+  "status": "passed",
+  "startedAt": "2026-09-08T04:53:14.033268+00:00",
+  "scope": "local-real-bge-process-kill-after-durable-revocation-stage",
+  "limitations": [
+    "Local atomic file store is not a production rollback-resistant trust root.",
+    "Forced process termination is not a host power-loss or storage-controller test."
+  ],
+  "writerPid": 20076,
+  "writerExitCode": -9,
+  "readerPid": 20077,
+  "readerExitCode": 0,
+  "stagedBeforeKill": true,
+  "freshProcessReconciled": true,
+  "revokedModelBlocked": true,
+  "oldCheckpointRejected": true,
+  "assemblySha256": "10181d148e380288aceebd3e5d55fc28cedcd23f431153b5f5bed3733dc56c6e",
+  "recoveryDescriptorSha256": "8ba1d80a048f0a14cbc3e5b58d2a6b4cc415f562d419c384d01e71b6335a36a3"
+}

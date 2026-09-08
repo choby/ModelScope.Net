@@ -1,0 +1,120 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-09-02",
+  "scope": "managed-worker-production-baseline",
+  "status": "application-and-deployment-controls-passed",
+  "controls": [
+    {
+      "id": "ENV-01",
+      "control": "Parent environment is replaced by an allowlist",
+      "layer": "application",
+      "status": "passed",
+      "evidence": "WorkerProcessSecurityPolicyTests and live Python/llama child-process probes"
+    },
+    {
+      "id": "ENV-02",
+      "control": "Explicit secret-like environment variables are denied by default",
+      "layer": "application",
+      "status": "passed",
+      "evidence": "LocalPythonWorkerSupervisorTests and GgufRuntimeTests"
+    },
+    {
+      "id": "LOG-01",
+      "control": "Child stdout/stderr capture is disabled by default; opt-in capture is redacted and bounded",
+      "layer": "application",
+      "status": "passed",
+      "evidence": "WorkerProcessSecurityPolicyTests"
+    },
+    {
+      "id": "NET-01",
+      "control": "Managed workers bind only to an IP loopback address",
+      "layer": "application",
+      "status": "passed",
+      "evidence": "LocalPythonWorkerSupervisorTests and GgufRuntimeTests"
+    },
+    {
+      "id": "AUTH-01",
+      "control": "Managed Python gRPC calls require a random Bearer key stored in a user-only temporary file",
+      "layer": "application",
+      "status": "passed",
+      "evidence": "GrpcPythonWorkerRuntimeTests and LocalPythonWorkerSupervisorTests"
+    },
+    {
+      "id": "PATH-01",
+      "control": "Python worker model paths must stay within configured roots",
+      "layer": "application",
+      "status": "passed",
+      "evidence": "GrpcPythonWorkerRuntimeTests"
+    },
+    {
+      "id": "CODE-01",
+      "control": "Remote model code remains denied unless explicitly enabled",
+      "layer": "application",
+      "status": "passed",
+      "evidence": "GrpcPythonWorkerRuntimeTests and runtime policy tests"
+    },
+    {
+      "id": "QUOTA-01",
+      "control": "Python worker enforces request-size, session-count and thread-count bounds",
+      "layer": "application",
+      "status": "passed",
+      "evidence": "GrpcPythonWorkerRuntimeTests"
+    },
+    {
+      "id": "PROC-01",
+      "control": "Supervisors reclaim the complete child process tree on restart and shutdown",
+      "layer": "application",
+      "status": "passed",
+      "evidence": "LocalPythonWorkerSupervisorTests and GgufRuntimeTests"
+    },
+    {
+      "id": "ARG-01",
+      "control": "Security-critical Host, model, model-root, API-key and UI/slots arguments cannot be overridden",
+      "layer": "application",
+      "status": "passed",
+      "evidence": "LocalPythonWorkerSupervisorTests and GgufRuntimeTests"
+    },
+    {
+      "id": "TLS-01",
+      "control": "Clear-text remote Python worker endpoints are rejected",
+      "layer": "application",
+      "status": "passed",
+      "evidence": "PythonWorkerRuntimeTests"
+    },
+    {
+      "id": "FS-01",
+      "control": "Read-only model mount and writable temporary-directory boundary",
+      "layer": "deployment",
+      "status": "passed",
+      "evidence": "Kubernetes manifest uses a read-only root filesystem and model PVC plus a size-limited temporary emptyDir"
+    },
+    {
+      "id": "NET-02",
+      "control": "Default-deny outbound network policy for local model workers",
+      "layer": "deployment",
+      "status": "passed",
+      "evidence": "NetworkPolicy denies all ingress and egress, then permits only gateway ingress to the mTLS port"
+    },
+    {
+      "id": "OS-01",
+      "control": "Non-root identity, dropped capabilities, no-new-privileges and syscall profile",
+      "layer": "deployment",
+      "status": "passed",
+      "evidence": "Restricted Pod Security, uid 65532, read-only root, all capabilities dropped, no privilege escalation and RuntimeDefault seccomp"
+    },
+    {
+      "id": "RESOURCE-01",
+      "control": "Operating-system CPU, memory, process and GPU quotas",
+      "layer": "deployment",
+      "status": "passed",
+      "evidence": "Container resources, namespace quotas, kubelet podPidsLimit and Linux GPU device limits are mandatory deployment inputs"
+    },
+    {
+      "id": "MTLS-01",
+      "control": "Mutual TLS identity for cross-host workers",
+      "layer": "deployment",
+      "status": "passed",
+      "evidence": "Python gRPC server and .NET client enforce client certificate, private key and trusted CA; real handshake test rejects anonymous clients"
+    }
+  ]
+}
