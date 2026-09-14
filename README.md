@@ -5,7 +5,7 @@ ModelScope.Net 是 [ModelScope](https://github.com/modelscope/modelscope) 的 **
 项目采用“**原生能力优先、Python 生态兜底、生产环境默认拒绝未通过生产技术认证的模型**”的设计，而不是把 ModelScope Python 生态逐行改写为 C#。
 
 > [!IMPORTANT]
-> 当前版本为 `0.1.0-preview.1` 技术预览。本机 macOS ARM64/CPU 工程候选已通过 260 项 .NET 测试和若干固定模型的技术验证，但**没有任何模型可据此视为已获生产发布批准**。生产 1.0 仍是 NO-GO：真实私有仓库、目标 Windows/Linux/GPU、许可证批准、远程 CI、生产可信存储、7 天 Hub SLO 和 72 小时稳定性测试尚未全部完成。详见[最终验收复核](docs/final-acceptance-2026-09-08.md)。
+> 当前版本为 `0.1.0-preview.1` 技术预览。本机 macOS ARM64/CPU 工程候选最近一次完整回归已通过 284 项 .NET 测试和若干固定模型的技术验证，但**没有任何模型可据此视为已获生产发布批准**。生产 1.0 仍是 NO-GO：真实私有仓库、目标 Windows/Linux/GPU、许可证批准、远程 CI、生产可信存储、7 天 Hub SLO 和 72 小时稳定性测试尚未全部完成。详见[最终验收复核](docs/final-acceptance-2026-09-08.md)。
 
 ## 15 分钟首次成功路径
 
@@ -36,7 +36,7 @@ ModelScope.Net 适合以下需求：
 当前不以以下能力为目标：
 
 - 用纯 .NET 直接运行任意 ModelScope 社区模型；
-- 迁移训练、微调、数据集、模型上传或完整 Hub 管理功能；
+- 迁移训练、微调、`MsDataset` 数据处理生态或不受控的完整 Hub 管理功能；阶段 6 计划增量实现 Dataset Hub 只读访问，并在最后经业务确认实现有审计的 Hub 写入；
 - 自动信任模型仓库中的 Python 代码；
 - 在未认证平台上根据 CPU 结果推断 GPU/CUDA 兼容性或性能。
 
@@ -48,7 +48,7 @@ ModelScope.Net 适合以下需求：
 | 下载可靠性 | 重试、Range 续传、SHA-256、进度、取消、并发限制、`allow`/`ignore` 过滤 | 7 天/至少 2000 次在线 SLO 尚未执行 |
 | 缓存与离线 | Blob/Snapshot/Manifest、原子发布、多进程互斥、离线复用、缓存扫描和校验 | 缓存不是模型授权或许可证证明 |
 | 模型检测 | ONNX、GGUF、SafeTensors、PyTorch、TensorFlow、Llamafile、OpenVINO、Python 代码；架构、任务、远程代码和简单许可证/依赖诊断 | 复杂 SPDX、通用环境求解和真实 RAM/VRAM 预测仍需人工/实测 |
-| ONNX | 原始张量、Embedding、文本分类、图像分类、YOLO 目标检测、decoder-only 贪心文本生成 | 仅 CPU 路径；无 CUDA EP、任意 Tokenizer 或任意生成图承诺 |
+| ONNX | 原始张量、Embedding、文本分类、图像分类、YOLO 目标检测、decoder-only 贪心文本生成；CPU/CUDA/TensorRT/DirectML/CoreML 显式策略与诊断 | 本包直接依赖 CPU 包且仅有 macOS ARM64/CPU 固定业务模型证据；CoreML 只有无 fallback 的合成 Add 图加载/推理 smoke，CUDA/TensorRT/DirectML 还缺目标原生包/设备；不承诺任意 Tokenizer 或任意生成图 |
 | GGUF | 有界 Header 解析、架构/量化白名单、llama-server 管理、普通/流式生成、Embedding、崩溃恢复 | Qwen2.5 文本生成与 bge-base Q4_K_M Embedding 均仅本机 macOS ARM64 CPU 技术验证 |
 | Python Worker | gRPC 主协议、HTTP/SSE 兼容协议、模型加载/调用/流式/卸载、进程恢复、回环鉴权和 mTLS | 模型依赖按模型族构建；不提供“万能”基础环境 |
 | Remote | OpenAI 兼容普通与 SSE 调用、Bearer Token、错误分类和正文脱敏 | API 配额与模型支持由远程服务决定 |
@@ -214,6 +214,16 @@ dotnet run --project src/ModelScope.Net.Cli -- \
 | `Unsupported` | 当前实现、架构、算子、任务或策略明确不支持 |
 
 ### 4. 运行 ONNX 模型
+
+先查看当前进程实际加载的 ONNX Runtime 原生版本和 Provider：
+
+```bash
+dotnet run --project src/ModelScope.Net.Cli -- onnx providers
+dotnet run --project src/ModelScope.Net.Cli -- \
+  onnx probe ./models/example --onnx-provider cpu
+```
+
+运行命令可显式追加 `--onnx-provider cpu|cuda|tensorrt|directml|coreml`、`--onnx-device ID`，CUDA 还可使用 `--onnx-gpu-memory-bytes BYTES`。默认禁止 CPU 降级；只有明确接受降级时才传 `--onnx-allow-cpu-fallback`。Provider 出现在诊断列表中只说明已编译注册，不代表目标模型能够加载或已经认证。
 
 Embedding：
 
@@ -417,6 +427,7 @@ using Microsoft.Extensions.Hosting;
 using ModelScope.Net;
 using ModelScope.Net.AspNetCore;
 using ModelScope.Net.Runtime;
+using ModelScope.Net.Runtime.Onnx;
 
 var builder = Host.CreateApplicationBuilder(args);
 builder.Services.AddModelScopeNet(
@@ -431,6 +442,12 @@ builder.Services.AddModelScopeNet(
         options.MaxCachedSessions = 5;
         options.MaxConcurrentLeases = 1;
         options.MaxQueuedAcquisitions = 32;
+    },
+    configureOnnx: options =>
+    {
+        options.ExecutionProvider = OnnxExecutionProvider.Cpu;
+        options.DeviceId = 0;
+        options.AllowCpuFallback = false;
     });
 
 using var host = builder.Build();
@@ -601,7 +618,7 @@ kubectl kustomize deployment/kubernetes/overlays/linux-gpu
 | `src/ModelScope.Net.Abstractions` | Model ID、Hub DTO、统一运行时接口、请求/响应和错误码 |
 | `src/ModelScope.Net.Hub` | Hub API、固定 Revision、下载、缓存、凭据和缓存检查 |
 | `src/ModelScope.Net.Runtime` | 检测、诊断、路由、生产策略、Session 池、灰度与撤销 |
-| `src/ModelScope.Net.Runtime.Onnx` | ONNX 原始张量及四类任务适配器 |
+| `src/ModelScope.Net.Runtime.Onnx` | ONNX 原始张量及五类任务适配器 |
 | `src/ModelScope.Net.Runtime.Gguf` | GGUF Header、白名单、llama-server 调用和进程管理 |
 | `src/ModelScope.Net.Runtime.Python` | Python HTTP/gRPC 客户端、Supervisor、mTLS 及类型化任务契约 |
 | `src/ModelScope.Net.Runtime.Remote` | API Inference 普通与 SSE 适配器 |
@@ -639,10 +656,24 @@ dotnet test ModelScope.Net.sln --configuration Release
 
 工作流文件存在不代表远程 runner 已产生本次发布证据；生产验收必须保存实际运行结果。
 
+## 后续 C# 原生化路线
+
+已批准的阶段6严格按以下顺序推进：
+
+1. ONNX CPU/CUDA/TensorRT/DirectML/CoreML Execution Provider与设备策略；
+2. Dataset Hub只读Revision、文件、快照和离线缓存；
+3. 缓存删除、容量配额、LRU和无引用Blob回收；
+4. 跨运行时通用类型化任务契约；
+5. NER、文本排序和CLIP ONNX适配器；
+6. 独立可选的ASP.NET Core推理网关；
+7. 经业务需求确认后的Hub创建、上传、Commit和Tag。
+
+动态模型类、Trainer、Exporter、复杂Pipeline、自定义算子和训练数据处理继续保留在Python Worker。逐项接口边界与退出条件见[C#原生能力扩展路线](docs/csharp-native-expansion.md)，唯一状态以[迁移进度表](docs/migration-progress.md)为准。
+
 ## 当前限制
 
 - 只有 macOS ARM64/CPU 完成了全部本机固定模型证据；Windows、Ubuntu x64、CUDA 和 Kubernetes 仍需目标环境认证；
-- ONNX 当前不配置 CUDA Execution Provider；
+- ONNX 已支持显式选择 CPU/CUDA/TensorRT/DirectML/CoreML 并诊断可用性；本机 ORT 1.29.0 枚举 CoreML、CPU 和未纳入公开枚举的 WebGPU。CoreML 已完成无 fallback 的合成 Add 图 Session/推理 smoke，但尚无固定业务模型金标准与资源认证；CUDA/TensorRT/DirectML 仍需相应目标原生包、驱动和平台认证；
 - ONNX 文本生成仅支持已认证 SmolLM 图、batch 1、贪心解码和有限上下文；
 - ONNX 图像路径支持分类和标准 YOLO 检测；分割与自定义检测头仍不支持；
 - GGUF 文本生成认证 Qwen2.5，Embedding 认证 bge-base Q4_K_M；其他架构/量化仍需单独认证；
@@ -657,7 +688,7 @@ dotnet test ModelScope.Net.sln --configuration Release
 
 | 主题 | 文档 |
 |---|---|
-| 总体架构与范围 | [技术方案](docs/technical-solution.md)、[迁移计划](docs/migration-plan.md) |
+| 总体架构与范围 | [技术方案](docs/technical-solution.md)、[迁移计划](docs/migration-plan.md)、[C#原生能力扩展路线](docs/csharp-native-expansion.md) |
 | 当前进度与最终判断 | [迁移进度表](docs/migration-progress.md)、[验收审计](docs/acceptance-audit.md)、[最终验收复核](docs/final-acceptance-2026-09-08.md) |
 | Hub 与缓存 | [Revision 语义](docs/hub-revisions.md)、[缓存格式](docs/cache-format.md)、[凭据](docs/credentials.md) |
 | ONNX | [原始张量](docs/onnx-runtime.md)、[Embedding](docs/onnx-embedding.md)、[文本分类](docs/onnx-text-classification.md)、[图像分类](docs/onnx-image-classification.md)、[目标检测](docs/onnx-object-detection.md)、[文本生成](docs/onnx-text-generation.md) |

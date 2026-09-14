@@ -1,25 +1,27 @@
-# ModelScope.Net 最终验收复核（2026-09-08）
+# ModelScope.Net 最终验收复核（2026-09-08；更新于 2026-09-09）
 
 ## 决策
 
 **生产 1.0：NO-GO。技术预览工程候选：本机范围通过。**
 
-当前代码、测试、固定模型证据、部署基线、Dashboard/告警和本地 NuGet 预览包已经形成可审查的工程候选；但发布清单与许可证未获批准，真实私有仓库、目标 Windows/Linux/GPU、生产防回退存储、远程 CI、7 天 Hub SLO、72 小时稳定性、镜像签名/当前漏洞扫描及三方 Go/No-Go 均无合格证据。任何单元测试总数都不能替代这些门槛。
+当前代码、测试、固定模型证据、部署基线、Dashboard/告警、本地 NuGet 预览包和未签名CycloneDX SBOM已经形成可审查的工程候选，当前NuGet直接与传递依赖公告检查无命中；但发布清单与许可证未获批准，真实私有仓库、目标 Windows/Linux/GPU、生产防回退存储、远程 CI、7 天 Hub SLO、72 小时稳定性、包/SBOM/镜像签名、provenance、当前容器镜像扫描及三方 Go/No-Go 均无合格证据。任何单元测试总数都不能替代这些门槛。
 
 ## 本轮最终验证
 
 | 检查 | 结果 | 证据 |
 |---|---|---|
 | Release 全解决方案构建 | 通过，0 warning / 0 error | 本轮命令输出 |
-| .NET 自动化 | Hub 43 + Runtime 209 + ASP.NET Core 11 + CLI 5 = 268，通过 268、失败 0、跳过 0 | 本轮 `dotnet test ModelScope.Net.sln --configuration Release` |
-| Python 工具自动化 | 12/12 通过 | certification、upstream monitor、NuGet verifier 测试 |
+| .NET 自动化 | Hub 43 + Runtime 221 + ASP.NET Core 12 + CLI 8 = 284，通过 284、失败 0、跳过 0 | `artifacts/acceptance/p0-06-matrix-readiness/`；P6-01原始282项批次保留在`artifacts/acceptance/p6-01-provider-final/` |
+| Python 工具自动化 | 15/15 通过 | certification、upstream monitor、NuGet verifier、CycloneDX SBOM生成器测试 |
 | NuGet 包集合 | 8 nupkg + 8 snupkg，版本均为 `0.1.0-preview.1`，内容/依赖验证通过 | `artifacts/packages/`；`tools/verify_nuget_packages.py` |
 | 包消费者 | 只从本地包源恢复顶层 ASP.NET Core 包并编译，0 warning / 0 error | `tests/ModelScope.Net.PackageSmoke/` |
+| NuGet 漏洞公告 | 当前全部项目直接与传递依赖无已知漏洞命中 | `dotnet list ModelScope.Net.sln package --vulnerable --include-transitive`；`artifacts/acceptance/p4-distribution-refresh-2026-09-09/` |
+| 本地SBOM | CycloneDX 1.7，8个首方包及13个运行时第三方组件，包SHA-256与依赖引用自检通过，并通过官方JSON Schema | `artifacts/sbom/modelscope-net-0.1.0-preview.1.cdx.json`；`tools/generate_sbom.py` |
 | Dashboard/告警 | JSON 可解析，四项实际指标、有限标签、全部查询及 Critical 审计写失败由测试绑定 | `deployment/observability/`；`ObservabilityAssetsTests` |
 
 ## 原 Python 源代码与批准迁移范围
 
-原代码基线包含 Hub 查询/下载/凭据、动态 Pipeline、大量任务实现、数据集、训练、上传及管理能力。本迁移计划明确采用多运行时而非逐行重写：Hub 下载和目标推理路径在范围内；训练、微调、数据集、上传管理和“纯 .NET 执行任意社区模型”不在首发范围。因此这些未移植域是已声明范围差异，不是当前实现遗漏。
+原代码基线包含 Hub 查询/下载/凭据、动态 Pipeline、大量任务实现、数据集、训练、上传及管理能力。本迁移计划明确采用多运行时而非逐行重写：原生产 1.0 范围包含模型 Hub 下载和目标推理路径；阶段 6 又按固定顺序新增 Dataset Hub 只读与经业务批准的 Hub 写入。训练、微调、`MsDataset` 数据处理生态和“纯 .NET 执行任意社区模型”仍不迁移。因此“数据集仓库只读”和“受控 Hub 写入”现在是 P6-02/P6-07 的待交付项，不能再统称为范围外；训练数据处理及其余动态生态仍是明确范围差异。
 
 在首发范围内：
 
@@ -28,21 +30,23 @@
 | Hub 查询、版本、文件/快照、过滤、缓存 | 原 `hub/api.py`、`file_download.py`、`snapshot_download.py` 的目标子集已有原生 .NET 入口，固定 Revision、Hash、续传、并发与离线缓存有证据 | 工程完成；真实私有/受限仓库与 7 天 SLO 未验 |
 | 动态 Pipeline 推理 | 不复制 Python 注册表；通过 ONNX、GGUF、隔离 Python Worker 和 Remote 统一路由 | 已覆盖认证模型/任务；不承诺任意 Pipeline |
 | 远程代码 | 原 Python 可动态加载；.NET 默认拒绝，只有固定 Commit、显式批准后交给隔离 Worker | 策略实现完成；生产不可信沙箱和审批未完成 |
-| 模型上传、数据集、训练/微调 | 原代码存在，迁移计划明确排除 | 不属于验收缺口 |
+| Dataset Hub 只读 | 原 `hub/api.py` / `MsDataset` 可进入数据集仓库 | P6-02 已纳入、尚未开始；只覆盖详情、Revision、文件、快照与离线缓存，不含 DataFrame/DataLoader/变换 |
+| Hub 写入 | 原代码含创建、上传、Commit、Tag 等管理能力 | P6-07 已纳入、尚未开始且需先批准业务需求与权限模型；未完成前是阶段6缺口，不是原1.0回归缺口 |
+| 训练/微调与训练数据处理 | 原代码存在 | 仍明确排除，不属于迁移缺口 |
 
 ## 方案与源代码逐项差异
 
 | 方案项 | 实际源代码 | 验收判断 |
 |---|---|---|
-| ONNX CPU/CUDA | 当前 `InferenceSession` 只走默认 CPU；没有 CUDA Execution Provider 接线 | CPU 预览通过；GPU/CUDA 未完成，保持 fail-closed |
+| ONNX Execution Provider | CPU/CUDA/TensorRT/DirectML/CoreML显式配置、原生可用性与模型Session探针、DeviceId、默认拒绝、显式CPU fallback、普通/流式告警、CLI/DI、遥测和Catalog精确属性匹配已接线 | CoreML无fallback合成Add图加载/推理smoke通过，但不替代固定业务模型、资源和金标准认证。P0-06须先冻结批准组合，再为每个批准组合补齐证据；当前生产仍fail-closed |
 | ONNX 任务适配器 | Embedding、文本分类、图像分类、YOLO 目标检测、SmolLM 贪心文本生成已实现 | P3“图像分类或检测”已满足；nndeploy yolov5n 本机金标准通过（7 检测、最低 IoU 0.978） |
 | GGUF 任务 | Header 白名单、llama.cpp 文本生成/流式/恢复、Embedding HTTP 契约已实现 | bge-base Q4_K_M 本机 embedding 金标准通过（8×768、最低余弦 0.973） |
 | Python Worker | gRPC、回环鉴权、进程恢复、资源准入及图像生成/OCR/ASR真实本机证据已实现 | 生产容器、GPU、更多模型和执行中无损重放不声明 |
 | ASP.NET Core | 提供 DI、健康检查、资源池、Telemetry 和审计；没有网关 API 端点 | 因没有自带 API 面，未内置终端用户鉴权/限流/租户配额；资源并发配额已实现。宿主鉴权方案和租户口径需产品/SRE决定 |
-| 可观测性 | 当前推理会话有调用、失败、耗时和审计写失败；新增 Dashboard/规则 | 下载、缓存、模型加载/排队、内存/GPU、Worker重启/OOM、路由降级和远程额度信号仍缺 |
+| 可观测性 | 当前推理会话有调用、失败、耗时、审计写失败；ONNX trace/审计记录provider/device/fallback，指标记录有限基数的provider/fallback；新增 Dashboard/规则 | 下载、缓存、模型加载/排队、内存/GPU、Worker重启/OOM和远程额度信号仍缺；provider状态尚未等同目标平台告警验收 |
 | 审计范围 | 推理完成事件和安全字段策略已实现 | 下载、Session创建、管理员操作、不可抵赖存储仍缺 |
 | 容器/多架构 | Kustomize CPU/GPU清单、隔离策略和本机 Linux/ARM64 基础镜像证据存在 | 目标 x64/GPU/Windows、签名、多架构发布清单和当前镜像扫描未完成 |
-| NuGet/升级 | 8 个对齐预览包、符号包、CI pack/验证、消费者及升级手册已补齐 | 未推送公共源；无包签名、SBOM/provenance、1.0 owner批准或干净远程 runner 证据 |
+| NuGet/升级 | 8 个对齐预览包、符号包、CI pack/验证、消费者、升级手册及未签名本地 SBOM 已补齐 | 未推送公共源；无包/SBOM 签名、provenance、1.0 owner批准或干净远程 runner 证据 |
 | 灰度/回滚/撤销 | 本机固定 BGE、签名 Catalog、撤销及存储崩溃恢复有证据 | 文件存储不抗管理员整体回退；生产控制面、分发和集群故障未验 |
 
 ## 关闭生产验收所需输入与执行

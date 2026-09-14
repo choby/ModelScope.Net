@@ -7,6 +7,46 @@ namespace ModelScope.Net.Runtime.Tests;
 public sealed class ProductionRuntimePolicyTests
 {
     [Fact]
+    public async Task ProductionCertificationRequiresExactRuntimeProperties()
+    {
+        using var fixture = new Fixture();
+        var cpuProperties = new Dictionary<string, string>
+        {
+            ["onnx.requestedExecutionProvider"] = "Cpu",
+            ["onnx.effectiveExecutionProvider"] = "Cpu",
+            ["onnx.requestedDeviceId"] = "0",
+            ["onnx.effectiveDeviceId"] = "0",
+            ["onnx.runtimeVersion"] = "1.29.0",
+            ["onnx.allowCpuFallback"] = "false",
+            ["onnx.usedCpuFallback"] = "false",
+        };
+        var policy = await fixture.PolicyAsync(runtimeProperties: cpuProperties);
+        var options = new RuntimeRouterOptions
+        {
+            Mode = RuntimePolicyMode.Production,
+            ProductionPolicy = policy,
+        };
+        var matching = new RecordingRuntime("onnx") { CertificationProperties = cpuProperties };
+        var mismatched = new RecordingRuntime("onnx")
+        {
+            CertificationProperties = new Dictionary<string, string>(cpuProperties)
+            {
+                ["onnx.requestedExecutionProvider"] = "Cuda",
+                ["onnx.effectiveExecutionProvider"] = "Cuda",
+            },
+        };
+
+        Assert.Equal(
+            CapabilityStatus.Certified,
+            Assert.Single(new RuntimeRouter([matching], options).Evaluate(Capabilities(fixture.Directory))).Status);
+        Assert.Equal(
+            CapabilityStatus.Compatible,
+            Assert.Single(new RuntimeRouter([mismatched], options).Evaluate(Capabilities(fixture.Directory))).Status);
+        await Assert.ThrowsAsync<ModelScopeException>(() =>
+            new RuntimeRouter([mismatched], options).CreateSessionAsync(Capabilities(fixture.Directory), "onnx"));
+    }
+
+    [Fact]
     public async Task StoreBackedUpdateBlocksBeforeDurableStageAcknowledgement()
     {
         using var fixture = new Fixture();
@@ -282,7 +322,9 @@ public sealed class ProductionRuntimePolicyTests
         var runtime = new RecordingRuntime(name);
         var router = new RuntimeRouter([runtime], new()
         {
-            Mode = RuntimePolicyMode.Production, ProductionPolicy = policy, AllowExperimentalInProduction = true
+            Mode = RuntimePolicyMode.Production,
+            ProductionPolicy = policy,
+            AllowExperimentalInProduction = true
         });
         var cap = Capabilities(fixture.Directory);
         await Assert.ThrowsAsync<ModelScopeException>(() => router.CreateSessionAsync(cap));
@@ -308,7 +350,9 @@ public sealed class ProductionRuntimePolicyTests
         var runtime = new RecordingRuntime("onnx");
         var router = new RuntimeRouter([runtime], new()
         {
-            Mode = RuntimePolicyMode.Production, ProductionPolicy = policy, AllowExperimentalInProduction = true
+            Mode = RuntimePolicyMode.Production,
+            ProductionPolicy = policy,
+            AllowExperimentalInProduction = true
         });
         await using var pool = new ModelSessionPool(router);
         var cap = Capabilities(fixture.Directory);
@@ -617,13 +661,14 @@ public sealed class ProductionRuntimePolicyTests
 
         public async Task<ProductionRuntimePolicy> PolicyAsync(string platform = "test-cpu", string digest = Digest,
             CapabilityStatus status = CapabilityStatus.Certified, Dictionary<string, string>? digests = null,
-            bool includeCloud = false, TimeProvider? clock = null, bool initializeRevocations = true)
+            bool includeCloud = false, TimeProvider? clock = null, bool initializeRevocations = true,
+            IReadOnlyDictionary<string, string>? runtimeProperties = null)
         {
             var entry = new CompatibilityCatalogEntry("tests/model", new string('a', 40), "raw-onnx", "onnx", status,
                 new Dictionary<string, string>
                 {
                     ["model.onnx"] = Convert.ToHexStringLower(SHA256.HashData("fixture"u8))
-                }, ["test-cpu"], Digest);
+                }, ["test-cpu"], Digest, runtimeProperties);
             CompatibilityCatalogEntry[] entries = includeCloud ? [entry, entry with { Runtime = "cloud" }] : [entry];
             var bytes = JsonSerializer.SerializeToUtf8Bytes(
                 new CompatibilityCatalog(1, "policy-test", DateTimeOffset.UtcNow, entries),
@@ -720,7 +765,11 @@ public sealed class ProductionRuntimePolicyTests
         public int Loads { get; private set; }
         public TaskCompletionSource? Gate { get; init; }
         public TaskCompletionSource Started { get; } = new(TaskCreationOptions.RunContinuationsAsynchronously);
-        public RuntimeCandidate Evaluate(ModelCapabilities capabilities) => new(Name, status, "fixture", 1);
+        public IReadOnlyDictionary<string, string>? CertificationProperties { get; init; }
+        public RuntimeCandidate Evaluate(ModelCapabilities capabilities) => new(Name, status, "fixture", 1)
+        {
+            CertificationProperties = CertificationProperties,
+        };
         public Task<IModelSession> CreateSessionAsync(ModelCapabilities capabilities, CancellationToken cancellationToken = default)
         {
             Loads++;

@@ -10,4 +10,9 @@ public interface IModelSessionInstrumentation
         IModelSession session,
         ModelCapabilities capabilities,
         string runtimeName);
+
+    IModelSession Instrument(
+        IModelSession session,
+        ModelCapabilities capabilities,
+        RuntimeCandidate candidate) => Instrument(session, capabilities, candidate.RuntimeName);
 }

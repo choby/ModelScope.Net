@@ -11,10 +11,27 @@ public sealed class OnnxTextGenerationRuntime : IModelRuntime
     private readonly OnnxTextGenerationOptions _options;
 
     public OnnxTextGenerationRuntime(OnnxTextGenerationOptions? options = null)
+        : this(new OnnxRuntimeOptions(), options)
     {
+    }
+
+    public OnnxTextGenerationRuntime(
+        OnnxRuntimeOptions runtimeOptions,
+        OnnxTextGenerationOptions? options = null)
+    {
+        ArgumentNullException.ThrowIfNull(runtimeOptions);
         _options = options ?? new();
         ValidateOptions(_options);
-        _runtime = new OnnxRuntimeAdapter(new OnnxRuntimeOptions { ModelFile = _options.ModelFile });
+        _runtime = new OnnxRuntimeAdapter(CopyRuntimeOptions(runtimeOptions, _options.ModelFile));
+    }
+
+    public OnnxTextGenerationRuntime(
+        OnnxRuntimeAdapter runtime,
+        OnnxTextGenerationOptions? options = null)
+    {
+        _runtime = runtime ?? throw new ArgumentNullException(nameof(runtime));
+        _options = options ?? new();
+        ValidateOptions(_options);
     }
 
     public string Name => "onnx-text-generation";
@@ -24,7 +41,11 @@ public sealed class OnnxTextGenerationRuntime : IModelRuntime
         if (!IsCausalLanguageModel(capabilities))
             return new(Name, CapabilityStatus.Unsupported, "The task or architecture is not a supported causal language model.", 120);
         var raw = _runtime.Evaluate(capabilities);
-        if (raw.Status is CapabilityStatus.Unsupported or CapabilityStatus.Unavailable) return new(Name, raw.Status, raw.Reason, 120);
+        if (raw.Status is CapabilityStatus.Unsupported or CapabilityStatus.Unavailable)
+            return new RuntimeCandidate(Name, raw.Status, raw.Reason, 120)
+            {
+                CertificationProperties = raw.CertificationProperties,
+            };
         try
         {
             var vocabulary = ResolveModelFile(capabilities.ModelPath, _options.VocabularyFile);
@@ -33,7 +54,14 @@ public sealed class OnnxTextGenerationRuntime : IModelRuntime
                 return new(Name, CapabilityStatus.Unavailable, "The byte-level BPE vocabulary or merge table was not found.", 120);
         }
         catch (ModelScopeException error) { return new(Name, CapabilityStatus.Unsupported, error.Message, 120); }
-        return new(Name, raw.Status, "A decoder-only ONNX graph and byte-level BPE assets are available; fixed-model generation certification is required.", 120);
+        return new RuntimeCandidate(
+            Name,
+            raw.Status,
+            $"A decoder-only ONNX graph and byte-level BPE assets are available; fixed-model generation certification is required. {raw.Reason}",
+            120)
+        {
+            CertificationProperties = raw.CertificationProperties,
+        };
     }
 
     public async Task<IModelSession> CreateSessionAsync(ModelCapabilities capabilities, CancellationToken cancellationToken = default)
@@ -57,6 +85,28 @@ public sealed class OnnxTextGenerationRuntime : IModelRuntime
     private static bool IsCausalLanguageModel(ModelCapabilities capabilities) =>
         string.Equals(capabilities.Task?.Trim(), "text-generation", StringComparison.OrdinalIgnoreCase) ||
         capabilities.Architectures.Any(value => value.EndsWith("ForCausalLM", StringComparison.OrdinalIgnoreCase));
+
+    private static OnnxRuntimeOptions CopyRuntimeOptions(OnnxRuntimeOptions source, string? modelFile)
+    {
+        var copy = new OnnxRuntimeOptions
+        {
+            ModelFile = string.IsNullOrWhiteSpace(modelFile) ? source.ModelFile : modelFile,
+            ExecutionProvider = source.ExecutionProvider,
+            DeviceId = source.DeviceId,
+            AllowCpuFallback = source.AllowCpuFallback,
+            GpuMemoryLimitBytes = source.GpuMemoryLimitBytes,
+            IntraOpNumThreads = source.IntraOpNumThreads,
+            InterOpNumThreads = source.InterOpNumThreads,
+            MaxConcurrentRuns = source.MaxConcurrentRuns,
+            MaxInputElements = source.MaxInputElements,
+        };
+        foreach (var modelId in source.CertifiedModels)
+        {
+            copy.CertifiedModels.Add(modelId);
+        }
+
+        return copy;
+    }
 
     private static void ValidateOptions(OnnxTextGenerationOptions options)
     {
@@ -84,32 +134,47 @@ public sealed class OnnxTextGenerationRuntime : IModelRuntime
         public async Task<ModelResponse> InvokeAsync(ModelRequest request, CancellationToken cancellationToken = default)
         {
             var input = ReadInput(request); var started = DateTimeOffset.UtcNow; var tokens = new List<int>();
+            var warnings = new HashSet<string>(StringComparer.Ordinal);
             string finish;
             await foreach (var step in Generate(input.Prompt, input.MaxNewTokens, cancellationToken).ConfigureAwait(false))
-            { tokens.Add(step.TokenId); if (step.Finished) break; }
+            {
+                tokens.Add(step.TokenId);
+                foreach (var warning in step.Warnings) warnings.Add(warning);
+                if (step.Finished) break;
+            }
             finish = tokens.Count > 0 && tokens[^1] == options.EndTokenId ? "eos" : "length";
             var completion = tokenizer.Decode(tokens.Where(token => token != options.EndTokenId));
-            var output = JsonSerializer.SerializeToElement(new { text = input.Prompt + completion, generatedText = completion,
-                tokenIds = tokens, promptTokens = tokenizer.Encode(input.Prompt).Length, completionTokens = tokens.Count, finishReason = finish });
+            var output = JsonSerializer.SerializeToElement(new
+            {
+                text = input.Prompt + completion,
+                generatedText = completion,
+                tokenIds = tokens,
+                promptTokens = tokenizer.Encode(input.Prompt).Length,
+                completionTokens = tokens.Count,
+                finishReason = finish
+            });
             return new(output, Capabilities.ModelId ?? Capabilities.ModelPath, Capabilities.Revision ?? "local", "onnx-text-generation",
-                DateTimeOffset.UtcNow - started);
+                DateTimeOffset.UtcNow - started, warnings.ToArray());
         }
 
         public async IAsyncEnumerable<ModelStreamEvent> InvokeStreamingAsync(ModelRequest request,
             [EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
             var input = ReadInput(request); var index = 0; var decoder = new UTF8Encoding(false, false).GetDecoder();
+            var warnings = new HashSet<string>(StringComparer.Ordinal);
             await foreach (var step in Generate(input.Prompt, input.MaxNewTokens, cancellationToken).ConfigureAwait(false))
             {
+                foreach (var warning in step.Warnings) warnings.Add(warning);
                 var bytes = step.TokenId == options.EndTokenId ? Array.Empty<byte>() : tokenizer.DecodeTokenBytes(step.TokenId);
                 var characters = new char[Math.Max(1, bytes.Length)];
                 var flush = step.Finished || index + 1 == input.MaxNewTokens;
                 decoder.Convert(bytes, characters, flush, out _, out var used, out _);
                 var text = new string(characters, 0, used);
-                yield return new("data", JsonSerializer.SerializeToElement(new { text, tokenId = step.TokenId, index = index++ }));
+                yield return new("data", JsonSerializer.SerializeToElement(new { text, tokenId = step.TokenId, index = index++ }),
+                    Warnings: step.Warnings);
                 if (step.Finished) break;
             }
-            yield return new("done", JsonSerializer.SerializeToElement<object?>(null), true);
+            yield return new("done", JsonSerializer.SerializeToElement<object?>(null), true, warnings.ToArray());
         }
 
         public ValueTask DisposeAsync() => inner.DisposeAsync();
@@ -150,7 +215,8 @@ public sealed class OnnxTextGenerationRuntime : IModelRuntime
                 for (var layer = 0; layer < options.LayerCount; layer++) foreach (var kind in new[] { "key", "value" })
                 { var name = $"present.{layer}.{kind}"; cache[name] = outputs.GetProperty(name).Clone(); }
                 pastLength += current.Length; current = [(long)next];
-                var finished = next == options.EndTokenId; yield return new(next, finished);
+                var finished = next == options.EndTokenId;
+                yield return new(next, finished, raw.Warnings ?? []);
                 if (finished) yield break;
             }
         }
@@ -180,6 +246,6 @@ public sealed class OnnxTextGenerationRuntime : IModelRuntime
         }
 
         private sealed record GenerationInput(string Prompt, int MaxNewTokens);
-        private sealed record GenerationStep(int TokenId, bool Finished);
+        private sealed record GenerationStep(int TokenId, bool Finished, IReadOnlyList<string> Warnings);
     }
 }

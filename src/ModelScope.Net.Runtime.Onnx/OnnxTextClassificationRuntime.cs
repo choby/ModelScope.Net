@@ -35,7 +35,10 @@ public sealed class OnnxTextClassificationRuntime : IModelRuntime
 
         var raw = _runtime.Evaluate(capabilities);
         if (raw.Status is CapabilityStatus.Unsupported or CapabilityStatus.Unavailable)
-            return new RuntimeCandidate(Name, raw.Status, raw.Reason, 115);
+            return new RuntimeCandidate(Name, raw.Status, raw.Reason, 115)
+            {
+                CertificationProperties = raw.CertificationProperties,
+            };
 
         string vocabularyPath;
         try
@@ -60,8 +63,11 @@ public sealed class OnnxTextClassificationRuntime : IModelRuntime
         return new RuntimeCandidate(
             Name,
             raw.Status,
-            "A WordPiece vocabulary and ONNX model are available; label mapping and model-specific gold validation are required.",
-            115);
+            $"A WordPiece vocabulary and ONNX model are available; label mapping and model-specific gold validation are required. {raw.Reason}",
+            115)
+        {
+            CertificationProperties = raw.CertificationProperties,
+        };
     }
 
     private static bool IsTextClassificationModel(ModelCapabilities capabilities)
@@ -211,7 +217,7 @@ public sealed class OnnxTextClassificationRuntime : IModelRuntime
             [EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
             var response = await InvokeAsync(request, cancellationToken).ConfigureAwait(false);
-            yield return new ModelStreamEvent("classifications", response.Output, IsTerminal: true);
+            yield return new ModelStreamEvent("classifications", response.Output, IsTerminal: true, response.Warnings);
         }
 
         public ValueTask DisposeAsync() => inner.DisposeAsync();

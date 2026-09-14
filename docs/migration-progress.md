@@ -16,11 +16,11 @@
 
 | 项目 | 当前值 |
 |---|---|
-| 当前迁移阶段 | 2026-09-08 P5-04 yolov5n 与 bge-base GGUF Embedding 本机金标准通过。生产1.0仍为NO-GO：私库、平台矩阵、72小时、远程CI与三方批准未提供 |
+| 当前迁移阶段 | P6-01 ONNX Provider代码与本机CPU回归完成；保持IN_PROGRESS等待P0-06冻结批准的目标Provider组合及对应原生包/设备证据；按门槛尚未进入P6-02；生产1.0仍为NO-GO |
 | 当前发布目标 | 技术预览版 |
 | 目标框架 | .NET 10 |
 | 最近基线 | ModelScope Python commit 53f61360（2026-08-31） |
-| 最近更新时间 | 2026-09-08 |
+| 最近更新时间 | 2026-09-09 |
 | 恢复入口 | 读取 docs/acceptance-audit.md 与 docs/final-acceptance-2026-09-08.md。本机可执行迁移已完成对照；关闭1.0需要外部私库、平台、72小时、远程CI和签字 |
 
 ## 总体进度
@@ -33,6 +33,7 @@
 | 3 原生推理 | 8/8 | COMPLETED | 5～10 个固定 Revision 模型认证及预览性能门禁通过 |
 | 4 生产化 | 6/8 | IN_PROGRESS | SLO、安全、回滚和 72 小时稳定性测试通过 |
 | 5 持续扩展 | 0/5 | IN_PROGRESS | 按版本持续执行；P5-01本机工程验证通过，远程CI待验 |
+| 6 C# 原生能力扩展 | 0/7 | IN_PROGRESS | 按固定顺序完成Provider、Dataset Hub、缓存治理、任务契约、三类ONNX任务、网关和Hub写入 |
 
 ## 任务台账
 
@@ -43,7 +44,7 @@
 | P0-03 | 0 | 固定 .NET/OS 基线 | COMPLETED | - | .NET 10 基线写入方案并在本机验证 | global.json；dotnet SDK 10.0.300 | 2026-09-01 |
 | P0-04 | 0 | 选择 15～25 个代表模型 | IN_PROGRESS | P0-01 | 每个模型固定 ID/Commit/任务/许可证 | 15个固定Revision草案。yolov5n与bge-base GGUF已本机认证；Qwen-VL/Qwen-72B仍为元数据候选。待业务批准并提供真实私有/受限仓库；多个许可证仍待复核 | 2026-09-08 |
 | P0-05 | 0 | 建立金标准数据与 Python 输出 | IN_PROGRESS | P0-04 | 样本和容差可自动执行 | 既有模型外新增 yolov5n 与 bge-base GGUF Embedding 的固定输入、Python金标准与.NET报告；Qwen-VL/Qwen-72B仍无运行金标准 | 2026-09-08 |
-| P0-06 | 0 | 冻结 CPU/GPU/CUDA 矩阵 | IN_PROGRESS | P0-04 | 技术与 SRE 批准 | deployment/platform-validation-matrix.json已记录实际SDK/依赖与拟验平台；GPU/CUDA/驱动组合及目标主机待提供，未批准 | 2026-09-05 |
+| P0-06 | 0 | 冻结 CPU/GPU/CUDA 矩阵 | IN_PROGRESS | P0-04 | 技术与 SRE 批准 | deployment/platform-validation-matrix.json已拆分为5个可审查Provider/OS/设备组合并逐项记录证据层级与缺口；macOS CPU有固定模型本机证据，CoreML仅合成smoke；Ubuntu/Windows目标主机及Linux GPU/CUDA/驱动组合仍待提供，技术与SRE未批准 | 2026-09-09 |
 | P0-07 | 0 | 威胁模型与许可证流程 | IN_PROGRESS | P0-04 | 安全/法务批准 | docs/security/threat-model.md与license-review-workflow.md形成可审查材料，绑定16项控制及生产认证；正式安全/法务批准仍待提供 | 2026-09-05 |
 | P0-08 | 0 | 批准 1.0 发布清单 | BLOCKED | P0-04..07 | 产品、技术、安全共同批准 | 阻塞：需业务模型清单和负责人签字 | 2026-09-01 |
 | P1-01 | 1 | 创建解决方案与包结构 | COMPLETED | P0-03 | 解决方案包含计划中的全部项目 | ModelScope.Net.sln；src/tests/samples | 2026-09-01 |
@@ -81,11 +82,18 @@
 | P4-06 | 4 | 灰度与回滚 | COMPLETED | P4-05 | 演练通过 | ModelReleaseRollout 签名绑定、四级放量、门槛、故障撤回、请求排空及撤销；8 项专项测试和真实 BGE 8×384 金标准蓝绿/回滚/数值阻断通过；docs/runbooks/canary-rollback.md；artifacts/rollout/p4-06-bge/report.json；集群验证仍归P4-07 | 2026-09-05 |
 | P4-07 | 4 | 72 小时稳定性测试 | NOT_STARTED | P4-01..06 | 通过发布清单 SLO | artifacts/stability | 2026-09-01 |
 | P4-08 | 4 | 1.0 Go/No-Go | BLOCKED | P0-08,P4-07 | 三方批准 | 阻塞：前置阶段未完成 | 2026-09-01 |
-| P5-01 | 5 | 新模型认证流水线 | IN_PROGRESS | P3-07 | 可重复认证 | tools/certification_pipeline.py与certification-plan.json实现五模型固定制品/金标准/运行时Hash、全新报告、数值行为门禁和中断留痕；6项负面测试及两轮真实五模型全绿；.github/workflows/model-certification.yml已配置，远程runner未执行；docs/continuous-certification.md | 2026-09-05 |
-| P5-02 | 5 | 上游变化监控 | IN_PROGRESS | P5-01 | Revision/依赖变化可检测 | tools/upstream_monitor.py及依赖Hash基线、每日CI入口已实现；9项流水线测试通过；六仓库在线检查发现Qwen新增LICENSE/README/FP16及.gitattributes变化，固定Q2_K复验通过；远程CI未运行；docs/upstream-monitoring.md | 2026-09-05 |
+| P5-01 | 5 | 新模型认证流水线 | IN_PROGRESS | P3-07 | 可重复认证 | 当前工作树再次完成五模型固定Revision全量复认证，全部通过并绑定当前源码/二进制摘要；`artifacts/certification-runs/8c360e121b274191bf24ad88e17b1a43/`。6项流水线负面测试通过；.github/workflows/model-certification.yml已配置，远程runner仍未执行；docs/continuous-certification.md | 2026-09-09 |
+| P5-02 | 5 | 上游变化监控 | IN_PROGRESS | P5-01 | Revision/依赖变化可检测 | 2026-09-09在线检查六个仓库：五个不变，Qwen master新增LICENSE/README/FP16并修改.gitattributes；固定Q2_K随即复认证通过。本地依赖变更在复认证后更新哈希基线，离线复核零漂移；`artifacts/upstream-checks/7b6eee180256497a9a26048d64de1751/`与`769bf1fe37174b2d97d564ce4d643505/`。每日远程CI仍未执行 | 2026-09-09 |
 | P5-03 | 5 | 认证撤销和回归 | IN_PROGRESS | P5-01 | 回归自动降级 | 签名撤销/新鲜度/会话复核/历史恢复、更新前持久暂存、单调提交、丢失确认重试及启动对账完成；真实BGE在暂存后进程exit -9，新进程自动提交并继续拒绝撤销模型。完整258项通过。文件实现仅供单机演练；生产防回退外部存储、自动分发及目标部署故障待验；docs/certification-revocation.md | 2026-09-08 |
 | P5-04 | 5 | 新任务适配器 | IN_PROGRESS | P3-01 | 按业务价值持续交付 | 图像生成、OCR、ASR、SmolLM、nndeploy YOLOv5n（7检测/最低IoU 0.978）与bge-base GGUF Embedding（8×768/最低余弦0.973）均有本机固定Revision证据。持续扩展仍开放；生产矩阵未验 | 2026-09-08 |
 | P5-05 | 5 | 社区插件流程 | DEFERRED | P4-08 | 签名、审核和版本政策 | 1.0 后评估 | 2026-09-01 |
+| P6-01 | 6 | ONNX Execution Provider与设备策略 | IN_PROGRESS | P3-01,P0-06 | 显式CPU/CUDA/TensorRT/DirectML/CoreML；不可用稳定拒绝；CPU fallback仅显式；P0-06批准组合逐一完成初始化、固定模型、资源和金标准 | 公共配置、原生/Session探针、DeviceId、CUDA分配器参数、默认拒绝、普通/流式fallback警告、CLI/DI/遥测、Catalog精确属性匹配与CPU认证隔离完成；CoreML无fallback合成Add图smoke通过；Release构建0警告，完整282项通过；`artifacts/acceptance/p6-01-provider-final/`、`docs/onnx-runtime.md`；目标组合尚未冻结/完整认证 | 2026-09-09 |
+| P6-02 | 6 | Dataset Hub只读下载 | NOT_STARTED | P6-01,P1-07 | 数据集详情/Revision/文件/快照/离线缓存，共用固定Revision与安全下载语义 | 前置P6-01未退出；`docs/csharp-native-expansion.md` | 2026-09-09 |
+| P6-03 | 6 | 缓存删除、配额和回收 | NOT_STARTED | P6-02 | list/remove/prune/dry-run、共享Blob引用、下载锁与中断安全 | `docs/csharp-native-expansion.md` | 2026-09-08 |
+| P6-04 | 6 | 通用类型化任务契约 | NOT_STARTED | P6-03 | 跨运行时有界文本/图像/音频/视频输入与常用输出契约 | `docs/csharp-native-expansion.md` | 2026-09-08 |
+| P6-05 | 6 | NER、文本排序和CLIP ONNX适配器 | NOT_STARTED | P6-04 | 每类至少一个固定Revision、Python金标准、CLI/DI/资源和生产策略证据 | `docs/csharp-native-expansion.md` | 2026-09-08 |
+| P6-06 | 6 | 可选ASP.NET Core推理网关 | NOT_STARTED | P6-05,P4-01 | 独立包提供发现、普通调用、SSE、OpenAPI、鉴权、租户限流和遥测 | `docs/csharp-native-expansion.md` | 2026-09-08 |
+| P6-07 | 6 | Hub写入API | NOT_STARTED | P6-06 | 需求和权限模型确认后实现创建、上传、Commit、Tag及幂等/审计/负面权限测试 | `docs/csharp-native-expansion.md` | 2026-09-08 |
 
 ## 中断恢复检查
 
@@ -96,6 +104,16 @@
 5. 从首个 IN_PROGRESS 任务继续；完成后更新证据和总体计数。
 
 ## 最近一次验证证据
+
+2026-09-09 P4分发复核：基于当前工作树重新生成8个`0.1.0-preview.1`运行包和8个符号包，验证器确认包集合、元数据、net10.0程序集、符号分离及内部依赖精确对齐；只使用本地包源的ASP.NET Core PackageSmoke恢复/编译通过，0 warning/0 error。NuGet公告源复核全部解决方案项目的直接与传递依赖，未报告已知漏洞。新增CycloneDX 1.7 SBOM生成器，清单覆盖8个首方包SHA-256及13个运行时第三方组件，排除测试/覆盖率/仅构建期包和本机路径，自检及官方JSON Schema均通过；15项Python工具测试全绿。SBOM在`artifacts/sbom/modelscope-net-0.1.0-preview.1.cdx.json`，摘要在`artifacts/acceptance/p4-distribution-refresh-2026-09-09/`。该结果不替代包/SBOM签名、provenance、公开源推送、干净Windows/Linux runner或当前容器镜像扫描。
+
+2026-09-09 P5-01/P5-02复核：公开上游在线检查成功完成，BAAI BGE、all-MiniLM、DistilBERT、ONNX MobileNet及其源模型均相对固定Revision无变化；Qwen GGUF的master新增`LICENSE`、`README.md`和FP16制品并修改`.gitattributes`，报告状态为`changed`且`requiresRecertification=true`，没有自动移动固定Revision。随后在当前工作树上运行五模型复认证，BGE、all-MiniLM、DistilBERT、MobileNet和Qwen Q2_K全部通过，证据在`artifacts/certification-runs/8c360e121b274191bf24ad88e17b1a43/`。据此接受本轮项目文件与新增任务依赖的哈希基线，离线复核`dependencyChanges=[]`、`requiresRecertification=false`，证据在`artifacts/upstream-checks/769bf1fe37174b2d97d564ce4d643505/`；12项Python工具测试通过。远程GitHub runner未执行，P5-01/P5-02保持IN_PROGRESS。
+
+2026-09-09 P0-06 评审准备增量：`deployment/platform-validation-matrix.json`新增5个机器可读Provider组合，分别记录OS、架构、Provider、Device ID、原生包、硬件、证据层级、证据路径和阻塞缺口；明确区分macOS CPU固定模型本机证据、CoreML合成Session/推理smoke、未实机验证的Ubuntu/Windows CPU，以及尚未选择Provider/GPU/驱动/CUDA/cuDNN/原生包的Linux GPU组合。新增2项`PlatformValidationMatrixTests`约束组合身份唯一、未批准项必须列出缺口、`approved-for-validation`必须冻结Provider/包/硬件、只有`certified`才必须证据齐全且无缺口，并验证当前草案不得声称GPU认证。Release构建0 warning/0 error，Hub43+Runtime221+ASP.NET12+CLI8=284项通过，0失败/0跳过，证据在`artifacts/acceptance/p0-06-matrix-readiness/`。该增量只使矩阵可审查，不替代P0-04前置、目标主机或技术/SRE批准，P0-06保持IN_PROGRESS。
+
+2026-09-09 P6-01 ONNX Provider工程增量：`OnnxRuntimeOptions`支持CPU/CUDA/TensorRT/DirectML/CoreML、DeviceId、显式CPU fallback及仅限CUDA分配器的`GpuMemoryLimitBytes`；运行时按原生库实际列表探测，缺失时`Evaluate=Unavailable`且建会话返回`RuntimeNotInstalled`，Provider配置/初始化失败同样稳定拒绝，Session创建失败映射`ModelLoadFailed`。CLI新增Provider/device/memory/fallback选项、`onnx providers`枚举诊断和`onnx probe MODEL_DIRECTORY`固定模型Session探针；ASP.NET DI、所有ONNX任务适配器、普通/流式告警及Telemetry均继承同一冻结配置。生产Catalog精确匹配requested/effective Provider、requested/effective Device、ORT原生版本与allow/used fallback，并继续绑定平台/运行时/Revision/制品。Release构建0 warning/0 error；Hub43+Runtime219+ASP.NET12+CLI8=282项通过，0失败/0跳过，TRX在`artifacts/acceptance/p6-01-provider-final/`。本机ORT 1.29.0枚举CoreML、CPU和当前公开枚举不支持的WebGPU；在正常本机临时目录权限下，CoreML无CPU fallback加载合成Add图并推理得到`[4,6]`、无警告。该smoke不证明固定业务模型、逐节点硬件、性能、资源或金标准认证。P0-06尚未冻结批准的目标Provider集合，CUDA/TensorRT/DirectML目标原生包/驱动及完整认证未提供，P6-01保持IN_PROGRESS，按顺序不进入P6-02。
+
+2026-09-08 C#原生能力扩展决策：根据当前.NET与Python源码重新对照，新建阶段6并固定七项顺序：ONNX Provider→Dataset Hub只读→缓存治理→类型化任务契约→NER/排序/CLIP→可选ASP.NET网关→Hub写入。`docs/csharp-native-expansion.md`定义边界和逐项门槛；`docs/technical-solution.md`与`docs/migration-plan.md`同步。动态模型、Trainer、Exporter、复杂Pipeline、自定义算子及训练数据处理继续由Python Worker承担。P6-01进入IN_PROGRESS；尚未据此声明任何GPU可用或认证。
 
 2026-09-08 P5-04 金标准：`nndeploy/nndeploy@95f0258...` yolov5n 与独立 Python ONNX Runtime letterbox 对照通过（2图7检测，最低IoU 0.97855，分数误差 0.00545）；`Embedding-GGUF/bge-base-en-v1.5-gguf@b1a713a...` Q4_K_M 经 llama.cpp b10516 `/v1/embeddings` 与 ModelScope AutoModel CLS+L2 对照通过（8×768，最低余弦 0.97345，最大绝对误差 0.02433）。CLI `run` 两次检测与两次 embedding 向量一致。Release 回归 Hub43+Runtime209+ASP.NET11+CLI5=268 项通过。生产1.0仍为NO-GO。
 

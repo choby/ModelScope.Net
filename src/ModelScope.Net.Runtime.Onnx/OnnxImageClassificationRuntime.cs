@@ -38,7 +38,10 @@ public sealed class OnnxImageClassificationRuntime : IModelRuntime
 
         var raw = _runtime.Evaluate(capabilities);
         if (raw.Status is CapabilityStatus.Unsupported or CapabilityStatus.Unavailable)
-            return new RuntimeCandidate(Name, raw.Status, raw.Reason, 115);
+            return new RuntimeCandidate(Name, raw.Status, raw.Reason, 115)
+            {
+                CertificationProperties = raw.CertificationProperties,
+            };
 
         try
         {
@@ -61,8 +64,11 @@ public sealed class OnnxImageClassificationRuntime : IModelRuntime
         return new RuntimeCandidate(
             Name,
             raw.Status,
-            "An ONNX image classifier and supported preprocessor configuration are available; model-specific gold validation is required.",
-            115);
+            $"An ONNX image classifier and supported preprocessor configuration are available; model-specific gold validation is required. {raw.Reason}",
+            115)
+        {
+            CertificationProperties = raw.CertificationProperties,
+        };
     }
 
     public async Task<IModelSession> CreateSessionAsync(
@@ -192,7 +198,7 @@ public sealed class OnnxImageClassificationRuntime : IModelRuntime
             [EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
             var response = await InvokeAsync(request, cancellationToken).ConfigureAwait(false);
-            yield return new ModelStreamEvent("classifications", response.Output, IsTerminal: true);
+            yield return new ModelStreamEvent("classifications", response.Output, IsTerminal: true, response.Warnings);
         }
 
         public ValueTask DisposeAsync() => inner.DisposeAsync();

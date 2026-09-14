@@ -40,7 +40,14 @@ public sealed class ProductionRuntimePolicy
         return new(catalog, platform, pinned, publicKeyPem, timeProvider ?? TimeProvider.System);
     }
 
-    public bool IsCertified(ModelCapabilities capabilities, string runtime) => FindEntry(capabilities, runtime) is not null;
+    public bool IsCertified(ModelCapabilities capabilities, string runtime) =>
+        FindEntry(capabilities, runtime, certificationProperties: null) is not null;
+
+    public bool IsCertified(ModelCapabilities capabilities, RuntimeCandidate candidate)
+    {
+        ArgumentNullException.ThrowIfNull(candidate);
+        return FindEntry(capabilities, candidate.RuntimeName, candidate.CertificationProperties) is not null;
+    }
 
     public Task ApplyRevocationsAsync(string listPath, string signaturePath, CancellationToken cancellationToken = default) =>
         _revocations.ApplyAsync(listPath, signaturePath, cancellationToken);
@@ -109,13 +116,31 @@ public sealed class ProductionRuntimePolicy
     public async Task VerifyArtifactsAsync(ModelCapabilities capabilities, string runtime,
         CancellationToken cancellationToken = default)
     {
-        var entry = FindEntry(capabilities, runtime) ??
+        var entry = FindEntry(capabilities, runtime, certificationProperties: null) ??
             throw new ModelScopeException(ModelScopeErrorCode.RuntimeNotInstalled,
                 "No signed certification matches the model, Commit, task, platform and deployed runtime digest.");
+        await VerifyArtifactsAsync(capabilities, entry, cancellationToken).ConfigureAwait(false);
+    }
+
+    public async Task VerifyArtifactsAsync(ModelCapabilities capabilities, RuntimeCandidate candidate,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(candidate);
+        var entry = FindEntry(capabilities, candidate.RuntimeName, candidate.CertificationProperties) ??
+            throw new ModelScopeException(ModelScopeErrorCode.RuntimeNotInstalled,
+                "No signed certification matches the model, Commit, task, platform, runtime digest and deployment properties.");
+        await VerifyArtifactsAsync(capabilities, entry, cancellationToken).ConfigureAwait(false);
+    }
+
+    private static async Task VerifyArtifactsAsync(
+        ModelCapabilities capabilities,
+        CompatibilityCatalogEntry entry,
+        CancellationToken cancellationToken)
+    {
         var hashes = entry.ArtifactSha256;
         // A remote-only entry may have no local artifacts; its service deployment pin remains mandatory.
         if ((hashes is null || hashes.Count == 0) &&
-            (capabilities.Artifacts.Count != 0 || !string.Equals(runtime, "remote", StringComparison.OrdinalIgnoreCase)))
+            (capabilities.Artifacts.Count != 0 || !string.Equals(entry.Runtime, "remote", StringComparison.OrdinalIgnoreCase)))
             throw IntegrityFailure();
         if (capabilities.Artifacts.Any(a => hashes is null || !hashes.ContainsKey(a.Path))) throw IntegrityFailure();
         if (hashes is null || hashes.Count == 0) return;
@@ -141,7 +166,10 @@ public sealed class ProductionRuntimePolicy
         }
     }
 
-    private CompatibilityCatalogEntry? FindEntry(ModelCapabilities capabilities, string runtime)
+    private CompatibilityCatalogEntry? FindEntry(
+        ModelCapabilities capabilities,
+        string runtime,
+        IReadOnlyDictionary<string, string>? certificationProperties)
     {
         ArgumentNullException.ThrowIfNull(capabilities);
         if (IsRevokedOrExpired(capabilities, runtime)) return null;
@@ -154,7 +182,8 @@ public sealed class ProductionRuntimePolicy
             entry.Task == capabilities.Task &&
             string.Equals(entry.Runtime, runtime, StringComparison.OrdinalIgnoreCase) &&
             entry.Platforms is not null && entry.Platforms.Contains(_platform, StringComparer.Ordinal) &&
-            IsDigest(entry.RuntimeSha256) && string.Equals(entry.RuntimeSha256, digest, StringComparison.OrdinalIgnoreCase));
+            IsDigest(entry.RuntimeSha256) && string.Equals(entry.RuntimeSha256, digest, StringComparison.OrdinalIgnoreCase) &&
+            CompatibilityCatalogLoader.RuntimePropertiesMatch(entry.RuntimeProperties, certificationProperties));
     }
 
     private static bool IsDigest(string? value) => value is { Length: 71 } &&

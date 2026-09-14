@@ -4,6 +4,14 @@ public sealed class OnnxRuntimeOptions
 {
     public string? ModelFile { get; set; }
 
+    public OnnxExecutionProvider ExecutionProvider { get; set; } = OnnxExecutionProvider.Cpu;
+
+    public int DeviceId { get; set; }
+
+    public bool AllowCpuFallback { get; set; }
+
+    public long? GpuMemoryLimitBytes { get; set; }
+
     public int IntraOpNumThreads { get; set; }
 
     public int InterOpNumThreads { get; set; }

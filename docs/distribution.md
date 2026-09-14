@@ -20,16 +20,23 @@ CLI、示例、测试和认证工具不会被解决方案打包。该版本是�
 ```bash
 dotnet pack ModelScope.Net.sln -c Release --no-restore -o artifacts/packages
 python3 tools/verify_nuget_packages.py artifacts/packages 0.1.0-preview.1
+python3 tools/generate_sbom.py artifacts/packages 0.1.0-preview.1 artifacts/sbom/modelscope-net-0.1.0-preview.1.cdx.json
 dotnet restore tests/ModelScope.Net.PackageSmoke/ModelScope.Net.PackageSmoke.csproj
 dotnet build tests/ModelScope.Net.PackageSmoke/ModelScope.Net.PackageSmoke.csproj -c Release --no-restore
 ```
 
 验证器要求包集合恰好完整、每包带 README/许可证/描述/仓库信息/net10.0 程序集、符号独立进入 `.snupkg`，并且所有内部依赖都使用同一精确预览版本。PackageSmoke 仅从本地 `artifacts/packages` 引用顶层 ASP.NET Core 包，编译公共 DI、Hub、Router 和 Telemetry 入口，从而检查传递依赖闭包。
 
+SBOM生成器输出CycloneDX 1.7 JSON，覆盖8个发布包的SHA-256和13个去重后的运行时第三方NuGet组件，并为每个首方包记录内部依赖及扁平运行时依赖闭包。测试、覆盖率和仅构建期包不进入发布SBOM；输出拒绝本机目录和敏感环境变量名。生成器完成结构自检，本机证据还使用官方`bom-1.7.schema.json`独立验证通过。该清单是未签名的本地技术预览SBOM，不是最终发布证明。
+
+普通CI会在runner内生成SBOM以验证该步骤可执行，但当前不上传包或SBOM到GitHub Actions artifact存储；对外保存会披露包内容和依赖清单，必须在发布方明确批准目标存储、访问范围和保留期后单独接入。
+
+2026-09-09 基于当前工作树重新生成8个运行包和8个符号包，包集合验证及PackageSmoke恢复/编译均通过，0 warning/0 error；同时从NuGet公告源检查解决方案全部直接与传递依赖，未报告已知漏洞。生成`artifacts/sbom/modelscope-net-0.1.0-preview.1.cdx.json`并通过CycloneDX官方1.7 JSON Schema；15项Python工具测试全绿。证据摘要在`artifacts/acceptance/p4-distribution-refresh-2026-09-09/`。这不替代包/SBOM签名、provenance、干净Windows/Linux runner或当前容器镜像扫描。
+
 ## 发布前仍需完成
 
 1. 确认最终包所有者、仓库地址、签名证书、NuGet 组织与保留策略。
-2. 将预览版本提升到经批准的版本，并生成 release notes、SBOM、签名和 provenance。
+2. 将预览版本提升到经批准的版本，生成最终release notes并对包和SBOM签名，生成provenance；当前只有未签名本地SBOM基线。
 3. 在干净的 Windows/Linux runner 从实际候选源恢复并编译 PackageSmoke。
 4. 对 nupkg 和依赖执行最终漏洞/许可证扫描；当前本机验证不替代发布时扫描。
 5. 完成 release-manifest、P4-07 及 Go/No-Go 后才能推送公开源。

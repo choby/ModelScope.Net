@@ -1,8 +1,8 @@
 # 迁移验收审计台账
 
-日期：2026-09-08。结论：生产1.0最终验收尚未通过；本机技术预览工程候选通过。原项目基线：53f61360c8c10a31c7adae483c223188bb602948。最终源代码/方案差异和NO-GO关闭条件见`docs/final-acceptance-2026-09-08.md`。下表反映当前状态，后续证据入口保留历次检查点；历史测试数和当时缺口不替代本表。
+日期：2026-09-09。结论：生产1.0最终验收尚未通过；本机技术预览工程候选通过。原项目基线：53f61360c8c10a31c7adae483c223188bb602948。最终源代码/方案差异和NO-GO关闭条件见`docs/final-acceptance-2026-09-08.md`。下表反映当前状态，后续证据入口保留历次检查点；历史测试数和当时缺口不替代本表。
 
-范围依据技术方案 FR-01～FR-10 和迁移计划：模型下载、多运行时调用与运维。原项目训练、微调、数据集、上传管理和完整 Python 模型代码重写不属于既定范围。本文件是实际代码初审记录，剩余任务完成后仍须全量复核。
+原生产验收范围依据技术方案 FR-01～FR-10 和迁移计划：模型下载、多运行时调用与运维。阶段6增加 FR-11～FR-17，并按固定顺序扩展 ONNX Provider、Dataset Hub只读、缓存治理、类型化契约、高价值ONNX任务、可选网关及最终Hub写入。训练、微调、完整 Python 模型代码、复杂 Pipeline 与训练数据处理仍不迁移。本文件是实际代码初审记录，剩余任务完成后仍须全量复核。
 
 ## 功能核对
 
@@ -18,30 +18,40 @@
 | FR-08 普通/流式推理 | pipelines/base.py、各任务 pipeline | 四类运行时与既有认证模型外，新增 nndeploy YOLOv5n 与 bge-base GGUF Embedding 固定Revision金标准；CLI `run` 两次检测框与两次768维向量一致。不承诺任意Pipeline或跨平台；docs/onnx-object-detection.md、tests/compatibility/bge-base-en-v1.5-gguf/ |
 | FR-09 版本与回滚 | 模型 Revision、Python 依赖 | 生产路由/灰度精确绑定，真实BGE灰度/回滚、签名撤销、更新前持久暂存、启动对账、保存后及暂存后进程恢复、发布失败/丢失确认重试通过。本机进程级提交前窗口已有证据；生产防回退外部存储、自动分发、目标部署故障及Catalog换代仍待完成；docs/certification-revocation.md |
 | FR-10 观测运维 | Python 日志与服务 | ASP.NET、Telemetry、资源池有测试；新增机器校验的 Prometheus 指标契约、Grafana Dashboard、失败率/延迟/审计丢失告警及接线手册。当前信号只覆盖推理调用，下载/排队/资源/Worker/额度指标、生产 exporter/接收人、批准 SLO、目标平台与72小时门禁仍缺；docs/observability-runbook.md |
+| FR-11 ONNX Provider | Python运行环境可选择设备；ONNX能力由部署依赖决定 | 已实现CPU/CUDA/TensorRT/DirectML/CoreML显式选择、原生列表探测与模型Session probe、DeviceId、CUDA分配器显存参数、默认拒绝、显式CPU fallback、普通/流式警告、CLI/DI、遥测和Catalog精确属性绑定；完整282项回归通过。CoreML无fallback合成Add图加载/推理smoke通过，但不等于业务模型/资源/金标准认证；批准的目标组合尚未冻结；docs/onnx-runtime.md |
+| FR-12 Dataset Hub只读 | hub/api.py与MsDataset入口 | 尚未开始；P6-01达到目标Provider工程门槛后实施。范围只含仓库Revision/文件/快照，不含DataFrame、DataLoader或训练变换 |
+| FR-13 缓存治理 | hub/cache_manager.py | 尚未开始；需先统一模型/数据集仓库身份，再实现可审计remove/prune/dry-run、配额、LRU和共享Blob引用保护 |
+| FR-14 类型化任务契约 | 多类pipeline输入输出 | 尚未开始；将在缓存治理后固化跨ONNX/GGUF/Python/Remote的有界文本、图像、音频、视频及常用结果契约 |
+| FR-15 高价值ONNX任务 | NER、排序、CLIP等pipeline | 尚未开始；依赖FR-14，每类需固定Revision、Python金标准、资源边界、CLI/DI和生产策略证据 |
+| FR-16 可选推理网关 | Python服务入口 | 尚未开始；独立包实现发现、普通调用、SSE、OpenAPI、鉴权、租户限流、请求上限和遥测，基础SDK不自动监听端口 |
+| FR-17 Hub写入 | hub/api.py上传与仓库管理 | 尚未开始；必须先获得业务需求和权限模型批准，再实现创建、上传、Commit、Tag、幂等、冲突、摘要、取消、审计和负面权限测试 |
 
 ## 尚未满足的最终门槛
 
 | 门槛 | 状态和下一步 |
 |---|---|
 | P0 代表模型与金标准 | 15个固定Revision仍在草案。nndeploy yolov5n与bge-base GGUF Embedding已完成本机金标准并升为certified-preview-macos-arm64-cpu。业务未批准集合，真实私有/受限仓库仍缺，Qwen-VL/Qwen-72B仅元数据，多个许可证未关闭，不能关闭P0-04/05或发布 |
-| P0 平台/安全/许可证/批准 | 平台验证矩阵、威胁模型及许可证流程已形成；GPU组合/目标主机和真实负责人批准仍缺；MobileNet许可证未关闭 |
+| P0 平台/安全/许可证/批准 | 平台验证矩阵已将5个Provider/OS/设备候选拆成机器可审查的身份、证据层级和缺口，并由自动测试区分“批准待验证”与“已认证”、防止草案误报认证；威胁模型及许可证流程已形成。GPU组合/目标主机和真实负责人批准仍缺；MobileNet许可证未关闭 |
 | P1 私有/受限 | 使用真实获授权仓库与安全凭据执行授权/未授权对照 |
 | P2 通用生产路由 | 已实现范围内的签名路由、会话/缓存边界及真实BGE复验通过；撤销存储协调已关闭本机进程级提交前窗口，但生产外部信任根和分发控制面未认证，不据此宣称全局安全审计完成 |
 | P3 数值与性能 | 既有技术证据需最终复验，macOS结果不得代表其他平台 |
 | P4-06 | 本地工程演练通过；集群级演练归P4-07 |
 | P4-07 | Windows/Ubuntu x64、冻结GPU组合、CNI/PID/证书及实际72小时测量未完成 |
 | P4-08 | No-Go：前置门槛与真实三方批准未完成 |
-| P5 | P5-01本机五模型复认证通过，远程CI待验；P5-02本机上游检查有证据，远程执行待验；P5-03见FR-09；P5-04图像生成/OCR/ASR/SmolLM/YOLOv5n/GGUF Embedding均有本机固定Revision证据，生产矩阵仍待验；P5-05按原计划1.0后评估 |
+| P5 | 2026-09-09当前工作树五模型复认证全绿；在线检查确认五仓库不变、Qwen master有新增/修改并保持告警，复认证后依赖基线离线零漂移。远程CI仍待验；P5-03见FR-09；P5-04图像生成/OCR/ASR/SmolLM/YOLOv5n/GGUF Embedding均有本机固定Revision证据，生产矩阵仍待验；P5-05按原计划1.0后评估 |
+| P6 C#原生能力扩展 | 已批准七项固定顺序；P6-01代码、专项测试和本机CPU回归完成，但P0-06尚未冻结批准的目标Provider组合，加速原生包/设备真实证据未提供，保持IN_PROGRESS；按顺序P6-02及以后尚未开始。并非默认要求五种Provider全部认证，退出范围以书面批准矩阵为准；详见`docs/csharp-native-expansion.md` |
 | 最终核对验收 | 已于2026-09-08完成源代码/方案逐项复核：本机技术预览工程候选通过，生产1.0为NO-GO。关闭条件为真实私库、批准清单/许可证/SLO/平台、生产可信存储与分发、远程CI/镜像供应链、7天Hub及72小时稳定性证据和三方签字；测试数量不代替范围证明 |
 
 ## 2026-09-08 源码对照（`../modelscope` @ 53f61360）
 
-Hub 层 `hub/api.py`、`file_download.py`、`snapshot_download.py` 在原项目中已是 `modelscope_hub` 兼容垫片。首发范围内的查询、Revision 固定、单文件/快照下载、过滤、缓存与凭据对应 `ModelScopeHubClient` 原生实现，不是遗漏。数据集下载、git clone/push、模型上传、MCP、llamafile CLI、训练/微调与完整 Pipeline 注册表按迁移计划排除，记为范围差异。
+Hub 层 `hub/api.py`、`file_download.py`、`snapshot_download.py` 在原项目中已是 `modelscope_hub` 兼容垫片。首发范围内的查询、Revision 固定、单文件/快照下载、过滤、缓存与凭据对应 `ModelScopeHubClient` 原生实现，不是遗漏。阶段6现将数据集仓库只读下载和后续经决策的Hub写入纳入增量范围；git clone/push、MCP、llamafile CLI、训练/微调与完整 Pipeline 注册表仍为范围差异。
 
 推理路径对照：原项目动态 `pipelines.builder` 不逐行移植；.NET 以 inspect + RuntimeRouter 覆盖认证过的 ONNX/GGUF/Python Worker/Remote。本轮补齐方案中的标准目标检测与 GGUF Embedding。未发现新的首发范围静默缺口。
 
 ## 证据入口
 
+- P6-01 ONNX Provider工程基线：公共配置覆盖CPU/CUDA/TensorRT/DirectML/CoreML，实际可用性读取当前原生库；不可用默认`RuntimeNotInstalled`，显式fallback可诊断、普通/流式响应可警告且不继承CPU认证。生产Catalog精确绑定requested/effective Provider与Device、原生ORT版本和allow/used fallback；CLI诊断、固定模型Session probe、运行选项、ASP.NET DI及遥测已接线。2026-09-09 Release构建0 warning/0 error，Hub43+Runtime219+ASP.NET12+CLI8=282项通过，0失败/0跳过，证据在`artifacts/acceptance/p6-01-provider-final/`。本机ORT 1.29.0枚举CoreML、CPU和未公开支持的WebGPU；CoreML无fallback合成Add图Session及推理`[4,6]`通过，但不能升级为固定业务模型、资源或金标准认证。
+- P0-06矩阵评审准备：5个Provider/OS/设备候选现具有机器可读身份、证据层级和阻塞缺口；2项自动测试要求`approved-for-validation`先冻结Provider/包/硬件，并仅允许证据齐全且无缺口的组合成为`certified`。2026-09-09完整回归Hub43+Runtime221+ASP.NET12+CLI8=284项通过，证据在`artifacts/acceptance/p0-06-matrix-readiness/`。审批和目标主机仍未提供，P0-06没有关闭。
 - P4分发与升级工程基线：8个库项目统一`0.1.0-preview.1`，解决方案pack只产出预期nupkg/snupkg；验证器检查元数据、net10.0程序集、安全路径、独立符号和内部依赖精确对齐，PackageSmoke只从本地包源编译顶层ASP.NET Core公共入口。`docs/distribution.md`和`docs/upgrading.md`补齐生成、灰度、回退及安全状态不可降级规则。这不是nuget.org发布、签名/provenance、干净目标runner或1.0验收。
 - P4可观测性工程基线：`deployment/observability`包含实际Meter名称绑定的机器契约、Grafana Dashboard和Prometheus告警；2项测试约束四个指标、有限标签、全部查询及Critical审计写失败。默认门槛不是批准SLO，未覆盖的下载/资源/Worker等信号继续列为FR-10缺口。
 

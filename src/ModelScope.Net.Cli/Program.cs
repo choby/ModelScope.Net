@@ -1,4 +1,5 @@
-﻿using System.Net;
+using System.Globalization;
+using System.Net;
 using System.Net.Sockets;
 using System.Text.Json;
 using ModelScope.Net;
@@ -30,6 +31,7 @@ internal static class Cli
                 "resolve" => await ResolveAsync(args[1..]),
                 "download" => await DownloadAsync(args[1..]),
                 "inspect" => await InspectAsync(args[1..]),
+                "onnx" => await OnnxAsync(args[1..]),
                 "run" => await RunModelAsync(args[1..]),
                 "login" => Login(args[1..]),
                 "logout" => Logout(args[1..]),
@@ -205,8 +207,13 @@ internal static class Cli
         var request = new ModelRequest(task, payloadDocument.RootElement.Clone(), HasFlag(args, "--stream"));
         if (request.Stream)
         {
+            var emittedWarnings = new HashSet<string>(StringComparer.Ordinal);
             await foreach (var item in session.InvokeStreamingAsync(request))
             {
+                foreach (var warning in item.Warnings ?? [])
+                {
+                    if (emittedWarnings.Add(warning)) Console.Error.WriteLine($"Warning: {warning}");
+                }
                 if (!item.IsTerminal)
                 {
                     Console.WriteLine(item.Data.GetRawText());
@@ -227,11 +234,11 @@ internal static class Cli
         string? task)
     {
         var allowRemoteCode = HasFlag(args, "--allow-remote-code");
-        var onnx = new OnnxRuntimeAdapter();
+        var onnx = new OnnxRuntimeAdapter(CreateOnnxOptions(args));
         var runtimes = new List<IModelRuntime>
         {
             onnx,
-            new OnnxTextGenerationRuntime(),
+            new OnnxTextGenerationRuntime(onnx),
             new OnnxEmbeddingRuntime(onnx),
             new OnnxTextClassificationRuntime(onnx),
             new OnnxImageClassificationRuntime(onnx),
@@ -273,6 +280,65 @@ internal static class Cli
                 Mode = RuntimePolicyMode.Development,
                 AllowRemoteCode = allowRemoteCode,
             });
+    }
+
+    private static OnnxRuntimeOptions CreateOnnxOptions(string[] args)
+    {
+        var providerText = GetOnnxOption(args, "--onnx-provider") ?? nameof(OnnxExecutionProvider.Cpu);
+        if (!Enum.TryParse<OnnxExecutionProvider>(providerText, ignoreCase: true, out var provider)
+            || !Enum.IsDefined(provider))
+        {
+            throw new ArgumentException(
+                $"Unknown ONNX provider '{providerText}'. Use cpu, cuda, tensorrt, directml, or coreml.");
+        }
+
+        return new OnnxRuntimeOptions
+        {
+            ModelFile = GetOnnxOption(args, "--onnx-model-file"),
+            ExecutionProvider = provider,
+            DeviceId = ParseIntegerOption(args, "--onnx-device", defaultValue: 0),
+            AllowCpuFallback = HasFlag(args, "--onnx-allow-cpu-fallback"),
+            GpuMemoryLimitBytes = ParseNullableLongOption(args, "--onnx-gpu-memory-bytes"),
+        };
+    }
+
+    private static int ParseIntegerOption(string[] args, string name, int defaultValue)
+    {
+        var value = GetOnnxOption(args, name);
+        if (value is null)
+        {
+            return defaultValue;
+        }
+
+        return int.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var parsed)
+            ? parsed
+            : throw new ArgumentException($"{name} must be an integer.");
+    }
+
+    private static long? ParseNullableLongOption(string[] args, string name)
+    {
+        var value = GetOnnxOption(args, name);
+        if (value is null)
+        {
+            return null;
+        }
+
+        return long.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var parsed)
+            ? parsed
+            : throw new ArgumentException($"{name} must be an integer.");
+    }
+
+    private static string? GetOnnxOption(string[] args, string name)
+    {
+        for (var index = 0; index < args.Length; index++)
+        {
+            if (!string.Equals(args[index], name, StringComparison.OrdinalIgnoreCase)) continue;
+            if (index == args.Length - 1 || args[index + 1].StartsWith("--", StringComparison.Ordinal))
+                throw new ArgumentException($"{name} requires a value.");
+            return args[index + 1];
+        }
+
+        return null;
     }
 
     private static IModelRuntime CreatePythonRuntime(
@@ -574,6 +640,48 @@ internal static class Cli
         return 0;
     }
 
+    private static async Task<int> OnnxAsync(string[] args)
+    {
+        var command = args.Length == 0 ? "providers" : args[0];
+        if (string.Equals(command, "providers", StringComparison.OrdinalIgnoreCase))
+        {
+            WriteOnnxDiagnostic(new OnnxRuntimeAdapter(CreateOnnxOptions(args)), sessionLoaded: null);
+            return 0;
+        }
+
+        if (!string.Equals(command, "probe", StringComparison.OrdinalIgnoreCase))
+        {
+            throw new ArgumentException($"Unknown ONNX command '{command}'. Use providers or probe.");
+        }
+
+        if (args.Length < 2 || args[1].StartsWith("--", StringComparison.Ordinal))
+        {
+            throw new ArgumentException("onnx probe requires a model directory.");
+        }
+
+        var runtime = new OnnxRuntimeAdapter(CreateOnnxOptions(args));
+        var capabilities = await new ModelInspector().InspectAsync(args[1]).ConfigureAwait(false);
+        await using var session = await runtime.CreateSessionAsync(capabilities).ConfigureAwait(false);
+        WriteOnnxDiagnostic(runtime, sessionLoaded: true);
+        return 0;
+    }
+
+    private static void WriteOnnxDiagnostic(OnnxRuntimeAdapter runtime, bool? sessionLoaded)
+    {
+        var selection = runtime.GetExecutionProviderSelection();
+        Console.WriteLine(JsonSerializer.Serialize(new
+        {
+            requested = selection.Requested.ToString().ToLowerInvariant(),
+            effective = selection.Effective.ToString().ToLowerInvariant(),
+            selection.RequestedDeviceId,
+            effectiveDeviceId = selection.DeviceId,
+            selection.UsedCpuFallback,
+            selection.RuntimeVersion,
+            selection.AvailableProviders,
+            sessionLoaded,
+        }, JsonOptions));
+    }
+
     private static int Progress()
     {
         var path = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "../../../../../docs/migration-progress.md"));
@@ -682,11 +790,17 @@ internal static class Cli
               download owner/model [--revision REV] [--local-dir PATH] [--cache PATH]
                                    [--allow GLOB[,GLOB]] [--ignore GLOB[,GLOB]] [--local-files-only]
               inspect MODEL_DIRECTORY
+              onnx providers [--onnx-provider NAME] [--onnx-device ID] [--onnx-allow-cpu-fallback]
+              onnx probe MODEL_DIRECTORY [--onnx-model-file PATH] [--onnx-provider NAME]
+                         [--onnx-device ID] [--onnx-gpu-memory-bytes BYTES]
+                         [--onnx-allow-cpu-fallback]
               run MODEL_DIRECTORY|--local-dir PATH [--task TASK] (--prompt TEXT | --payload JSON)
                   [--stream] [--runtime NAME] [--allow-remote-code]
                   [--python-worker] [--python-executable PATH] [--python-script PATH]
                   [--python-backend modelscope|echo] [--python-endpoint URL]
                   [--python-transport grpc|http] [--python-api-key KEY]
+                  [--onnx-provider cpu|cuda|tensorrt|directml|coreml] [--onnx-device ID]
+                  [--onnx-gpu-memory-bytes BYTES] [--onnx-allow-cpu-fallback]
                   [--llama-server PATH] [--llama-server-endpoint URL] [--llama-server-api-key KEY]
               run owner/model [--runtime remote] [--task chat] (--prompt TEXT | --payload JSON)
                   [--stream] [--remote-endpoint URL] [--token TOKEN]

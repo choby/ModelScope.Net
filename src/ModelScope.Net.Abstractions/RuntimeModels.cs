@@ -41,7 +41,11 @@ public sealed record RuntimeCandidate(
     string RuntimeName,
     CapabilityStatus Status,
     string Reason,
-    int Priority);
+    int Priority)
+{
+    /// <summary>Low-cardinality deployment properties that must exactly match signed production certification.</summary>
+    public IReadOnlyDictionary<string, string>? CertificationProperties { get; init; }
+}
 
 public sealed record ModelCapabilities(
     string ModelPath,
@@ -84,7 +88,8 @@ public sealed record ModelResponse(
 public sealed record ModelStreamEvent(
     string Event,
     JsonElement Data,
-    bool IsTerminal = false);
+    bool IsTerminal = false,
+    IReadOnlyList<string>? Warnings = null);
 
 public enum ModelScopeErrorCode
 {

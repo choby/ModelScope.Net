@@ -19,4 +19,8 @@
     <ProjectReference Include="../ModelScope.Net.Runtime/ModelScope.Net.Runtime.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <InternalsVisibleTo Include="ModelScope.Net.Runtime.Tests" />
+  </ItemGroup>
+
 </Project>

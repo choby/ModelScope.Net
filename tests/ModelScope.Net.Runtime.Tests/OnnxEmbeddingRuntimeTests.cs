@@ -64,6 +64,42 @@ public sealed class OnnxEmbeddingRuntimeTests
     }
 
     [Fact]
+    public async Task ExplicitProviderFallbackWarning_ReachesTypedAndStreamingResponses()
+    {
+        var directory = CreateModelDirectory(includeVocabulary: true);
+        try
+        {
+            var adapter = new OnnxRuntimeAdapter(
+                new OnnxRuntimeOptions
+                {
+                    ExecutionProvider = OnnxExecutionProvider.Cuda,
+                    AllowCpuFallback = true,
+                },
+                new TestOnnxExecutionProviderEnvironment("CPUExecutionProvider"));
+            var runtime = new OnnxEmbeddingRuntime(adapter);
+            await using var session = await runtime.CreateSessionAsync(CreateCapabilities(directory));
+            using var payload = JsonDocument.Parse("""{ "text": "hello" }""");
+
+            var response = await session.InvokeAsync(
+                new ModelRequest("sentence-embedding", payload.RootElement.Clone()));
+            var warning = Assert.Single(response.Warnings!);
+            Assert.Contains("CPUExecutionProvider", warning, StringComparison.Ordinal);
+
+            var events = new List<ModelStreamEvent>();
+            await foreach (var item in session.InvokeStreamingAsync(
+                new ModelRequest("sentence-embedding", payload.RootElement.Clone(), Stream: true)))
+            {
+                events.Add(item);
+            }
+            Assert.Single(Assert.Single(events).Warnings!);
+        }
+        finally
+        {
+            Directory.Delete(directory, recursive: true);
+        }
+    }
+
+    [Fact]
     public void Evaluate_RequiresVocabularyInsideModelDirectory()
     {
         var directory = CreateModelDirectory(includeVocabulary: false);

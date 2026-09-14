@@ -163,6 +163,7 @@ public static class ServiceCollectionExtensions
             provider.GetRequiredService<IOptions<OnnxRuntimeOptions>>().Value));
         services.AddSingleton<IModelRuntime>(provider => provider.GetRequiredService<OnnxRuntimeAdapter>());
         services.AddSingleton(provider => new OnnxTextGenerationRuntime(
+            provider.GetRequiredService<IOptions<OnnxRuntimeOptions>>().Value,
             provider.GetRequiredService<IOptions<OnnxTextGenerationOptions>>().Value));
         services.AddSingleton<IModelRuntime>(provider => provider.GetRequiredService<OnnxTextGenerationRuntime>());
         services.AddSingleton(provider => new OnnxEmbeddingRuntime(

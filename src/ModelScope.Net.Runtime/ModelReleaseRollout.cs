@@ -49,13 +49,18 @@ public sealed class VerifiedModelRelease
 
         var catalog = await CompatibilityCatalogLoader.LoadAndVerifyAsync(
             catalogPath, signaturePath, publicKeyPem, cancellationToken).ConfigureAwait(false);
+        var runtimeCandidate = router.Evaluate(capabilities).SingleOrDefault(candidate =>
+            string.Equals(candidate.RuntimeName, runtime, StringComparison.OrdinalIgnoreCase));
         var entry = catalog.Models.SingleOrDefault(e => e.ModelId == capabilities.ModelId &&
-            e.Revision == capabilities.Revision && e.Task == capabilities.Task && e.Runtime == runtime);
-        if (entry is null || entry.Status != CapabilityStatus.Certified ||
+            e.Revision == capabilities.Revision && e.Task == capabilities.Task && e.Runtime == runtime &&
+            CompatibilityCatalogLoader.RuntimePropertiesMatch(
+                e.RuntimeProperties,
+                runtimeCandidate?.CertificationProperties));
+        if (runtimeCandidate is null || entry is null || entry.Status != CapabilityStatus.Certified ||
             entry.Platforms is null || !entry.Platforms.Contains(platform, StringComparer.Ordinal) ||
             !string.Equals(entry.RuntimeSha256, runtimeDigest, StringComparison.OrdinalIgnoreCase))
             throw new ModelScopeException(ModelScopeErrorCode.RuntimeNotInstalled,
-                "The exact model, Commit, task, runtime digest and platform must be certified by the signed Catalog.");
+                "The exact model, Commit, task, runtime digest, platform and deployment properties must be certified by the signed Catalog.");
 
         if (entry.ArtifactSha256 is null || entry.ArtifactSha256.Count == 0)
             throw new ModelScopeException(ModelScopeErrorCode.DownloadIntegrityFailed, "Release artifacts require checksums.");

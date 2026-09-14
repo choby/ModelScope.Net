@@ -10,10 +10,13 @@ public sealed record CompatibilityCatalog(
     DateTimeOffset CreatedAt,
     IReadOnlyList<CompatibilityCatalogEntry> Models)
 {
-    public IReadOnlySet<string> GetCertifiedModels(string runtimeName) => Models
+    public IReadOnlySet<string> GetCertifiedModels(
+        string runtimeName,
+        IReadOnlyDictionary<string, string>? runtimeProperties = null) => Models
         .Where(model =>
             model.Status == CapabilityStatus.Certified &&
-            string.Equals(model.Runtime, runtimeName, StringComparison.OrdinalIgnoreCase))
+            string.Equals(model.Runtime, runtimeName, StringComparison.OrdinalIgnoreCase) &&
+            CompatibilityCatalogLoader.RuntimePropertiesMatch(model.RuntimeProperties, runtimeProperties))
         .Select(model => model.ModelId)
         .ToHashSet(StringComparer.OrdinalIgnoreCase);
 }
@@ -26,7 +29,8 @@ public sealed record CompatibilityCatalogEntry(
     CapabilityStatus Status,
     IReadOnlyDictionary<string, string>? ArtifactSha256 = null,
     IReadOnlyList<string>? Platforms = null,
-    string? RuntimeSha256 = null);
+    string? RuntimeSha256 = null,
+    IReadOnlyDictionary<string, string>? RuntimeProperties = null);
 
 public static class CompatibilityCatalogLoader
 {
@@ -117,17 +121,45 @@ public static class CompatibilityCatalogLoader
                 throw IntegrityFailure($"Catalog model '{model.ModelId}' requires task and runtime.");
             }
 
-            if (!keys.Add($"{model.ModelId}@{model.Revision}:{model.Runtime}:{model.Task}"))
-            {
-                throw IntegrityFailure($"Catalog contains a duplicate entry for '{model.ModelId}'.");
-            }
-
             if (model.ArtifactSha256 is not null && model.ArtifactSha256.Values.Any(hash => !IsSha256(hash)))
             {
                 throw IntegrityFailure($"Catalog model '{model.ModelId}' contains an invalid artifact SHA-256.");
             }
+
+            if (model.RuntimeProperties is not null && model.RuntimeProperties.Any(property =>
+                    !IsRuntimeProperty(property.Key, property.Value)))
+            {
+                throw IntegrityFailure($"Catalog model '{model.ModelId}' contains an invalid runtime property.");
+            }
+
+            var propertyIdentity = CanonicalizeRuntimeProperties(model.RuntimeProperties);
+            if (!keys.Add($"{model.ModelId}@{model.Revision}:{model.Runtime}:{model.Task}:{propertyIdentity}"))
+            {
+                throw IntegrityFailure($"Catalog contains a duplicate entry for '{model.ModelId}'.");
+            }
         }
     }
+
+    internal static bool RuntimePropertiesMatch(
+        IReadOnlyDictionary<string, string>? expected,
+        IReadOnlyDictionary<string, string>? actual) =>
+        string.Equals(
+            CanonicalizeRuntimeProperties(expected),
+            CanonicalizeRuntimeProperties(actual),
+            StringComparison.Ordinal);
+
+    private static string CanonicalizeRuntimeProperties(IReadOnlyDictionary<string, string>? properties) =>
+        properties is null || properties.Count == 0
+            ? string.Empty
+            : string.Join(";", properties
+                .OrderBy(property => property.Key, StringComparer.Ordinal)
+                .Select(property => $"{property.Key.Length}:{property.Key}={property.Value.Length}:{property.Value}"));
+
+    private static bool IsRuntimeProperty(string key, string? value) =>
+        !string.IsNullOrWhiteSpace(key) && key.Length <= 128 &&
+        !string.IsNullOrWhiteSpace(value) && value.Length <= 512 &&
+        key.All(character => char.IsAsciiLetterOrDigit(character) || character is '.' or '-' or '_') &&
+        value.All(character => !char.IsControl(character));
 
     private static bool IsCommitHash(string value) =>
         value.Length is >= 7 and <= 64 && value.All(Uri.IsHexDigit);

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "status": "draft-awaiting-platform-selection-and-approval",
-  "updatedAt": "2026-09-05",
+  "updatedAt": "2026-09-09",
   "baseline": {
     "dotnetSdk": "10.0.300",
     "targetFramework": "net10.0",
@@ -40,6 +40,125 @@
       "workerImageDigest": null
     }
   ],
+  "providerCombinations": [
+    {
+      "id": "macos-arm64-onnx-cpu-device0",
+      "os": "macos",
+      "architecture": "arm64",
+      "executionProvider": "CPUExecutionProvider",
+      "deviceId": 0,
+      "nativePackage": "Microsoft.ML.OnnxRuntime 1.29.0",
+      "hardware": "Apple ARM64 CPU",
+      "status": "local-technical-preview-evidence-available-not-approved",
+      "evidenceLevel": "fixed-model-certified-local",
+      "evidence": [
+        "tests/compatibility/bge-small-en-v1.5/certification-report.json",
+        "tests/compatibility/distilbert-sst2/certification-report.json",
+        "tests/compatibility/mobilenet-v2-image-classification/certification-report.json",
+        "tests/performance/p3-08-cpu-macos-arm64.json",
+        "artifacts/acceptance/p6-01-provider-final/README.md"
+      ],
+      "blockingGaps": [
+        "release-scope-approval",
+        "technical-approval",
+        "sre-approval"
+      ]
+    },
+    {
+      "id": "macos-arm64-onnx-coreml-device0",
+      "os": "macos",
+      "architecture": "arm64",
+      "executionProvider": "CoreMLExecutionProvider",
+      "deviceId": 0,
+      "nativePackage": "Microsoft.ML.OnnxRuntime 1.29.0 bundled macOS ARM64 native asset",
+      "hardware": "Apple ARM64 device observed by local host",
+      "status": "synthetic-smoke-only-not-approved",
+      "evidenceLevel": "synthetic-session-inference-only",
+      "evidence": [
+        "artifacts/acceptance/p6-01-provider-final/coreml-probe.json",
+        "artifacts/acceptance/p6-01-provider-final/coreml-inference.json"
+      ],
+      "blockingGaps": [
+        "fixed-business-model-gold",
+        "resource-and-performance-measurement",
+        "per-node-hardware-placement-evidence",
+        "release-scope-approval",
+        "technical-approval",
+        "sre-approval"
+      ]
+    },
+    {
+      "id": "ubuntu-24.04-x64-onnx-cpu-device0",
+      "os": "ubuntu-24.04",
+      "architecture": "x64",
+      "executionProvider": "CPUExecutionProvider",
+      "deviceId": 0,
+      "nativePackage": "Microsoft.ML.OnnxRuntime 1.29.0 proposed",
+      "hardware": null,
+      "status": "proposed-awaiting-target-host",
+      "evidenceLevel": "none",
+      "evidence": [],
+      "blockingGaps": [
+        "target-host-identity",
+        "fixed-model-gold",
+        "resource-and-performance-measurement",
+        "release-scope-approval",
+        "technical-approval",
+        "sre-approval"
+      ]
+    },
+    {
+      "id": "windows-server-2025-x64-onnx-cpu-device0",
+      "os": "windows-server-2025",
+      "architecture": "x64",
+      "executionProvider": "CPUExecutionProvider",
+      "deviceId": 0,
+      "nativePackage": "Microsoft.ML.OnnxRuntime 1.29.0 proposed",
+      "hardware": null,
+      "status": "proposed-awaiting-target-host",
+      "evidenceLevel": "none",
+      "evidence": [],
+      "blockingGaps": [
+        "target-host-identity",
+        "fixed-model-gold",
+        "resource-and-performance-measurement",
+        "release-scope-approval",
+        "technical-approval",
+        "sre-approval"
+      ]
+    },
+    {
+      "id": "linux-x64-nvidia-onnx-accelerated-device0",
+      "os": "linux",
+      "architecture": "x64",
+      "executionProvider": null,
+      "deviceId": 0,
+      "nativePackage": null,
+      "hardware": null,
+      "driver": null,
+      "cuda": null,
+      "cudnn": null,
+      "tensorrt": null,
+      "status": "awaiting-provider-hardware-and-runtime-selection",
+      "evidenceLevel": "none",
+      "evidence": [],
+      "blockingGaps": [
+        "execution-provider-selection",
+        "gpu-model-and-memory",
+        "driver-version",
+        "cuda-version",
+        "cudnn-version",
+        "tensorrt-version-if-selected",
+        "native-package-and-image-digest",
+        "target-host-identity",
+        "fixed-model-gold",
+        "resource-and-performance-measurement",
+        "release-scope-approval",
+        "technical-approval",
+        "sre-approval"
+      ]
+    }
+  ],
   "requiredValidation": [
     "fixed-model-gold-numerical-comparison",
     "load-and-stream-and-crash-recovery",
@@ -52,5 +171,12 @@
     "technical": "pending",
     "sre": "pending",
     "security": "pending"
-  }
+  },
+  "completionBlockers": [
+    "P0-04 representative model set is not approved",
+    "release scope has not selected the required provider combinations",
+    "Ubuntu, Windows, and Linux GPU target hosts are not identified",
+    "Linux GPU provider, hardware, driver, CUDA, cuDNN, and native package are not selected",
+    "technical and SRE approvals are pending"
+  ]
 }

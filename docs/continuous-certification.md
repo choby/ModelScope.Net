@@ -38,3 +38,7 @@ Python只需标准库（3.11以上）；执行器调用已有.NET认证工具。
 普通ci.yml增加无模型依赖的流水线负面测试。实际模型工作流只声明入口，尚未在远程GitHub runner运行；本机真实模型结果是目前的工程证据。没有可用runner不应伪造CI成功。
 
 更换模型Revision、金标准、工具、SDK/依赖、硬件或影响输出的配置，需要重新运行并保留新证据。上游监控、自动触发和签名撤销控制面分别由P5-02/P5-03完成。
+
+## 最新本机证据
+
+2026-09-09 在当前工作树的Release构建上再次运行五模型全量复认证，BGE、all-MiniLM、DistilBERT、MobileNet和Qwen Q2_K均通过。汇总报告为`artifacts/certification-runs/8c360e121b274191bf24ad88e17b1a43/summary.json`；该报告绑定本次计划、源码、项目文件、认证工具二进制和模型报告摘要。它证明当前本机固定Revision复认证成功，不代表远程runner、其他平台或发布审批完成。

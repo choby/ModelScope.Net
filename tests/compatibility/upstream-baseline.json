@@ -1,22 +1,25 @@
 {
   "schemaVersion": 1,
   "createdAt": "2026-09-05",
+  "updatedAt": "2026-09-09",
   "dependencyFiles": {
     "global.json": "75ad142281ad3f65a55376b9e02259611bc0eb64400c61493668a75b72390881",
-    "Directory.Build.props": "29e7b423fb33abe6a9726ab8ca48c23f065682c9be845167a60049dee62413f3",
-    "src/ModelScope.Net.Abstractions/ModelScope.Net.Abstractions.csproj": "11c0c110e19c9eaeaef66a0382f7a3e4ff6ab395d99ca6664e1ba378371cc47c",
-    "src/ModelScope.Net.AspNetCore/ModelScope.Net.AspNetCore.csproj": "e1a14f84beae4330d45e4a4faebec314b859018f8da774fe8b313d9390dd7153",
-    "src/ModelScope.Net.Cli/ModelScope.Net.Cli.csproj": "b6f07560b374fa14c6153a9ece4fc793b6b52afc4d1f3fa14acda8b160cfa14d",
-    "src/ModelScope.Net.Hub/ModelScope.Net.Hub.csproj": "bc50a31efdfb997979a3d3c9068a03e197d119ec27488e4323afe2c2200e3397",
-    "src/ModelScope.Net.Runtime.Gguf/ModelScope.Net.Runtime.Gguf.csproj": "5e570577749092ee6ba29a54c35a1bc95e5c66be6f275726297ca3fd229df488",
-    "src/ModelScope.Net.Runtime.Onnx/ModelScope.Net.Runtime.Onnx.csproj": "dfe3c7d62513f0ef76c4f0265e2e6a616c087d8d72c3e74b5b67560af48058dd",
-    "src/ModelScope.Net.Runtime.Python/ModelScope.Net.Runtime.Python.csproj": "b4edccb34654e60ed89b3c3b506f46eb873578e9a7020fdbcd8d6de2731e0b90",
-    "src/ModelScope.Net.Runtime.Remote/ModelScope.Net.Runtime.Remote.csproj": "5e570577749092ee6ba29a54c35a1bc95e5c66be6f275726297ca3fd229df488",
-    "src/ModelScope.Net.Runtime/ModelScope.Net.Runtime.csproj": "bc50a31efdfb997979a3d3c9068a03e197d119ec27488e4323afe2c2200e3397",
+    "Directory.Build.props": "bf79972d5a57096663b2e3af532190d0968a2f6da39e3a58851160d4cb97a7a9",
+    "src/ModelScope.Net.Abstractions/ModelScope.Net.Abstractions.csproj": "785e988ea2a7c7c4c4a97bf73ebbd5bcb0b4a7cc932d91976b7c541c4e215dda",
+    "src/ModelScope.Net.AspNetCore/ModelScope.Net.AspNetCore.csproj": "636a7c16fe5d052ce79bddb3a783387b66636131851da3651cdb9824609ea478",
+    "src/ModelScope.Net.Cli/ModelScope.Net.Cli.csproj": "55ba287cdb07833a1f7de7e11a923160401638299088ce4912e63960546f3e96",
+    "src/ModelScope.Net.Hub/ModelScope.Net.Hub.csproj": "c27c36c9fbcb50f664e92322bb126035e9f6cecdd4dc1f0949447af6e921d993",
+    "src/ModelScope.Net.Runtime.Gguf/ModelScope.Net.Runtime.Gguf.csproj": "ca8018ba7d8ba85b930500409906ee851c4c873ee968ecb8e7bd27fe89b44764",
+    "src/ModelScope.Net.Runtime.Onnx/ModelScope.Net.Runtime.Onnx.csproj": "dbcf614f0ef46114a2332d88e224ed85acfdaafa43049bcdfe694cf1bddc6e97",
+    "src/ModelScope.Net.Runtime.Python/ModelScope.Net.Runtime.Python.csproj": "b4077ff3f2a485a52b1cf07040c28794ec01c3042021cf44ec5bfe8619951226",
+    "src/ModelScope.Net.Runtime.Remote/ModelScope.Net.Runtime.Remote.csproj": "4d0f48e2bd8306ff791762977a620dbd245a4740360f8f49c262db18069bc395",
+    "src/ModelScope.Net.Runtime/ModelScope.Net.Runtime.csproj": "3cc261db72cbfab41f2fcc183bfbbe5e13300f473fdb5646d70f7b1ccbf6f548",
     "worker/python/requirements.txt": "83b558957d0b33d9f57bc37937cc1ef4da037e8702fc1485c6bf60afa4b8a32b",
     "tests/compatibility/all-minilm-l6-v2/python-requirements.txt": "a21bbd38df89a290b948fe8f6988d85760f9b43c4ef5fdd711d002f5ead66b12",
     "tests/compatibility/bge-small-en-v1.5/python-requirements.txt": "a21bbd38df89a290b948fe8f6988d85760f9b43c4ef5fdd711d002f5ead66b12",
+    "tests/compatibility/bge-base-en-v1.5-gguf/python-requirements.txt": "64740e56c528cb10ea635d416b4bcc63ee2fb49e3494b024dc0b9ffa10943f43",
     "tests/compatibility/distilbert-sst2/python-requirements.txt": "a21bbd38df89a290b948fe8f6988d85760f9b43c4ef5fdd711d002f5ead66b12",
-    "tests/compatibility/mobilenet-v2-image-classification/python-requirements.txt": "82c37639f2778c6191ab6593d1629d2b18d80606393b66b0c66afc1cb3901e4e"
+    "tests/compatibility/mobilenet-v2-image-classification/python-requirements.txt": "82c37639f2778c6191ab6593d1629d2b18d80606393b66b0c66afc1cb3901e4e",
+    "tests/compatibility/nndeploy-yolov5n/python-requirements.txt": "a63cd1e6fecc2eca043fb77b3dabf3d5279deca886b22c83ef71a70eff8473c4"
   }
 }

@@ -25,5 +25,6 @@ jobs:
           MODELSCOPE_WORKER_PYTHON: ${{ github.workspace }}/.worker-venv/bin/python
       - run: dotnet pack ModelScope.Net.sln --no-build --no-restore --configuration Release --output artifacts/packages
       - run: python tools/verify_nuget_packages.py artifacts/packages 0.1.0-preview.1
+      - run: python tools/generate_sbom.py artifacts/packages 0.1.0-preview.1 artifacts/sbom/modelscope-net-0.1.0-preview.1.cdx.json
       - run: dotnet restore tests/ModelScope.Net.PackageSmoke/ModelScope.Net.PackageSmoke.csproj
       - run: dotnet build tests/ModelScope.Net.PackageSmoke/ModelScope.Net.PackageSmoke.csproj --no-restore --configuration Release

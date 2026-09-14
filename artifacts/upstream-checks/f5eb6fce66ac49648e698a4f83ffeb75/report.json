@@ -1,0 +1,104 @@
+{
+  "schemaVersion": 1,
+  "startedAt": "2026-09-09T01:10:53.971218+00:00",
+  "models": [
+    {
+      "modelId": "BAAI/bge-small-en-v1.5",
+      "status": "failed",
+      "failureType": "URLError"
+    },
+    {
+      "modelId": "unsloth/all-MiniLM-L6-v2",
+      "status": "failed",
+      "failureType": "URLError"
+    },
+    {
+      "modelId": "distilbert/distilbert-base-uncased-finetuned-sst-2-english",
+      "status": "failed",
+      "failureType": "URLError"
+    },
+    {
+      "modelId": "onnx-community/mobilenet_v2_1.0_224-ONNX",
+      "status": "failed",
+      "failureType": "URLError"
+    },
+    {
+      "modelId": "google/mobilenet_v2_1.0_224",
+      "status": "failed",
+      "failureType": "URLError"
+    },
+    {
+      "modelId": "Qwen/Qwen2.5-0.5B-Instruct-GGUF",
+      "status": "failed",
+      "failureType": "URLError"
+    }
+  ],
+  "dependencyChanges": [
+    {
+      "path": "Directory.Build.props",
+      "expectedSha256": "29e7b423fb33abe6a9726ab8ca48c23f065682c9be845167a60049dee62413f3",
+      "actualSha256": "bf79972d5a57096663b2e3af532190d0968a2f6da39e3a58851160d4cb97a7a9"
+    },
+    {
+      "path": "src/ModelScope.Net.Abstractions/ModelScope.Net.Abstractions.csproj",
+      "expectedSha256": "11c0c110e19c9eaeaef66a0382f7a3e4ff6ab395d99ca6664e1ba378371cc47c",
+      "actualSha256": "785e988ea2a7c7c4c4a97bf73ebbd5bcb0b4a7cc932d91976b7c541c4e215dda"
+    },
+    {
+      "path": "src/ModelScope.Net.AspNetCore/ModelScope.Net.AspNetCore.csproj",
+      "expectedSha256": "e1a14f84beae4330d45e4a4faebec314b859018f8da774fe8b313d9390dd7153",
+      "actualSha256": "636a7c16fe5d052ce79bddb3a783387b66636131851da3651cdb9824609ea478"
+    },
+    {
+      "path": "src/ModelScope.Net.Cli/ModelScope.Net.Cli.csproj",
+      "expectedSha256": "b6f07560b374fa14c6153a9ece4fc793b6b52afc4d1f3fa14acda8b160cfa14d",
+      "actualSha256": "55ba287cdb07833a1f7de7e11a923160401638299088ce4912e63960546f3e96"
+    },
+    {
+      "path": "src/ModelScope.Net.Hub/ModelScope.Net.Hub.csproj",
+      "expectedSha256": "bc50a31efdfb997979a3d3c9068a03e197d119ec27488e4323afe2c2200e3397",
+      "actualSha256": "c27c36c9fbcb50f664e92322bb126035e9f6cecdd4dc1f0949447af6e921d993"
+    },
+    {
+      "path": "src/ModelScope.Net.Runtime.Gguf/ModelScope.Net.Runtime.Gguf.csproj",
+      "expectedSha256": "5e570577749092ee6ba29a54c35a1bc95e5c66be6f275726297ca3fd229df488",
+      "actualSha256": "ca8018ba7d8ba85b930500409906ee851c4c873ee968ecb8e7bd27fe89b44764"
+    },
+    {
+      "path": "src/ModelScope.Net.Runtime.Onnx/ModelScope.Net.Runtime.Onnx.csproj",
+      "expectedSha256": "dfe3c7d62513f0ef76c4f0265e2e6a616c087d8d72c3e74b5b67560af48058dd",
+      "actualSha256": "dbcf614f0ef46114a2332d88e224ed85acfdaafa43049bcdfe694cf1bddc6e97"
+    },
+    {
+      "path": "src/ModelScope.Net.Runtime.Python/ModelScope.Net.Runtime.Python.csproj",
+      "expectedSha256": "b4edccb34654e60ed89b3c3b506f46eb873578e9a7020fdbcd8d6de2731e0b90",
+      "actualSha256": "b4077ff3f2a485a52b1cf07040c28794ec01c3042021cf44ec5bfe8619951226"
+    },
+    {
+      "path": "src/ModelScope.Net.Runtime.Remote/ModelScope.Net.Runtime.Remote.csproj",
+      "expectedSha256": "5e570577749092ee6ba29a54c35a1bc95e5c66be6f275726297ca3fd229df488",
+      "actualSha256": "4d0f48e2bd8306ff791762977a620dbd245a4740360f8f49c262db18069bc395"
+    },
+    {
+      "path": "src/ModelScope.Net.Runtime/ModelScope.Net.Runtime.csproj",
+      "expectedSha256": "bc50a31efdfb997979a3d3c9068a03e197d119ec27488e4323afe2c2200e3397",
+      "actualSha256": "3cc261db72cbfab41f2fcc183bfbbe5e13300f473fdb5646d70f7b1ccbf6f548"
+    },
+    {
+      "path": "tests/compatibility/bge-base-en-v1.5-gguf/python-requirements.txt",
+      "expectedSha256": null,
+      "actualSha256": "64740e56c528cb10ea635d416b4bcc63ee2fb49e3494b024dc0b9ffa10943f43"
+    },
+    {
+      "path": "tests/compatibility/nndeploy-yolov5n/python-requirements.txt",
+      "expectedSha256": null,
+      "actualSha256": "a63cd1e6fecc2eca043fb77b3dabf3d5279deca886b22c83ef71a70eff8473c4"
+    }
+  ],
+  "planSha256": "02abcf667636668ac2764a667b3a25dd45f075028e15afa0256c18b635cbf32b",
+  "baselineSha256": "3807c25b1e26ad3c06326ee1d07d9febfafcf3c1d1fde9695b0bf3d5f7e442a3",
+  "status": "failed",
+  "requiresRecertification": true,
+  "upstreamChecked": true,
+  "completedAt": "2026-09-09T01:10:54.792079+00:00"
+}

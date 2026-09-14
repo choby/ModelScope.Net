@@ -189,10 +189,13 @@ public sealed class ModelReleaseRolloutTests
             var model = Convert.FromBase64String(
                 "CAoSFE1vZGVsU2NvcGUuTmV0LlRlc3RzOlgKEAoBeAoBeRIDc3VtIgNBZGQSD2FkZC10d28tdmVjdG9yc1oPCgF4EgoKCAgBEgQKAggCWg8KAXkSCgoICAESBAoCCAJiEQoDc3VtEgoKCAgBEgQKAggCQgQKABAN");
             await File.WriteAllBytesAsync(Path.Combine(directory, "model.onnx"), model);
+            var capabilities = new ModelCapabilities(directory, "tests/add-vectors", new string(revision, 40),
+                "raw-onnx", [], [new("model.onnx", ModelArtifactFormat.Onnx, model.Length)], [], false, []);
+            var runtimeProperties = runtime.Evaluate(capabilities).CertificationProperties;
             var catalog = new CompatibilityCatalog(1, id, DateTimeOffset.UtcNow,
                 [new("tests/add-vectors", catalogRevision ?? new string(revision, 40), "raw-onnx", runtime.Name, status,
                     new Dictionary<string, string> { ["model.onnx"] = Convert.ToHexStringLower(SHA256.HashData(model)) },
-                    ["test-cpu"], "sha256:" + new string('d', 64))]);
+                    ["test-cpu"], "sha256:" + new string('d', 64), runtimeProperties)]);
             var bytes = JsonSerializer.SerializeToUtf8Bytes(catalog, new JsonSerializerOptions(JsonSerializerDefaults.Web));
             var catalogPath = Path.Combine(directory, "catalog.json");
             var signaturePath = Path.Combine(directory, "catalog.sig");
@@ -200,8 +203,6 @@ public sealed class ModelReleaseRolloutTests
             await File.WriteAllTextAsync(signaturePath,
                 Convert.ToBase64String(_rsa.SignData(bytes, HashAlgorithmName.SHA256, RSASignaturePadding.Pss)));
             if (tamper) await File.WriteAllBytesAsync(Path.Combine(directory, "model.onnx"), [0]);
-            var capabilities = new ModelCapabilities(directory, "tests/add-vectors", new string(revision, 40),
-                "raw-onnx", [], [new("model.onnx", ModelArtifactFormat.Onnx, model.Length)], [], false, []);
             // Synthetic graph tests exercise actual ONNX while separate catalog gates enforce authorization.
             return await VerifiedModelRelease.CreateAsync(id, catalogPath, signaturePath,
                 _rsa.ExportSubjectPublicKeyInfoPem(), capabilities, runtime.Name, "sha256:" + new string('d', 64),

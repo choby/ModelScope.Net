@@ -39,6 +39,9 @@ public sealed class OnnxTextGenerationRuntimeTests
     public void RejectsEscapingAssetsAndInvalidResourceLimits()
     {
         Assert.Throws<ArgumentOutOfRangeException>(() => new OnnxTextGenerationRuntime(new() { MaxPromptTokens = 0 }));
+        Assert.Throws<ArgumentOutOfRangeException>(() => new OnnxTextGenerationRuntime(
+            new OnnxRuntimeOptions { DeviceId = -1 },
+            new OnnxTextGenerationOptions()));
         var directory = CreateTokenizerDirectory(); File.WriteAllBytes(Path.Combine(directory, "model.onnx"), [0]);
         try
         {

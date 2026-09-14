@@ -62,6 +62,13 @@ ModelScope 模型广场同时托管 ONNX、GGUF、Safetensors、PyTorch、Tensor
 | FR-08 | 统一执行普通、异步和流式推理 |
 | FR-09 | 固定 Model ID、Revision、运行时和适配器版本 |
 | FR-10 | 提供日志、指标、追踪、健康检查和审计 |
+| FR-11 | 显式选择并诊断 ONNX CPU/GPU Execution Provider，默认禁止隐式 CPU 回退 |
+| FR-12 | 提供 Dataset Hub 只读 Revision、文件和快照下载，不迁移训练数据处理生态 |
+| FR-13 | 提供可审计的缓存删除、容量配额和无引用 Blob 回收 |
+| FR-14 | 以类型化、有界输入输出契约复用 ONNX、GGUF、Python 和 Remote 任务调用 |
+| FR-15 | 为 NER、文本排序和 CLIP 提供逐模型认证的 ONNX 任务适配器 |
+| FR-16 | 以独立可选包提供 ASP.NET Core 推理网关、鉴权、租户限流、OpenAPI、SSE 与遥测 |
+| FR-17 | 经业务与权限模型批准后提供有审计的 Hub 创建、上传、Commit 和 Tag API |
 
 质量要求：
 
@@ -103,6 +110,8 @@ Remote API      ONNX / GGUF      Python Worker
 | ModelScope.Net.Runtime.Gguf | llama.cpp/GGUF 适配 |
 | ModelScope.Net.Runtime.Python | Python Worker 客户端和生命周期 |
 | ModelScope.Net.AspNetCore | 依赖注入、健康检查、指标和托管服务 |
+| ModelScope.Net.Tasks（阶段 6） | 跨运行时类型化任务输入、输出和有界校验 |
+| ModelScope.Net.Server（阶段 6） | 可选 ASP.NET Core 推理 API、SSE、鉴权、限流和 OpenAPI |
 | ModelScope.Net.Cli | 登录、查询、下载、检查、调用和缓存命令 |
 
 ## 6. Hub 与缓存设计
@@ -246,6 +255,8 @@ ONNX 后端由执行器和任务适配器组成。
 5. 标准 Encoder 模型。
 
 生成式、多模态、音频和扩散模型在基础能力稳定后单独排期。
+
+阶段 6 将 Execution Provider 选择改为显式设备策略。默认 CPU；CUDA、TensorRT、DirectML 或 CoreML 必须由配置请求，并以当前加载的 ONNX Runtime 原生库实际报告为准。请求的 Provider 不可用时默认返回 `RuntimeNotInstalled`，只有 `AllowCpuFallback=true` 才允许退回 CPU，且诊断和普通/流式响应必须暴露该降级。Provider 已列出只证明编译注册，不证明初始化、模型加载、逐节点放置或认证。生产 Catalog 现精确匹配 requested/effective Provider、requested/effective Device ID、ONNX Runtime 原生版本和 allow/used fallback；平台、运行时摘要、Revision 与制品摘要继续独立绑定。驱动/CUDA/cuDNN/TensorRT 版本仍需目标环境证据，接线成功不等于 GPU 已认证。`GpuMemoryLimitBytes` 仅是 CUDA 分配器选项，不是调度或操作系统显存配额。
 
 ## 11. GGUF Runtime
 
@@ -460,13 +471,36 @@ P4-05 已完成 Linux Worker 的容器部署基线：只读模型和根文件系
 6. 生产必须固定模型 Revision。
 7. 产品承诺限定为发布清单定义的 Hub 协议、平台、运行时和认证模型；样本验证不自动扩展为全量承诺。
 
-## 21. 参考
+## 21. C# 原生能力扩展边界
+
+对当前 Python 源码重新盘点后，后续只迁移能形成稳定 .NET 契约且具有部署、类型安全或性能收益的能力，固定顺序如下：
+
+1. ONNX Execution Provider 与设备策略；
+2. Dataset Hub 只读下载；
+3. 缓存删除、配额和回收；
+4. 通用类型化任务契约；
+5. NER、文本排序和 CLIP ONNX 适配器；
+6. 独立可选的 ASP.NET Core 推理网关；
+7. 经业务需求确认后的 Hub 写入 API。
+
+Dataset 阶段只覆盖仓库信息、Revision、文件和快照，不迁移 `MsDataset`、DataLoader、训练变换或任意 Python 数据处理。新的原生任务必须具有固定张量契约、安全可解析的 Tokenizer/Processor、有界资源实现以及固定 Revision 的 Python 金标准。动态模型类、Trainer、Exporter、复杂 Pipeline、自定义算子、Diffusion、复杂 OCR/ASR、视频和 3D 默认继续留在 Python Worker。
+
+P6-01 只要求完成 P0-06/发布清单书面批准的 Provider/OS/硬件组合，不把五种可选 Provider 自动变成全部发布承诺；但批准集合尚未冻结时不得关闭 P6-01，也不得进入 P6-02 实现。平台研究与测试资产准备可以并行，公开契约的实现状态仍按 1→7 顺序推进。
+
+详细接口边界、逐项门槛和当前状态见 [C# 原生能力扩展路线](./csharp-native-expansion.md)。这批扩展不替代现有生产 1.0 的私库、许可证、平台、长稳、供应链、可信存储和签字门槛。
+
+## 22. 参考
 
 - https://www.modelscope.cn/models
+- [C# 原生能力扩展路线](./csharp-native-expansion.md)
 - https://www.modelscope.cn/docs/models/download
 - https://modelscope.cn/docs/model-service/API-Inference/limits
 - https://onnxruntime.ai/docs/get-started/with-csharp.html
 - https://onnxruntime.ai/docs/execution-providers/
+- https://onnxruntime.ai/docs/install/
+- https://onnxruntime.ai/docs/execution-providers/CUDA-ExecutionProvider.html
+- https://onnxruntime.ai/docs/execution-providers/DirectML-ExecutionProvider.html
+- https://onnxruntime.ai/docs/execution-providers/CoreML-ExecutionProvider.html
 - https://github.com/dotnet/TorchSharp
 - https://pythonnet.github.io/pythonnet/dotnet.html
 - https://dotnet.microsoft.com/en-us/platform/support/policy

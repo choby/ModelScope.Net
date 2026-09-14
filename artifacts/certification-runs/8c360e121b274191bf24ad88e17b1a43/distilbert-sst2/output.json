@@ -1,0 +1,102 @@
+{
+  "schemaVersion": 1,
+  "modelId": "distilbert/distilbert-base-uncased-finetuned-sst-2-english",
+  "revision": "ef2f51c8f6a09fb8c418d1ccbda386970ed2d53f",
+  "runtime": "ModelScope.Net / ONNX Runtime CPU",
+  "scoreMode": "softmax",
+  "maxLength": 128,
+  "texts": [
+    "I absolutely loved this movie.",
+    "This was a complete waste of time.",
+    "The acting was excellent and the story was moving.",
+    "The plot was dull, predictable, and far too long.",
+    "A charming film with a wonderful ending!",
+    "I would not recommend this to anyone.",
+    "It starts slowly but becomes surprisingly enjoyable.",
+    "The visuals are good, but the characters are painfully shallow."
+  ],
+  "predictedLabels": [
+    "POSITIVE",
+    "NEGATIVE",
+    "POSITIVE",
+    "NEGATIVE",
+    "POSITIVE",
+    "NEGATIVE",
+    "POSITIVE",
+    "NEGATIVE"
+  ],
+  "logits": [
+    [
+      -4.337631,
+      4.6710224
+    ],
+    [
+      4.7241597,
+      -3.7940066
+    ],
+    [
+      -4.3326917,
+      4.7012672
+    ],
+    [
+      4.7349877,
+      -3.8430495
+    ],
+    [
+      -4.3541603,
+      4.705744
+    ],
+    [
+      1.697984,
+      -1.4229442
+    ],
+    [
+      -4.1409435,
+      4.4341555
+    ],
+    [
+      2.94021,
+      -2.5110168
+    ]
+  ],
+  "probabilities": [
+    [
+      0.0001223315301000265,
+      0.9998776684699
+    ],
+    [
+      0.9998002344413053,
+      0.0001997655586946371
+    ],
+    [
+      0.0001192750744722075,
+      0.9998807249255278
+    ],
+    [
+      0.9998118414080039,
+      0.00018815859199607942
+    ],
+    [
+      0.00011622059086076477,
+      0.9998837794091392
+    ],
+    [
+      0.9577478055409658,
+      0.042252194459034255
+    ],
+    [
+      0.000188712148073023,
+      0.9998112878519269
+    ],
+    [
+      0.9957272971112207,
+      0.0042727028887792695
+    ]
+  ],
+  "environment": {
+    "dotnet": "10.0.8",
+    "onnxRuntime": "1.29.0\u002B2e2543fbe9fae542f921d47a72d21d5a4ef0b710",
+    "os": "Unix 27.0.0",
+    "architecture": "Arm64"
+  }
+}

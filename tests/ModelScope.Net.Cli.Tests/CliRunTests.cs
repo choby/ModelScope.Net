@@ -13,6 +13,54 @@ public sealed class CliRunTests
         "CAoSFE1vZGVsU2NvcGUuTmV0LlRlc3RzOlgKEAoBeAoBeRIDc3VtIgNBZGQSD2FkZC10d28tdmVjdG9yc1oPCgF4EgoKCAgBEgQKAggCWg8KAXkSCgoICAESBAoCCAJiEQoDc3VtEgoKCAgBEgQKAggCQgQKABAN";
 
     [Fact]
+    public async Task OnnxProviders_PrintsNativeRuntimeInventory()
+    {
+        var output = new StringWriter();
+        var original = Console.Out;
+        Console.SetOut(output);
+        try
+        {
+            var code = await global::Cli.RunAsync(["onnx", "providers"]);
+
+            Assert.Equal(0, code);
+            using var document = JsonDocument.Parse(output.ToString());
+            Assert.Equal("cpu", document.RootElement.GetProperty("requested").GetString());
+            Assert.Equal("cpu", document.RootElement.GetProperty("effective").GetString());
+            Assert.Contains("CPUExecutionProvider", document.RootElement.GetProperty("availableProviders")
+                .EnumerateArray().Select(item => item.GetString()));
+            Assert.False(string.IsNullOrWhiteSpace(document.RootElement.GetProperty("runtimeVersion").GetString()));
+        }
+        finally
+        {
+            Console.SetOut(original);
+        }
+    }
+
+    [Fact]
+    public async Task OnnxProbe_LoadsFixedModelSession()
+    {
+        var directory = CreateOnnxDirectory();
+        var output = new StringWriter();
+        var original = Console.Out;
+        Console.SetOut(output);
+        try
+        {
+            var code = await global::Cli.RunAsync(["onnx", "probe", directory, "--onnx-provider", "cpu"]);
+
+            Assert.Equal(0, code);
+            using var document = JsonDocument.Parse(output.ToString());
+            Assert.True(document.RootElement.GetProperty("sessionLoaded").GetBoolean());
+            Assert.Equal("cpu", document.RootElement.GetProperty("effective").GetString());
+            Assert.Equal("1.29.0", document.RootElement.GetProperty("runtimeVersion").GetString());
+        }
+        finally
+        {
+            Console.SetOut(original);
+            Directory.Delete(directory, recursive: true);
+        }
+    }
+
+    [Fact]
     public async Task Run_LocalDirectory_InvokesOnnxRuntime()
     {
         var directory = CreateOnnxDirectory();
@@ -135,6 +183,37 @@ public sealed class CliRunTests
 
             Assert.Equal(1, code);
             Assert.Contains(nameof(ModelScopeErrorCode.RuntimeNotInstalled), error.ToString(), StringComparison.Ordinal);
+        }
+        finally
+        {
+            Console.SetError(original);
+            Directory.Delete(directory, recursive: true);
+        }
+    }
+
+    [Fact]
+    public async Task Run_LocalDirectory_RejectsUnknownOnnxProvider()
+    {
+        var directory = CreateOnnxDirectory();
+        var error = new StringWriter();
+        var original = Console.Error;
+        Console.SetError(error);
+        try
+        {
+            var code = await global::Cli.RunAsync(
+            [
+                "run",
+                directory,
+                "--runtime",
+                "onnx",
+                "--onnx-provider",
+                "magic-gpu",
+                "--payload",
+                """{"inputs":{"x":[1.0,2.0],"y":[3.0,4.0]}}""",
+            ]);
+
+            Assert.Equal(1, code);
+            Assert.Contains("Unknown ONNX provider", error.ToString(), StringComparison.Ordinal);
         }
         finally
         {

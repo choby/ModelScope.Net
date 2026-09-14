@@ -30,18 +30,7 @@ public sealed class RuntimeRouter
         ArgumentNullException.ThrowIfNull(capabilities);
         return _runtimes.Values
             .Select(runtime => runtime.Evaluate(capabilities))
-            .Select(candidate => _options.Mode == RuntimePolicyMode.Production &&
-                candidate.Status is not CapabilityStatus.Unavailable and not CapabilityStatus.Unsupported
-                    ? candidate with
-                    {
-                        Status = _options.ProductionPolicy?.IsCertified(capabilities, candidate.RuntimeName) == true
-                            ? CapabilityStatus.Certified
-                            : candidate.Status == CapabilityStatus.Certified ? CapabilityStatus.Compatible : candidate.Status,
-                        Reason = _options.ProductionPolicy?.IsCertified(capabilities, candidate.RuntimeName) == true
-                            ? "Exact signed production certification matched; artifacts are checked at session creation."
-                            : "No exact signed production certification matches this deployment.",
-                    }
-                    : candidate)
+            .Select(candidate => ApplyProductionCertification(capabilities, candidate))
             .OrderBy(candidate => IsRemote(candidate.RuntimeName))
             .ThenByDescending(candidate => candidate.Priority)
             .ThenBy(candidate => candidate.RuntimeName, StringComparer.OrdinalIgnoreCase)
@@ -84,7 +73,7 @@ public sealed class RuntimeRouter
 
             // Integrity failures must never be swallowed as load failures or trigger data egress.
             if (_options.Mode == RuntimePolicyMode.Production && candidate.Status == CapabilityStatus.Certified)
-                await _options.ProductionPolicy!.VerifyArtifactsAsync(capabilities, candidate.RuntimeName, cancellationToken).ConfigureAwait(false);
+                await _options.ProductionPolicy!.VerifyArtifactsAsync(capabilities, candidate, cancellationToken).ConfigureAwait(false);
             cancellationToken.ThrowIfCancellationRequested();
             try
             {
@@ -92,9 +81,9 @@ public sealed class RuntimeRouter
                 if (_options.Mode == RuntimePolicyMode.Production)
                     session = new TaskBoundSession(session, capabilities.Task, () =>
                         candidate.Status == CapabilityStatus.Certified
-                            ? _options.ProductionPolicy!.IsCertified(capabilities, candidate.RuntimeName)
+                            ? _options.ProductionPolicy!.IsCertified(capabilities, candidate)
                             : _options.ProductionPolicy?.IsRevokedOrExpired(capabilities, candidate.RuntimeName) != true);
-                return _instrumentation?.Instrument(session, capabilities, candidate.RuntimeName) ?? session;
+                return _instrumentation?.Instrument(session, capabilities, candidate) ?? session;
             }
             catch (ModelScopeException exception) when (
                 exception.IsRetryable &&
@@ -116,6 +105,30 @@ public sealed class RuntimeRouter
     private bool IsRemote(string runtimeName) =>
         string.Equals(runtimeName, "remote", StringComparison.OrdinalIgnoreCase) ||
         (_runtimes.TryGetValue(runtimeName, out var runtime) && runtime is IRemoteModelRuntime);
+
+    private RuntimeCandidate ApplyProductionCertification(
+        ModelCapabilities capabilities,
+        RuntimeCandidate candidate)
+    {
+        if (_options.Mode != RuntimePolicyMode.Production ||
+            candidate.Status is CapabilityStatus.Unavailable or CapabilityStatus.Unsupported)
+        {
+            return candidate;
+        }
+
+        var certified = _options.ProductionPolicy?.IsCertified(capabilities, candidate) == true;
+        return candidate with
+        {
+            Status = certified
+                ? CapabilityStatus.Certified
+                : candidate.Status == CapabilityStatus.Certified
+                    ? CapabilityStatus.Compatible
+                    : candidate.Status,
+            Reason = certified
+                ? "Exact signed production certification matched; artifacts are checked at session creation."
+                : "No exact signed production certification matches this deployment.",
+        };
+    }
 
     private sealed class TaskBoundSession(IModelSession inner, string? certifiedTask, Func<bool> remainsAuthorized) : IModelSession
     {

@@ -29,7 +29,14 @@ public sealed record ModelScopeAuditEvent(
     bool Streaming,
     double DurationMilliseconds,
     string? ErrorCode,
-    string? TraceId);
+    string? TraceId)
+{
+    public string? OnnxExecutionProvider { get; init; }
+
+    public int? OnnxDeviceId { get; init; }
+
+    public string? OnnxCpuFallback { get; init; }
+}
 
 public interface IModelScopeAuditSink
 {
@@ -42,7 +49,8 @@ public sealed class LoggingModelScopeAuditSink(ILogger<LoggingModelScopeAuditSin
     {
         logger.LogInformation(
             "ModelScope audit {Operation} {Outcome} Runtime={Runtime} Task={Task} Model={ModelFingerprint} " +
-            "Streaming={Streaming} DurationMs={DurationMilliseconds} ErrorCode={ErrorCode} TraceId={TraceId}",
+            "Streaming={Streaming} DurationMs={DurationMilliseconds} ErrorCode={ErrorCode} TraceId={TraceId} " +
+            "OnnxProvider={OnnxProvider} OnnxDeviceId={OnnxDeviceId} OnnxCpuFallback={OnnxCpuFallback}",
             auditEvent.Operation,
             auditEvent.Outcome,
             auditEvent.Runtime,
@@ -51,7 +59,10 @@ public sealed class LoggingModelScopeAuditSink(ILogger<LoggingModelScopeAuditSin
             auditEvent.Streaming,
             auditEvent.DurationMilliseconds,
             auditEvent.ErrorCode,
-            auditEvent.TraceId);
+            auditEvent.TraceId,
+            auditEvent.OnnxExecutionProvider,
+            auditEvent.OnnxDeviceId,
+            auditEvent.OnnxCpuFallback);
         return ValueTask.CompletedTask;
     }
 }
@@ -104,7 +115,25 @@ public sealed class ModelScopeTelemetry : IModelSessionInstrumentation
             this,
             NormalizeRuntime(runtimeName),
             NormalizeTask(capabilities.Task),
-            CreateModelFingerprint(capabilities));
+            CreateModelFingerprint(capabilities),
+            OnnxTelemetryIdentity.None);
+    }
+
+    public IModelSession Instrument(
+        IModelSession session,
+        ModelCapabilities capabilities,
+        RuntimeCandidate candidate)
+    {
+        ArgumentNullException.ThrowIfNull(candidate);
+        ArgumentNullException.ThrowIfNull(session);
+        ArgumentNullException.ThrowIfNull(capabilities);
+        return new InstrumentedModelSession(
+            session,
+            this,
+            NormalizeRuntime(candidate.RuntimeName),
+            NormalizeTask(capabilities.Task),
+            CreateModelFingerprint(capabilities),
+            OnnxTelemetryIdentity.From(candidate.CertificationProperties));
     }
 
     private static string NormalizeRuntime(string runtimeName)
@@ -140,7 +169,13 @@ public sealed class ModelScopeTelemetry : IModelSessionInstrumentation
         return Convert.ToHexString(digest.AsSpan(0, 8)).ToLowerInvariant();
     }
 
-    private Activity? StartActivity(string operation, string runtime, string task, string fingerprint, bool streaming)
+    private Activity? StartActivity(
+        string operation,
+        string runtime,
+        string task,
+        string fingerprint,
+        bool streaming,
+        OnnxTelemetryIdentity onnx)
     {
         if (!_options.EnableTracing) return null;
         var activity = ActivitySource.StartActivity(operation, ActivityKind.Internal);
@@ -148,6 +183,12 @@ public sealed class ModelScopeTelemetry : IModelSessionInstrumentation
         activity?.SetTag("modelscope.task", task);
         activity?.SetTag("modelscope.model_fingerprint", fingerprint);
         activity?.SetTag("modelscope.streaming", streaming);
+        if (onnx.Provider is not null)
+        {
+            activity?.SetTag("modelscope.onnx_provider", onnx.Provider);
+            activity?.SetTag("modelscope.onnx_device_id", onnx.DeviceId);
+            activity?.SetTag("modelscope.onnx_cpu_fallback", onnx.CpuFallback);
+        }
         return activity;
     }
 
@@ -160,7 +201,8 @@ public sealed class ModelScopeTelemetry : IModelSessionInstrumentation
         string fingerprint,
         bool streaming,
         TimeSpan duration,
-        Exception? exception)
+        Exception? exception,
+        OnnxTelemetryIdentity onnx)
     {
         var errorCode = SafeErrorCode(exception);
         activity?.SetTag("modelscope.outcome", outcome);
@@ -181,6 +223,11 @@ public sealed class ModelScopeTelemetry : IModelSessionInstrumentation
                 { "modelscope.streaming", streaming },
                 { "modelscope.outcome", outcome },
             };
+            if (onnx.Provider is not null)
+            {
+                tags.Add("modelscope.onnx_provider", onnx.Provider);
+                tags.Add("modelscope.onnx_cpu_fallback", onnx.CpuFallback);
+            }
             InvocationCounter.Add(1, tags);
             DurationHistogram.Record(duration.TotalMilliseconds, tags);
             if (outcome == "failed") FailureCounter.Add(1, tags);
@@ -200,7 +247,12 @@ public sealed class ModelScopeTelemetry : IModelSessionInstrumentation
                     streaming,
                     Math.Round(duration.TotalMilliseconds, 3),
                     errorCode,
-                    activity?.TraceId.ToString()), CancellationToken.None).ConfigureAwait(false);
+                    activity?.TraceId.ToString())
+                {
+                    OnnxExecutionProvider = onnx.Provider,
+                    OnnxDeviceId = onnx.DeviceId,
+                    OnnxCpuFallback = onnx.CpuFallback,
+                }, CancellationToken.None).ConfigureAwait(false);
             }
             catch
             {
@@ -231,7 +283,8 @@ public sealed class ModelScopeTelemetry : IModelSessionInstrumentation
         ModelScopeTelemetry owner,
         string runtime,
         string task,
-        string fingerprint) : IModelSession
+        string fingerprint,
+        OnnxTelemetryIdentity onnx) : IModelSession
     {
         public ModelCapabilities Capabilities => inner.Capabilities;
 
@@ -246,7 +299,8 @@ public sealed class ModelScopeTelemetry : IModelSessionInstrumentation
                 runtime,
                 task,
                 fingerprint,
-                streaming: false);
+                streaming: false,
+                onnx);
             try
             {
                 var response = await inner.InvokeAsync(request, cancellationToken).ConfigureAwait(false);
@@ -259,7 +313,8 @@ public sealed class ModelScopeTelemetry : IModelSessionInstrumentation
                     fingerprint,
                     streaming: false,
                     stopwatch.Elapsed,
-                    exception: null).ConfigureAwait(false);
+                    exception: null,
+                    onnx).ConfigureAwait(false);
                 return response;
             }
             catch (Exception exception)
@@ -273,7 +328,8 @@ public sealed class ModelScopeTelemetry : IModelSessionInstrumentation
                     fingerprint,
                     streaming: false,
                     stopwatch.Elapsed,
-                    exception).ConfigureAwait(false);
+                    exception,
+                    onnx).ConfigureAwait(false);
                 throw;
             }
         }
@@ -289,7 +345,8 @@ public sealed class ModelScopeTelemetry : IModelSessionInstrumentation
                 runtime,
                 task,
                 fingerprint,
-                streaming: true);
+                streaming: true,
+                onnx);
             Exception? failure = null;
             var terminalObserved = false;
             var enumerator = inner.InvokeStreamingAsync(request, cancellationToken)
@@ -344,11 +401,35 @@ public sealed class ModelScopeTelemetry : IModelSessionInstrumentation
                     fingerprint,
                     streaming: true,
                     stopwatch.Elapsed,
-                    failure).ConfigureAwait(false);
+                    failure,
+                    onnx).ConfigureAwait(false);
                 if (!hadFailureBeforeDispose && disposeFailure is not null) throw disposeFailure;
             }
         }
 
         public ValueTask DisposeAsync() => inner.DisposeAsync();
+    }
+
+    private sealed record OnnxTelemetryIdentity(string? Provider, int? DeviceId, string? CpuFallback)
+    {
+        public static OnnxTelemetryIdentity None { get; } = new(null, null, null);
+
+        public static OnnxTelemetryIdentity From(IReadOnlyDictionary<string, string>? properties)
+        {
+            if (properties is null ||
+                !properties.TryGetValue("onnx.effectiveExecutionProvider", out var provider))
+            {
+                return None;
+            }
+
+            properties.TryGetValue("onnx.effectiveDeviceId", out var deviceText);
+            var deviceId = int.TryParse(deviceText, out var parsedDeviceId) ? (int?)parsedDeviceId : null;
+            var fallback = properties.TryGetValue("onnx.usedCpuFallback", out var used) && used == "true"
+                ? "used"
+                : properties.TryGetValue("onnx.allowCpuFallback", out var allowed) && allowed == "true"
+                    ? "allowed"
+                    : "disabled";
+            return new(provider, deviceId, fallback);
+        }
     }
 }

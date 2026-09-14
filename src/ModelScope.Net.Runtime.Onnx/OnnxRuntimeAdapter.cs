@@ -1,25 +1,57 @@
 using System.Runtime.CompilerServices;
+using System.Collections.ObjectModel;
 using System.Text.Json;
 using Microsoft.ML.OnnxRuntime;
 using Microsoft.ML.OnnxRuntime.Tensors;
 
 namespace ModelScope.Net.Runtime.Onnx;
 
-/// <summary>Executes raw ONNX tensors on the CPU.</summary>
+/// <summary>Executes raw ONNX tensors with an explicitly selected execution provider.</summary>
 public sealed class OnnxRuntimeAdapter : IModelRuntime
 {
     private readonly OnnxRuntimeOptions _options;
+    private readonly IOnnxExecutionProviderEnvironment _providerEnvironment;
 
     public OnnxRuntimeAdapter(OnnxRuntimeOptions? options = null)
+        : this(options, new OnnxExecutionProviderEnvironment())
     {
-        _options = options ?? new OnnxRuntimeOptions();
+    }
+
+    internal OnnxRuntimeAdapter(
+        OnnxRuntimeOptions? options,
+        IOnnxExecutionProviderEnvironment providerEnvironment)
+    {
+        _options = CopyOptions(options ?? new OnnxRuntimeOptions());
+        _providerEnvironment = providerEnvironment ?? throw new ArgumentNullException(nameof(providerEnvironment));
         ArgumentOutOfRangeException.ThrowIfLessThan(_options.MaxConcurrentRuns, 1);
         ArgumentOutOfRangeException.ThrowIfLessThan(_options.MaxInputElements, 1);
         ArgumentOutOfRangeException.ThrowIfNegative(_options.IntraOpNumThreads);
         ArgumentOutOfRangeException.ThrowIfNegative(_options.InterOpNumThreads);
+        ArgumentOutOfRangeException.ThrowIfNegative(_options.DeviceId);
+        if (_options.ExecutionProvider is OnnxExecutionProvider.Cpu or OnnxExecutionProvider.CoreML && _options.DeviceId != 0)
+        {
+            throw new ArgumentException(
+                $"DeviceId must be 0 for the {_options.ExecutionProvider} execution provider.",
+                nameof(options));
+        }
+
+        if (_options.GpuMemoryLimitBytes is <= 0)
+        {
+            throw new ArgumentOutOfRangeException(nameof(options), "GpuMemoryLimitBytes must be positive when specified.");
+        }
+
+        if (_options.GpuMemoryLimitBytes is not null && _options.ExecutionProvider != OnnxExecutionProvider.Cuda)
+        {
+            throw new ArgumentException(
+                "GpuMemoryLimitBytes is supported only by the CUDA execution provider.",
+                nameof(options));
+        }
     }
 
     public string Name => "onnx";
+
+    /// <summary>Returns the provider that will be used, or throws when the requested native provider is unavailable.</summary>
+    public OnnxExecutionProviderSelection GetExecutionProviderSelection() => ResolveExecutionProvider();
 
     public RuntimeCandidate Evaluate(ModelCapabilities capabilities)
     {
@@ -44,14 +76,35 @@ public sealed class OnnxRuntimeAdapter : IModelRuntime
             return new RuntimeCandidate(Name, CapabilityStatus.Unavailable, $"ONNX artifact '{artifact.Path}' does not exist.", 100);
         }
 
-        var certified = capabilities.ModelId is not null && _options.CertifiedModels.Contains(capabilities.ModelId);
+        OnnxExecutionProviderSelection selection;
+        try
+        {
+            selection = ResolveExecutionProvider();
+        }
+        catch (ModelScopeException exception) when (exception.Code == ModelScopeErrorCode.RuntimeNotInstalled)
+        {
+            return new RuntimeCandidate(Name, CapabilityStatus.Unavailable, exception.Message, 100);
+        }
+
+        var certified = !selection.UsedCpuFallback
+            && selection.Effective == OnnxExecutionProvider.Cpu
+            && capabilities.ModelId is not null
+            && _options.CertifiedModels.Contains(capabilities.ModelId);
+        var providerDescription = $"ONNX {selection.EffectiveName}";
         return new RuntimeCandidate(
             Name,
             certified ? CapabilityStatus.Certified : CapabilityStatus.Compatible,
             certified
-                ? "The model is certified for the ONNX CPU runtime."
-                : "The ONNX model must pass load and task-adapter verification.",
-            100);
+                ? $"The model is certified for the {providerDescription} runtime."
+                : selection.UsedCpuFallback
+                    ? $"{CreateCpuFallbackWarning(selection)} The result is not certified for the requested provider."
+                    : _options.AllowCpuFallback && selection.Requested != OnnxExecutionProvider.Cpu
+                        ? $"The model can use the {providerDescription} runtime, but CPU fallback is enabled and per-node assignment is not verified."
+                    : $"The model must pass load and task-adapter verification for the {providerDescription} runtime.",
+            100)
+        {
+            CertificationProperties = CreateCertificationProperties(selection),
+        };
     }
 
     public Task<IModelSession> CreateSessionAsync(
@@ -62,6 +115,13 @@ public sealed class OnnxRuntimeAdapter : IModelRuntime
         var candidate = Evaluate(capabilities);
         if (candidate.Status is CapabilityStatus.Unsupported or CapabilityStatus.Unavailable)
         {
+            if (candidate.Status == CapabilityStatus.Unavailable)
+            {
+                // Resolve again so provider failures retain their stable public error code. If the
+                // provider is available, the unavailable candidate came from the model artifact.
+                _ = ResolveExecutionProvider();
+            }
+
             throw new ModelScopeException(
                 candidate.Status == CapabilityStatus.Unavailable
                     ? ModelScopeErrorCode.ModelNotFound
@@ -71,6 +131,8 @@ public sealed class OnnxRuntimeAdapter : IModelRuntime
 
         var artifact = SelectArtifact(capabilities)!;
         var modelPath = ResolveArtifactPath(capabilities.ModelPath, artifact.Path);
+        var selection = ResolveExecutionProvider();
+        var warnings = CreateProviderWarnings(selection);
         try
         {
             using var sessionOptions = new SessionOptions
@@ -80,23 +142,167 @@ public sealed class OnnxRuntimeAdapter : IModelRuntime
             };
             if (_options.IntraOpNumThreads > 0) sessionOptions.IntraOpNumThreads = _options.IntraOpNumThreads;
             if (_options.InterOpNumThreads > 0) sessionOptions.InterOpNumThreads = _options.InterOpNumThreads;
+            _providerEnvironment.Configure(
+                sessionOptions,
+                selection.Effective,
+                selection.DeviceId,
+                _options.GpuMemoryLimitBytes,
+                _options.AllowCpuFallback);
 
-            IModelSession session = new OnnxModelSession(
-                new InferenceSession(modelPath, sessionOptions),
-                capabilities,
-                _options.MaxConcurrentRuns,
-                _options.MaxInputElements);
-            return Task.FromResult(session);
+            try
+            {
+                IModelSession session = new OnnxModelSession(
+                    new InferenceSession(modelPath, sessionOptions),
+                    capabilities,
+                    _options.MaxConcurrentRuns,
+                    _options.MaxInputElements,
+                    warnings);
+                return Task.FromResult(session);
+            }
+            catch (OnnxRuntimeException exception)
+            {
+                throw new ModelScopeException(
+                    ModelScopeErrorCode.ModelLoadFailed,
+                    $"ONNX Runtime could not load '{artifact.Path}': {exception.Message}",
+                    isRetryable: true,
+                    innerException: exception);
+            }
         }
-        catch (OnnxRuntimeException exception)
+        catch (Exception exception) when (IsRuntimeAvailabilityException(exception))
         {
             throw new ModelScopeException(
-                ModelScopeErrorCode.ModelLoadFailed,
-                $"ONNX Runtime could not load '{artifact.Path}': {exception.Message}",
-                isRetryable: true,
+                ModelScopeErrorCode.RuntimeNotInstalled,
+                $"ONNX execution provider '{selection.EffectiveName}' could not be initialized: {exception.Message}",
                 innerException: exception);
         }
     }
+
+    private OnnxExecutionProviderSelection ResolveExecutionProvider()
+    {
+        IReadOnlyList<string> availableProviders;
+        string runtimeVersion;
+        try
+        {
+            availableProviders = Array.AsReadOnly(_providerEnvironment.GetAvailableProviders()
+                .Where(provider => !string.IsNullOrWhiteSpace(provider))
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .OrderBy(provider => provider, StringComparer.OrdinalIgnoreCase)
+                .ToArray());
+            runtimeVersion = _providerEnvironment.GetRuntimeVersion();
+        }
+        catch (Exception exception) when (IsRuntimeAvailabilityException(exception))
+        {
+            throw new ModelScopeException(
+                ModelScopeErrorCode.RuntimeNotInstalled,
+                $"ONNX Runtime provider discovery failed: {exception.Message}",
+                innerException: exception);
+        }
+
+        var requestedName = OnnxExecutionProviderEnvironment.GetNativeName(_options.ExecutionProvider);
+        if (availableProviders.Contains(requestedName, StringComparer.OrdinalIgnoreCase))
+        {
+            return new OnnxExecutionProviderSelection(
+                _options.ExecutionProvider,
+                _options.ExecutionProvider,
+                _options.DeviceId,
+                UsedCpuFallback: false,
+                availableProviders)
+            {
+                RequestedDeviceId = _options.DeviceId,
+                RuntimeVersion = runtimeVersion,
+            };
+        }
+
+        var cpuName = OnnxExecutionProviderEnvironment.GetNativeName(OnnxExecutionProvider.Cpu);
+        if (_options.ExecutionProvider != OnnxExecutionProvider.Cpu
+            && _options.AllowCpuFallback
+            && availableProviders.Contains(cpuName, StringComparer.OrdinalIgnoreCase))
+        {
+            return new OnnxExecutionProviderSelection(
+                _options.ExecutionProvider,
+                OnnxExecutionProvider.Cpu,
+                DeviceId: 0,
+                UsedCpuFallback: true,
+                availableProviders)
+            {
+                RequestedDeviceId = _options.DeviceId,
+                RuntimeVersion = runtimeVersion,
+            };
+        }
+
+        var available = availableProviders.Count == 0 ? "none" : string.Join(", ", availableProviders);
+        throw new ModelScopeException(
+            ModelScopeErrorCode.RuntimeNotInstalled,
+            $"Requested ONNX execution provider '{requestedName}' is unavailable. Available providers: {available}."
+            + (_options.ExecutionProvider == OnnxExecutionProvider.Cpu
+                ? string.Empty
+                : " Set AllowCpuFallback=true to explicitly permit CPU fallback."));
+    }
+
+    private static string CreateCpuFallbackWarning(OnnxExecutionProviderSelection selection) =>
+        $"Requested ONNX execution provider '{OnnxExecutionProviderEnvironment.GetNativeName(selection.Requested)}' is unavailable; "
+        + $"'{selection.EffectiveName}' is being used because AllowCpuFallback=true.";
+
+    private IReadOnlyList<string> CreateProviderWarnings(OnnxExecutionProviderSelection selection)
+    {
+        if (selection.UsedCpuFallback)
+        {
+            return [CreateCpuFallbackWarning(selection)];
+        }
+
+        if (_options.AllowCpuFallback && selection.Requested != OnnxExecutionProvider.Cpu)
+        {
+            return
+            [
+                $"CPU fallback is enabled for requested ONNX execution provider '{selection.EffectiveName}'; "
+                + "per-node provider assignment is not verified by this response."
+            ];
+        }
+
+        return [];
+    }
+
+    private IReadOnlyDictionary<string, string> CreateCertificationProperties(
+        OnnxExecutionProviderSelection selection) => new ReadOnlyDictionary<string, string>(
+        new Dictionary<string, string>(StringComparer.Ordinal)
+        {
+            ["onnx.requestedExecutionProvider"] = selection.Requested.ToString(),
+            ["onnx.effectiveExecutionProvider"] = selection.Effective.ToString(),
+            ["onnx.requestedDeviceId"] = selection.RequestedDeviceId.ToString(System.Globalization.CultureInfo.InvariantCulture),
+            ["onnx.effectiveDeviceId"] = selection.DeviceId.ToString(System.Globalization.CultureInfo.InvariantCulture),
+            ["onnx.runtimeVersion"] = selection.RuntimeVersion,
+            ["onnx.allowCpuFallback"] = _options.AllowCpuFallback ? "true" : "false",
+            ["onnx.usedCpuFallback"] = selection.UsedCpuFallback ? "true" : "false",
+        });
+
+    private static OnnxRuntimeOptions CopyOptions(OnnxRuntimeOptions source)
+    {
+        var copy = new OnnxRuntimeOptions
+        {
+            ModelFile = source.ModelFile,
+            ExecutionProvider = source.ExecutionProvider,
+            DeviceId = source.DeviceId,
+            AllowCpuFallback = source.AllowCpuFallback,
+            GpuMemoryLimitBytes = source.GpuMemoryLimitBytes,
+            IntraOpNumThreads = source.IntraOpNumThreads,
+            InterOpNumThreads = source.InterOpNumThreads,
+            MaxConcurrentRuns = source.MaxConcurrentRuns,
+            MaxInputElements = source.MaxInputElements,
+        };
+        foreach (var modelId in source.CertifiedModels)
+        {
+            copy.CertifiedModels.Add(modelId);
+        }
+
+        return copy;
+    }
+
+    private static bool IsRuntimeAvailabilityException(Exception exception) => exception is
+        OnnxRuntimeException
+        or DllNotFoundException
+        or EntryPointNotFoundException
+        or BadImageFormatException
+        or TypeInitializationException;
 
     private ModelArtifact? SelectArtifact(ModelCapabilities capabilities)
     {
@@ -134,14 +340,21 @@ public sealed class OnnxRuntimeAdapter : IModelRuntime
         private readonly InferenceSession _session;
         private readonly SemaphoreSlim _runGate;
         private readonly int _maxInputElements;
+        private readonly IReadOnlyList<string> _warnings;
         private bool _disposed;
 
-        public OnnxModelSession(InferenceSession session, ModelCapabilities capabilities, int maxConcurrentRuns, int maxInputElements)
+        public OnnxModelSession(
+            InferenceSession session,
+            ModelCapabilities capabilities,
+            int maxConcurrentRuns,
+            int maxInputElements,
+            IReadOnlyList<string> warnings)
         {
             _session = session;
             Capabilities = capabilities;
             _runGate = new SemaphoreSlim(maxConcurrentRuns, maxConcurrentRuns);
             _maxInputElements = maxInputElements;
+            _warnings = warnings;
         }
 
         public ModelCapabilities Capabilities { get; }
@@ -159,7 +372,8 @@ public sealed class OnnxRuntimeAdapter : IModelRuntime
                     Capabilities.ModelId ?? Capabilities.ModelPath,
                     Capabilities.Revision ?? "local",
                     "onnx",
-                    DateTimeOffset.UtcNow - started);
+                    DateTimeOffset.UtcNow - started,
+                    _warnings);
             }
             catch (OnnxRuntimeException exception)
             {
@@ -186,7 +400,7 @@ public sealed class OnnxRuntimeAdapter : IModelRuntime
             [EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
             var response = await InvokeAsync(request, cancellationToken).ConfigureAwait(false);
-            yield return new ModelStreamEvent("result", response.Output, IsTerminal: true);
+            yield return new ModelStreamEvent("result", response.Output, IsTerminal: true, response.Warnings);
         }
 
         public ValueTask DisposeAsync()

@@ -94,6 +94,37 @@ public sealed class ModelScopeTelemetryTests
     }
 
     [Fact]
+    public async Task OnnxDeploymentIdentity_IsEmittedWithoutModelContent()
+    {
+        var auditSink = new CapturingAuditSink();
+        var measurements = new ConcurrentBag<string>();
+        using var meterListener = CreateMeterListener(measurements);
+        var telemetry = new ModelScopeTelemetry(auditSink);
+        var runtime = new TestRuntime(fail: false)
+        {
+            CertificationProperties = new Dictionary<string, string>
+            {
+                ["onnx.effectiveExecutionProvider"] = "Cuda",
+                ["onnx.effectiveDeviceId"] = "2",
+                ["onnx.allowCpuFallback"] = "true",
+                ["onnx.usedCpuFallback"] = "false",
+            },
+        };
+        var router = new RuntimeRouter([runtime], instrumentation: telemetry);
+        await using var session = await router.CreateSessionAsync(CreateCapabilities(), preferredRuntime: runtime.Name);
+
+        await session.InvokeAsync(new ModelRequest("chat", JsonSerializer.SerializeToElement(new { prompt = Secret })));
+
+        var auditEvent = Assert.Single(auditSink.Events);
+        Assert.Equal("Cuda", auditEvent.OnnxExecutionProvider);
+        Assert.Equal(2, auditEvent.OnnxDeviceId);
+        Assert.Equal("allowed", auditEvent.OnnxCpuFallback);
+        Assert.Contains(measurements, value =>
+            value.Contains("modelscope.onnx_provider=Cuda", StringComparison.Ordinal) &&
+            value.Contains("modelscope.onnx_cpu_fallback=allowed", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public async Task InstrumentedStream_EarlyDisposalIsAuditedAsAbandoned()
     {
         var auditSink = new CapturingAuditSink();
@@ -219,8 +250,13 @@ public sealed class ModelScopeTelemetryTests
     {
         public string Name => "test-runtime";
 
+        public IReadOnlyDictionary<string, string>? CertificationProperties { get; init; }
+
         public RuntimeCandidate Evaluate(ModelCapabilities capabilities) =>
-            new(Name, CapabilityStatus.Certified, "test", 1000);
+            new(Name, CapabilityStatus.Certified, "test", 1000)
+            {
+                CertificationProperties = CertificationProperties,
+            };
 
         public Task<IModelSession> CreateSessionAsync(
             ModelCapabilities capabilities,

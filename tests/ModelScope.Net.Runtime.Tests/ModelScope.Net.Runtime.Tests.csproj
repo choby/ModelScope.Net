@@ -47,6 +47,7 @@
     <None Include="../../deployment/worker-security-matrix.json" Link="deployment/worker-security-matrix.json" CopyToOutputDirectory="PreserveNewest" />
     <None Include="../../deployment/p4-05-deployment-profile.json" Link="deployment/p4-05-deployment-profile.json" CopyToOutputDirectory="PreserveNewest" />
     <None Include="../../deployment/container-build-evidence.json" Link="deployment/container-build-evidence.json" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="../../deployment/platform-validation-matrix.json" Link="deployment/platform-validation-matrix.json" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
   <ItemGroup>
