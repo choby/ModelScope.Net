@@ -652,7 +652,7 @@ dotnet test ModelScope.Net.sln --configuration Release
 
 - `.github/workflows/ci.yml`：恢复、构建、测试、打包、包验证和本地包消费者；
 - `.github/workflows/model-certification.yml`：固定模型持续认证；
-- `.github/workflows/upstream-monitor.yml`：上游 Revision 与依赖漂移检测。
+- `tools/upstream_monitor.py`：按需手动执行上游 Revision 与依赖漂移检测。
 
 工作流文件存在不代表远程 runner 已产生本次发布证据；生产验收必须保存实际运行结果。
 

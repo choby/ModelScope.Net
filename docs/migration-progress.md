@@ -83,7 +83,7 @@
 | P4-07 | 4 | 72 小时稳定性测试 | NOT_STARTED | P4-01..06 | 通过发布清单 SLO | artifacts/stability | 2026-09-01 |
 | P4-08 | 4 | 1.0 Go/No-Go | BLOCKED | P0-08,P4-07 | 三方批准 | 阻塞：前置阶段未完成 | 2026-09-01 |
 | P5-01 | 5 | 新模型认证流水线 | IN_PROGRESS | P3-07 | 可重复认证 | 当前工作树再次完成五模型固定Revision全量复认证，全部通过并绑定当前源码/二进制摘要；`artifacts/certification-runs/8c360e121b274191bf24ad88e17b1a43/`。6项流水线负面测试通过；.github/workflows/model-certification.yml已配置，远程runner仍未执行；docs/continuous-certification.md | 2026-09-09 |
-| P5-02 | 5 | 上游变化监控 | IN_PROGRESS | P5-01 | Revision/依赖变化可检测 | 2026-09-09在线检查六个仓库：五个不变，Qwen master新增LICENSE/README/FP16并修改.gitattributes；固定Q2_K随即复认证通过。本地依赖变更在复认证后更新哈希基线，离线复核零漂移；`artifacts/upstream-checks/7b6eee180256497a9a26048d64de1751/`与`769bf1fe37174b2d97d564ce4d643505/`。每日远程CI仍未执行 | 2026-09-09 |
+| P5-02 | 5 | 上游变化监控 | IN_PROGRESS | P5-01 | Revision/依赖变化可检测 | 2026-09-09在线检查六个仓库：五个不变，Qwen master新增LICENSE/README/FP16并修改.gitattributes；固定Q2_K随即复认证通过。本地依赖变更在复认证后更新哈希基线，离线复核零漂移；`artifacts/upstream-checks/7b6eee180256497a9a26048d64de1751/`与`769bf1fe37174b2d97d564ce4d643505/`。每日GitHub Actions工作流已于2026-10-12按维护者要求移除，本地检测器保留 | 2026-10-12 |
 | P5-03 | 5 | 认证撤销和回归 | IN_PROGRESS | P5-01 | 回归自动降级 | 签名撤销/新鲜度/会话复核/历史恢复、更新前持久暂存、单调提交、丢失确认重试及启动对账完成；真实BGE在暂存后进程exit -9，新进程自动提交并继续拒绝撤销模型。完整258项通过。文件实现仅供单机演练；生产防回退外部存储、自动分发及目标部署故障待验；docs/certification-revocation.md | 2026-09-08 |
 | P5-04 | 5 | 新任务适配器 | IN_PROGRESS | P3-01 | 按业务价值持续交付 | 图像生成、OCR、ASR、SmolLM、nndeploy YOLOv5n（7检测/最低IoU 0.978）与bge-base GGUF Embedding（8×768/最低余弦0.973）均有本机固定Revision证据。持续扩展仍开放；生产矩阵未验 | 2026-09-08 |
 | P5-05 | 5 | 社区插件流程 | DEFERRED | P4-08 | 签名、审核和版本政策 | 1.0 后评估 | 2026-09-01 |

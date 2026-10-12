@@ -12,7 +12,7 @@
 
 变化报告 requiresRecertification=true，供P5-01重新认证入口使用；检测器不会移动已批准Revision、修改Catalog、自动接受新依赖或发出认证批准。P5-03仍需实现签名撤销和部署换代控制面。
 
-CI：.github/workflows/upstream-monitor.yml 配置每日UTC02:30和手动入口，使用Ubuntu24.04、只读仓库权限，始终上传报告。变化及查询失败均非零退出，让CI明确需要处理。当前仅有本机在线执行证据，远程仓库尚未配置/执行，不能声称每日监控已运行。
+GitHub Actions 的每日定时工作流已于 2026-10-12 移除，不再自动执行或发送失败通知。本地检测器和测试仍保留，可按需手动运行；变化及查询失败均返回非零退出码，让调用方明确需要处理。当前只有本机在线执行证据，不能声称远程每日监控已运行。
 
 TLS必须校验可信CA。本机Python默认CA缺失时可明确设置 SSL_CERT_FILE=/etc/ssl/cert.pem 或组织提供的可信CA路径，不得关闭证书校验。不使用ModelScope Token；私有仓库监控须另行接入授权凭据并复核报告脱敏，本轮公开模型范围不代表私库支持。
 
@@ -20,4 +20,4 @@ TLS必须校验可信CA。本机Python默认CA缺失时可明确设置 SSL_CERT_
 
 2026-09-09 在线检查报告`artifacts/upstream-checks/7b6eee180256497a9a26048d64de1751/report.json`成功查询六个唯一仓库。五个仓库相对固定Revision无变化；Qwen GGUF的`master`新增`LICENSE`、`README.md`、FP16制品并修改`.gitattributes`，因此报告保守返回`changed`和`requiresRecertification=true`。固定Q2_K Revision没有移动，并已由P5-01重新认证通过。
 
-本轮项目文件和两个新增任务的Python依赖在上述复认证通过后更新至`tests/compatibility/upstream-baseline.json`。离线复核报告`artifacts/upstream-checks/769bf1fe37174b2d97d564ce4d643505/report.json`显示`dependencyChanges=[]`和`requiresRecertification=false`。这只接受当前本地依赖基线，不消除Qwen上游分支变化，也不替代远程每日CI。
+本轮项目文件和两个新增任务的Python依赖在上述复认证通过后更新至`tests/compatibility/upstream-baseline.json`。离线复核报告`artifacts/upstream-checks/769bf1fe37174b2d97d564ce4d643505/report.json`显示`dependencyChanges=[]`和`requiresRecertification=false`。这只接受当前本地依赖基线，不消除Qwen上游分支变化，也不构成持续远程监控。
